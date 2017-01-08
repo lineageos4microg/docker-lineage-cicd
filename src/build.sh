@@ -4,6 +4,11 @@
 #
 ###########################################################
 
+# Set a custom updater URI if a OTA URL is provided
+if ! [ -z "$OTA_URL" ]; then
+  export ADDITIONAL_DEFAULT_PROPERTIES="cm.updater.uri=$OTA_URL"
+fi
+
 if ! [ -z "$DEVICE_LIST" ]; then
 
   # If the source directory is empty
