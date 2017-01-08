@@ -83,21 +83,26 @@ RUN chmod 0755 /usr/local/bin/repo
 
 RUN sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 
+# Install development tools
+##############################
+
+RUN pacman -Sy --needed --noconfirm --noprogressbar base-devel
+
 # Replace conflicting packages
 ##############################
 
-RUN yes | pacman -Sy --needed gcc-multilib
+RUN yes | pacman -Sy --noprogressbar --needed gcc-multilib
 
 # Install AUR package manager
 #############################
 
-RUN pacman -U --noconfirm /root/apacman-3.1-1-any.pkg.tar.xz \
+RUN pacman -U --noconfirm --noprogressbar /root/apacman-3.1-1-any.pkg.tar.xz \
     && rm /root/apacman-3.1-1-any.pkg.tar.xz
 
 # Install missing AUR packages
 ##############################
 
-RUN apacman -S --noconfirm \
+RUN apacman -S --noconfirm --noprogressbar \
     ncurses5-compat-libs \
     lib32-ncurses5-compat-libs \
     jdk
@@ -105,7 +110,7 @@ RUN apacman -S --noconfirm \
 # Install required Android AOSP packages
 ########################################
 
-RUN pacman -Sy --needed --noconfirm \
+RUN pacman -Sy --needed --noconfirm --noprogressbar \
       git \
       gnupg \
       flex \
