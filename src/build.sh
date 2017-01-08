@@ -12,6 +12,11 @@ if ! [ -z "$DEVICE_LIST" ]; then
     yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME
   fi
 
+  # If a Custom manifest URL has been specified
+  if ! [ -z "$CUSTOM_MANIFEST_URL" ]; then
+    wget -O .repo/local_manifests/local_manifest.xml $CUSTOM_MANIFEST_URL
+  fi
+
   # Go to "vendor/cm" and reset it's current git status ( remove previous changes ) only if the directory exists
   if [ -d "vendor/cm" ]; then
     cd vendor/cm

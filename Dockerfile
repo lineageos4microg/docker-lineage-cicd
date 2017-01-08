@@ -138,7 +138,8 @@ RUN pacman -Sy --needed --noconfirm --noprogressbar \
       ccache \
       libxml2 \
       cronie \
-      ninja
+      ninja \
+      wget
 
 # Create missing symlink to python2
 ###################################
