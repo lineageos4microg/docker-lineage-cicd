@@ -16,6 +16,7 @@ ENV OUT_DIR /srv/out
 ENV USE_CCACHE 1
 
 # Environment for the LineageOS Branch name
+# See https://github.com/LineageOS/android_vendor_cm/branches for possible options
 ENV BRANCH_NAME 'cm-14.1'
 
 # Environment for the device list ( separate by comma if more than one)
