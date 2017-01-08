@@ -10,9 +10,21 @@ Because I always believe that even advanced technologies should be available to 
 
 Because I'm a big fan of isolating everything if possible. I don't want to reinstall my OS or triage with dirty packages, just because today I need somethng, and tomorrow I'll need something else.
 
+## Requirements
+
+- At least Dual Core CPU ( Higher is better )
+- At least 6GB RAM ( Higher is better )
+- At least 200GB HDD Space ( Higher is better )
+
 ## How it works
 
 This docker will autobuild any device list given for a specified branch every midnight at 02:00 UTC. In the end, any built ZIP will be moved to the relative volume mapped directory to `/srv/out`.
+
+> **IMPORTANT:** Remember to use VOLUME mapping. By default Docker creates container with max 10GB of Space. If you will not map volumes, the docker will just break during Source syncronization!
+
+## Configuration
+
+You can configure the Docker by passing custom environment variables to it. See the [Dockerfile](Dockerfile#L11) for more details.
 
 ## How to use
 
