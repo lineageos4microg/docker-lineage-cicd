@@ -4,17 +4,19 @@
 #
 ###########################################################
 
-# Set a custom updater URI if a OTA URL is provided
-if ! [ -z "$OTA_URL" ]; then
-  export ADDITIONAL_DEFAULT_PROPERTIES="cm.updater.uri=$OTA_URL"
-fi
-
 if ! [ -z "$DEVICE_LIST" ]; then
 
   # If the source directory is empty
   if ! [ "$(ls -A $SRC_DIR)" ]; then
     # Initialize repository
     yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME
+  fi
+
+  # Go to "vendor/cm" and reset it's current git status ( remove previous changes ) only if the directory exists
+  if [ -d "vendor/cm" ]; then
+    cd vendor/cm
+    git reset --hard
+    cd $SRC_DIR
   fi
 
   # Sync the source code
@@ -27,6 +29,11 @@ if ! [ -z "$DEVICE_LIST" ]; then
 
   # Prepare the environment
   source build/envsetup.sh
+
+  # Set a custom updater URI if a OTA URL is provided
+  if ! [ -z "$OTA_URL" ]; then
+    sed -i "1s;^;ADDITIONAL_DEFAULT_PROPERTIES += cm.updater.uri=$OTA_URL\n\n;" vendor/cm/config/common.mk
+  fi
 
   # Cycle DEVICE_LIST environment variable, to know which one may be executed next
   IFS=','
