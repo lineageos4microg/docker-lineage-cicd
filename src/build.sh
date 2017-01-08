@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+# Build script
+#
+###########################################################
+
+if ! [ -z "$DEVICE_LIST" ]; then
+
+  # If the source directory is empty
+  if ! [ "$(ls -A $SRC_DIR)" ]; then
+    # Initialize repository
+    yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME
+  fi
+
+  # Sync the source code
+  repo sync
+
+  # If requested, clean the OUT dir in order to avoid clutter
+  if [ "$CLEAN_OUTDIR" = true ]; then
+    rm -Rf "$OUT_DIR/*"
+  fi
+
+  # Prepare the environment
+  source build/envsetup.sh
+
+  # Cycle DEVICE_LIST environment variable, to know which one may be executed next
+  IFS=','
+  for codename in $DEVICE_LIST; do
+    if ! [ -z "$codename" ]; then
+      # Start the build
+      brunch $codename
+
+      # Move produced ZIP files to the main OUT directory
+      find out/target/product/$codename/ -name '*UNOFFICIAL*.zip*' -exec mv {} $OUT_DIR \;
+
+      # Clean everything, in order to start fresh on next build
+      cd $SRC_DIR
+      make clean
+    fi
+  done
+
+  # Clean the src directory if requested
+  if [ "$CLEAN_SRCDIR" = true ]; then
+    rm -Rf "$SRC_DIR/*"
+  fi
+fi
