@@ -54,7 +54,6 @@ VOLUME $OUT_DIR
 #####################
 
 COPY src/* /root/
-RUN chmod 0755 /root/*.sh
 
 # Create missing directories
 ############################
@@ -71,8 +70,7 @@ WORKDIR $SRC_DIR
 # Fix permissions
 #################
 
-RUN chmod 0755 /root/build.sh
-RUN chmod 0644 /etc/cron.d/crontab
+RUN chmod 0755 /root/*
 
 # Get the repo CLI tool from Google
 ###################################
