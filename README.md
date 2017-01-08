@@ -29,11 +29,13 @@ You can configure the Docker by passing custom environment variables to it. See 
 ## How to use
 
 ### Simple mode
-build LineageOS for `hammerhead` with default settings
+build cm14.1 LineageOS for `hammerhead` with default settings
 ```
 docker run \
     --restart=always \
     -d \
+    -e "USER_NAME=John Doe" \
+    -e "USER_MAIL=john.doe@awesome.email" \
     -e "DEVICE_LIST=hammerhead" \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
@@ -47,8 +49,28 @@ build cm-13.0 LineageOS for `hammerhead` and `bullhead`
 docker run \
     --restart=always \
     -d \
+    -e "USER_NAME=John Doe" \
+    -e "USER_MAIL=john.doe@awesome.email" \
     -e "BRANCH_NAME=cm-13.0" \
     -e "DEVICE_LIST=hammerhead,bullhead" \
+    -v "/home/user/ccache:/srv/ccache" \
+    -v "/home/user/source:/srv/src" \
+    -v "/home/user/zips:/srv/out" \
+    julianxhokaxhiu/docker-lineage-cicd
+```
+
+### Expert mode
+build cm-14.1 LineageOS for a device that doesn't exist inside the main project, but comes from a special manifest. Finally provide a custom OTA URL for this ROM so users can update using built-in OTA Updater.
+```
+docker run \
+    --restart=always \
+    -d \
+    -e "USER_NAME=John Doe" \
+    -e "USER_MAIL=john.doe@awesome.email" \
+    -e "BRANCH_NAME=cm-14.1" \
+    -e "DEVICE_LIST=n80xx" \
+    -e "CUSTOM_MANIFEST_URL=http://cool.domain/manifest.xml" \
+    -e "OTA_URL=http://cool.domain/api" \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
     -v "/home/user/zips:/srv/out" \
