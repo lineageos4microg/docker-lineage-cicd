@@ -14,7 +14,7 @@ git config --global user.name $USER_NAME
 git config --global user.email $USER_MAIL
 
 # Initialize the cronjob
-echo -e "$CRONTAB_TIME /usr/bin/flock -n /tmp/lock.build /root/build.sh\n" > /etc/cron.d/crontab
+echo -e "SHELL=/bin/bash\nPATH=/sbin:/bin:/usr/sbin:/usr/bin\nMAILTO=root\n$CRONTAB_TIME root /usr/bin/flock -n /tmp/lock.build /root/build.sh\n" > /etc/cron.d/crontab
 chmod 0644 /etc/cron.d/crontab
 
 # Run crond in foreground
