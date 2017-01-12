@@ -14,9 +14,12 @@ git config --global user.name $USER_NAME
 git config --global user.email $USER_MAIL
 
 # Initialize the cronjob
-printf "$CRONTAB_TIME /usr/bin/flock -n /tmp/lock.build /root/build.sh\n" >> /tmp/buildcron
-crontab /tmp/buildcron
-rm /tmp/buildcron
+cronFile=/tmp/buildcron
+printf "SHELL=/bin/bash\n" > $cronFile
+printenv >> $cronFile
+printf "\n\n$CRONTAB_TIME /usr/bin/flock -n /tmp/lock.build /root/build.sh 2>&1\n" >> $cronFile
+crontab $cronFile
+rm $cronFile
 
 # Run crond in foreground
-crond -n -m off -P
+crond -n -m off
