@@ -60,7 +60,7 @@ docker run \
 ```
 
 ### Expert mode
-build cm-14.1 LineageOS for a device that doesn't exist inside the main project, but comes from a special manifest. Finally provide a custom OTA URL for this ROM so users can update using built-in OTA Updater.
+build cm-14.1 LineageOS for a device that doesn't exist inside the main project, but comes from a special manifest ( has to be copied manually inside `/home/user/source/.repo/local_manifests/local_manifest.xml` ). Finally provide a custom OTA URL for this ROM so users can update using built-in OTA Updater.
 ```
 docker run \
     --restart=always \
@@ -69,7 +69,6 @@ docker run \
     -e "USER_MAIL=john.doe@awesome.email" \
     -e "BRANCH_NAME=cm-14.1" \
     -e "DEVICE_LIST=n80xx" \
-    -e "CUSTOM_MANIFEST_URL=http://cool.domain/manifest.xml" \
     -e "OTA_URL=http://cool.domain/api" \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
