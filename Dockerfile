@@ -41,9 +41,6 @@ ENV CLEAN_OUTDIR true
 # By Default = At 10:00 UTC ~ 2am PST/PDT
 ENV CRONTAB_TIME '0 10 * * *'
 
-# Set here the URL to your custom manifest in order to use it for your custom builds
-ENV CUSTOM_MANIFEST_URL ''
-
 # Create Volume entry points
 ############################
 
@@ -145,6 +142,10 @@ RUN pacman -Sy --needed --noconfirm --noprogressbar \
 # Create missing symlink to python2
 ###################################
 RUN ln -s /usr/bin/python2 /usr/local/bin/python
+
+# Allow redirection of stdout to docker logs
+############################################
+RUN ln -sf /proc/1/fd/1 /var/log/docker.log
 
 # Cleanup
 #########

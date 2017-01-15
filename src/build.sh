@@ -6,26 +6,26 @@
 
 if ! [ -z "$DEVICE_LIST" ]; then
 
+  # cd to working directory
+  cd $SRC_DIR
+
   # If the source directory is empty
   if ! [ "$(ls -A $SRC_DIR)" ]; then
     # Initialize repository
-    yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME
-  fi
-
-  # If a Custom manifest URL has been specified
-  if ! [ -z "$CUSTOM_MANIFEST_URL" ]; then
-    wget -O .repo/local_manifests/local_manifest.xml $CUSTOM_MANIFEST_URL
+    echo "-------- Initializing repository [$(date)] --------"
+    yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME &>/dev/null
   fi
 
   # Go to "vendor/cm" and reset it's current git status ( remove previous changes ) only if the directory exists
   if [ -d "vendor/cm" ]; then
     cd vendor/cm
-    git reset --hard
+    git reset --hard &>/dev/null
     cd $SRC_DIR
   fi
 
   # Sync the source code
-  repo sync
+  echo "-------- Syncing repository [$(date)] --------"
+  repo sync &>/dev/null
 
   # If requested, clean the OUT dir in order to avoid clutter
   if [ "$CLEAN_OUTDIR" = true ]; then
@@ -33,11 +33,12 @@ if ! [ -z "$DEVICE_LIST" ]; then
   fi
 
   # Prepare the environment
-  source build/envsetup.sh
+  echo "-------- Preparing build environment [$(date)] --------"
+  source build/envsetup.sh &>/dev/null
 
   # Set a custom updater URI if a OTA URL is provided
   if ! [ -z "$OTA_URL" ]; then
-    sed -i "1s;^;ADDITIONAL_DEFAULT_PROPERTIES += cm.updater.uri=$OTA_URL\n\n;" vendor/cm/config/common.mk
+    sed -i "1s;^;ADDITIONAL_DEFAULT_PROPERTIES += cm.updater.uri=$OTA_URL\n\n;" vendor/cm/config/common.mk &>/dev/null
   fi
 
   # Cycle DEVICE_LIST environment variable, to know which one may be executed next
@@ -45,14 +46,16 @@ if ! [ -z "$DEVICE_LIST" ]; then
   for codename in $DEVICE_LIST; do
     if ! [ -z "$codename" ]; then
       # Start the build
-      brunch $codename
+      echo "-------- Starting build for >> $codename << [$(date)] --------"
+      brunch $codename &>/dev/null
 
       # Move produced ZIP files to the main OUT directory
-      find out/target/product/$codename/ -name '*UNOFFICIAL*.zip*' -exec mv {} $OUT_DIR \;
+      find out/target/product/$codename/ -name '*UNOFFICIAL*.zip*' -exec mv {} $OUT_DIR \; &>/dev/null
 
       # Clean everything, in order to start fresh on next build
       cd $SRC_DIR
-      make clean
+      make clean &>/dev/null
+      echo "-------- Finishing build for >> $codename << [$(date)] --------"
     fi
   done
 
