@@ -30,7 +30,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
 
   # Sync the source code
   echo "-------- Syncing repository [$(date)] --------"
-  repo sync >&/dev/null
+  repo sync >&$OUTPUT
 
   # If requested, clean the OUT dir in order to avoid clutter
   if [ "$CLEAN_OUTDIR" = true ]; then
@@ -39,7 +39,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
 
   # Prepare the environment
   echo "-------- Preparing build environment [$(date)] --------"
-  source build/envsetup.sh >&/dev/null
+  source build/envsetup.sh >&$OUTPUT
 
   # Set a custom updater URI if a OTA URL is provided
   if ! [ -z "$OTA_URL" ]; then
