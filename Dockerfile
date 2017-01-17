@@ -41,6 +41,12 @@ ENV CLEAN_OUTDIR true
 # By Default = At 10:00 UTC ~ 2am PST/PDT
 ENV CRONTAB_TIME '0 10 * * *'
 
+# Print detailed output rather than only summary
+ENV DEBUG false
+
+# Clean artifacts output after each build
+ENV CLEAN_AFTER_BUILD true
+
 # Create Volume entry points
 ############################
 
