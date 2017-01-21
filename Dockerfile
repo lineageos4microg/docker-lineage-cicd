@@ -7,7 +7,7 @@ MAINTAINER Julian Xhokaxhiu <info at julianxhokaxhiu dot com>
 ENV SRC_DIR /srv/src
 ENV CCACHE_DIR /srv/ccache
 ENV OUT_DIR /srv/out
-ENV LMANIFEST_DIR /src/manifest
+ENV LMANIFEST_DIR /srv/local_manifests
 
 # Configurable environment variables
 ####################################
