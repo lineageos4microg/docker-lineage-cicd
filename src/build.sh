@@ -21,6 +21,9 @@ if ! [ -z "$DEVICE_LIST" ]; then
     yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME 2>&1 >&$OUTPUT
   fi
 
+  # Copy local manifests to the appropriate folder in order take them into consideration
+  cp * $LMANIFEST_DIR/* $SRC_DIR/.repo/local_manifests/
+
   # Go to "vendor/cm" and reset it's current git status ( remove previous changes ) only if the directory exists
   if [ -d "vendor/cm" ]; then
     cd vendor/cm
