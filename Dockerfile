@@ -50,6 +50,9 @@ ENV CLEAN_AFTER_BUILD true
 # Provide root capabilities builtin inside the ROM ( see http://lineageos.org/Update-and-Build-Prep/ )
 ENV WITH_SU true
 
+# Provide a default JACK configuration in order to avoid out-of-memory issues
+ENV ANDROID_JACK_VM_ARGS "-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
+
 # Create Volume entry points
 ############################
 
