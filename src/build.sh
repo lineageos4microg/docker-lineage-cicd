@@ -60,19 +60,19 @@ if ! [ -z "$DEVICE_LIST" ]; then
       echo ">> [$(date)] Starting build for $codename"
       if brunch $codename 2>&1 >&$OUTPUT; then
         # Move produced ZIP files to the main OUT directory
-        echo "[$(date)] Moving build artifacts for $codename to '$ZIP_DIR'"
+        echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR'"
         cd $SRC_DIR
         find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec mv {} $ZIP_DIR \;
 
         # Clean everything, in order to start fresh on next build
         if [ "$CLEAN_AFTER_BUILD" = true ]; then
-          echo "[$(date)] Cleaning build for $codename"
+          echo ">> [$(date)] Cleaning build for $codename"
           make clean 2>&1 >&$OUTPUT
         fi
       else
-        echo "[$(date)] Failed build for $codename"
+        echo ">> [$(date)] Failed build for $codename"
       fi
-      echo "[$(date)] Finishing build for $codename"
+      echo ">> [$(date)] Finishing build for $codename"
     fi
   done
 
