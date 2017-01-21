@@ -47,6 +47,9 @@ ENV DEBUG false
 # Clean artifacts output after each build
 ENV CLEAN_AFTER_BUILD true
 
+# Provide root capabilities builtin inside the ROM ( see http://lineageos.org/Update-and-Build-Prep/ )
+ENV WITH_SU true
+
 # Create Volume entry points
 ############################
 
