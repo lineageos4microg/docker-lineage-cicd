@@ -18,7 +18,7 @@ Because I'm a big fan of isolating everything if possible. I don't want to reins
 
 ## How it works
 
-This docker will autobuild any device list given for a specified branch every midnight at 02:00 UTC. In the end, any built ZIP will be moved to the relative volume mapped directory to `/srv/out`.
+This docker will autobuild any device list given for a specified branch every midnight at 02:00 UTC. In the end, any built ZIP will be moved to the relative volume mapped directory to `/srv/zips`.
 
 > **IMPORTANT:** Remember to use VOLUME mapping. By default Docker creates container with max 10GB of Space. If you will not map volumes, the docker will just break during Source syncronization!
 
@@ -39,7 +39,7 @@ docker run \
     -e "DEVICE_LIST=hammerhead" \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
-    -v "/home/user/zips:/srv/out" \
+    -v "/home/user/zips:/srv/zips" \
     julianxhokaxhiu/docker-lineage-cicd
 ```
 
@@ -55,7 +55,7 @@ docker run \
     -e "DEVICE_LIST=hammerhead,bullhead" \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
-    -v "/home/user/zips:/srv/out" \
+    -v "/home/user/zips:/srv/zips" \
     julianxhokaxhiu/docker-lineage-cicd
 ```
 
@@ -72,7 +72,7 @@ docker run \
     -e "OTA_URL=http://cool.domain/api" \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
-    -v "/home/user/zips:/srv/out" \
+    -v "/home/user/zips:/srv/zips" \
     -v "/home/user/local_manifests:/srv/local_manifests" \
     julianxhokaxhiu/docker-lineage-cicd
 ```

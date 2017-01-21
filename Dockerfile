@@ -6,7 +6,7 @@ MAINTAINER Julian Xhokaxhiu <info at julianxhokaxhiu dot com>
 
 ENV SRC_DIR /srv/src
 ENV CCACHE_DIR /srv/ccache
-ENV OUT_DIR /srv/out
+ENV ZIP_DIR /srv/zips
 ENV LMANIFEST_DIR /srv/local_manifests
 
 # Configurable environment variables
@@ -59,7 +59,7 @@ ENV ANDROID_JACK_VM_ARGS "-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
 
 VOLUME $SRC_DIR
 VOLUME $CCACHE_DIR
-VOLUME $OUT_DIR
+VOLUME $ZIP_DIR
 VOLUME $LMANIFEST_DIR
 
 # Copy required files and fix permissions
@@ -72,7 +72,7 @@ COPY src/* /root/
 
 RUN mkdir -p $SRC_DIR
 RUN mkdir -p $CCACHE_DIR
-RUN mkdir -p $OUT_DIR
+RUN mkdir -p $ZIP_DIR
 RUN mkdir -p $LMANIFEST_DIR
 
 # Set the work directory

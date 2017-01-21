@@ -38,8 +38,8 @@ if ! [ -z "$DEVICE_LIST" ]; then
 
   # If requested, clean the OUT dir in order to avoid clutter
   if [ "$CLEAN_OUTDIR" = true ]; then
-    echo ">> [$(date)] Cleaning '$OUT_DIR'"
-    rm -Rf "$OUT_DIR/*"
+    echo ">> [$(date)] Cleaning '$ZIP_DIR'"
+    rm -Rf "$ZIP_DIR/*"
   fi
 
   # Prepare the environment
@@ -60,9 +60,9 @@ if ! [ -z "$DEVICE_LIST" ]; then
       echo ">> [$(date)] Starting build for $codename"
       if brunch $codename 2>&1 >&$OUTPUT; then
         # Move produced ZIP files to the main OUT directory
-        echo "[$(date)] Moving build artifacts for $codename to '$OUT_DIR'"
+        echo "[$(date)] Moving build artifacts for $codename to '$ZIP_DIR'"
         cd $SRC_DIR
-        find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec mv {} $OUT_DIR \;
+        find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec mv {} $ZIP_DIR \;
 
         # Clean everything, in order to start fresh on next build
         if [ "$CLEAN_AFTER_BUILD" = true ]; then
