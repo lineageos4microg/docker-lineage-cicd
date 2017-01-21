@@ -18,19 +18,19 @@ if ! [ -z "$DEVICE_LIST" ]; then
   if ! [ "$(ls -A $SRC_DIR)" ]; then
     # Initialize repository
     echo "-------- Initializing repository [$(date)] --------"
-    yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME >&$OUTPUT
+    yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME 2>&1 >&$OUTPUT
   fi
 
   # Go to "vendor/cm" and reset it's current git status ( remove previous changes ) only if the directory exists
   if [ -d "vendor/cm" ]; then
     cd vendor/cm
-    git reset --hard >&$OUTPUT
+    git reset --hard 2>&1 >&$OUTPUT
     cd $SRC_DIR
   fi
 
   # Sync the source code
   echo "-------- Syncing repository [$(date)] --------"
-  repo sync >&$OUTPUT
+  repo sync 2>&1 >&$OUTPUT
 
   # If requested, clean the OUT dir in order to avoid clutter
   if [ "$CLEAN_OUTDIR" = true ]; then
@@ -39,7 +39,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
 
   # Prepare the environment
   echo "-------- Preparing build environment [$(date)] --------"
-  source build/envsetup.sh >&$OUTPUT
+  source build/envsetup.sh 2>&1 >&$OUTPUT
 
   # Set a custom updater URI if a OTA URL is provided
   if ! [ -z "$OTA_URL" ]; then
@@ -52,7 +52,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
     if ! [ -z "$codename" ]; then
       # Start the build
       echo "-------- Starting build for >> $codename << [$(date)] --------"
-      brunch $codename >&$OUTPUT
+      brunch $codename 2>&1 >&$OUTPUT
 
       # Move produced ZIP files to the main OUT directory
       cd $SRC_DIR
@@ -60,7 +60,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
 
       # Clean everything, in order to start fresh on next build
       if [ "$CLEAN_AFTER_BUILD" = true ]; then
-        make clean >&$OUTPUT
+        make clean 2>&1 >&$OUTPUT
       fi
       echo "-------- Finishing build for >> $codename << [$(date)] --------"
     fi
