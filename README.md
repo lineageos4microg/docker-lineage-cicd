@@ -60,7 +60,7 @@ docker run \
 ```
 
 ### Expert mode
-build cm-14.1 LineageOS for a device that doesn't exist inside the main project, but comes from a special manifest ( has to be created inside `/home/user/manifests/` ). Finally provide a custom OTA URL for this ROM so users can update using built-in OTA Updater.
+build cm-14.1 LineageOS for a device that doesn't exist inside the main project, but comes from a special manifest ( has to be created inside `/home/user/local_manifests/` ). Finally provide a custom OTA URL for this ROM so users can update using built-in OTA Updater.
 ```
 docker run \
     --restart=always \
@@ -73,7 +73,7 @@ docker run \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
     -v "/home/user/zips:/srv/out" \
-    -v "/home/user/manifest:/srv/manifest" \
+    -v "/home/user/local_manifests:/srv/local_manifests" \
     julianxhokaxhiu/docker-lineage-cicd
 ```
-**NOTE:** `/home/user/manifests/` may contain multiple XMLs, since all the files will be then copied inside `.repo/local_manifests/`
+**NOTE:** `/home/user/local_manifests/` may contain multiple XMLs, since all the files will be then copied inside `.repo/local_manifests/`
