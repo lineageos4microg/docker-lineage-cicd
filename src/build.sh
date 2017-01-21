@@ -17,12 +17,13 @@ if ! [ -z "$DEVICE_LIST" ]; then
   # If the source directory is empty
   if ! [ "$(ls -A $SRC_DIR)" ]; then
     # Initialize repository
-    echo "-------- Initializing repository [$(date)] --------"
+    echo ">> [$(date)] Initializing repository"
     yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME 2>&1 >&$OUTPUT
   fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
-  cp * $LMANIFEST_DIR/* $SRC_DIR/.repo/local_manifests/
+  echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '$SRC_DIR/.repo/local_manifests/'"
+  cp * $LMANIFEST_DIR/*.xml $SRC_DIR/.repo/local_manifests/
 
   # Go to "vendor/cm" and reset it's current git status ( remove previous changes ) only if the directory exists
   if [ -d "vendor/cm" ]; then
@@ -32,20 +33,22 @@ if ! [ -z "$DEVICE_LIST" ]; then
   fi
 
   # Sync the source code
-  echo "-------- Syncing repository [$(date)] --------"
+  echo ">> [$(date)] Syncing repository"
   repo sync 2>&1 >&$OUTPUT
 
   # If requested, clean the OUT dir in order to avoid clutter
   if [ "$CLEAN_OUTDIR" = true ]; then
+    echo ">> [$(date)] Cleaning '$OUT_DIR'"
     rm -Rf "$OUT_DIR/*"
   fi
 
   # Prepare the environment
-  echo "-------- Preparing build environment [$(date)] --------"
+  echo ">> [$(date)] Preparing build environment"
   source build/envsetup.sh 2>&1 >&$OUTPUT
 
   # Set a custom updater URI if a OTA URL is provided
   if ! [ -z "$OTA_URL" ]; then
+    echo ">> [$(date)] Adding OTA URL '$OTA_URL' to build.prop"
     sed -i "1s;^;ADDITIONAL_DEFAULT_PROPERTIES += cm.updater.uri=$OTA_URL\n\n;" vendor/cm/config/common.mk
   fi
 
@@ -54,18 +57,22 @@ if ! [ -z "$DEVICE_LIST" ]; then
   for codename in $DEVICE_LIST; do
     if ! [ -z "$codename" ]; then
       # Start the build
-      echo "-------- Starting build for >> $codename << [$(date)] --------"
-      brunch $codename 2>&1 >&$OUTPUT
+      echo ">> [$(date)] Starting build for $codename"
+      if brunch $codename 2>&1 >&$OUTPUT; then
+        # Move produced ZIP files to the main OUT directory
+        echo "[$(date)] Moving build artifacts for $codename to '$OUT_DIR'"
+        cd $SRC_DIR
+        find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec mv {} $OUT_DIR \;
 
-      # Move produced ZIP files to the main OUT directory
-      cd $SRC_DIR
-      find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec mv {} $OUT_DIR \;
-
-      # Clean everything, in order to start fresh on next build
-      if [ "$CLEAN_AFTER_BUILD" = true ]; then
-        make clean 2>&1 >&$OUTPUT
+        # Clean everything, in order to start fresh on next build
+        if [ "$CLEAN_AFTER_BUILD" = true ]; then
+          echo "[$(date)] Cleaning build for $codename"
+          make clean 2>&1 >&$OUTPUT
+        fi
+      else
+        echo "[$(date)] Failed build for $codename"
       fi
-      echo "-------- Finishing build for >> $codename << [$(date)] --------"
+      echo "[$(date)] Finishing build for $codename"
     fi
   done
 
