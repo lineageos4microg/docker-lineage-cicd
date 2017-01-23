@@ -39,7 +39,9 @@ if ! [ -z "$DEVICE_LIST" ]; then
   # If requested, clean the OUT dir in order to avoid clutter
   if [ "$CLEAN_OUTDIR" = true ]; then
     echo ">> [$(date)] Cleaning '$ZIP_DIR'"
-    rm -Rf "$ZIP_DIR/*"
+    cd $ZIP_DIR
+    rm *
+    cd $SRC_DIR
   fi
 
   # Prepare the environment
