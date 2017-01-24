@@ -16,6 +16,10 @@ Because I'm a big fan of isolating everything if possible. I don't want to reins
 - At least 6GB RAM ( Higher is better )
 - At least 200GB HDD Space ( Higher is better )
 
+### Android propretary binaries
+
+By default when you build Android from scratch you need to pull the Binaries of your interested device via ADB. Although via this Docker is not possible to do so ( would imply having all the devices connected to that machine and ideally know how to switch from one to the other before pulling ). Therefore, I highly suggest to download this manifest ( https://github.com/TheMuppets/manifests ) inside your mapped `/srv/local_manifests` folder.
+
 ## How it works
 
 This docker will autobuild any device list given for a specified branch every midnight at 02:00 UTC. In the end, any built ZIP will be moved to the relative volume mapped directory to `/srv/zips`.
