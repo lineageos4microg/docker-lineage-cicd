@@ -23,7 +23,7 @@ git config --global user.email $USER_MAIL
 cronFile=/tmp/buildcron
 printf "SHELL=/bin/bash\n" > $cronFile
 printenv -0 | sed -e 's/=\x0/=""\n/g'  | sed -e 's/\x0/\n/g' | sed -e "s/_=/PRINTENV=/g" >> $cronFile
-printf "\n$CRONTAB_TIME /usr/bin/flock -n /tmp/lock.build /root/build.sh\n" >> $cronFile
+printf "\n$CRONTAB_TIME /usr/bin/flock -n /tmp/lock.build /root/build.sh >> $DOCKER_LOG 2>&1\n" >> $cronFile
 crontab $cronFile
 rm $cronFile
 
