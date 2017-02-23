@@ -85,12 +85,6 @@ WORKDIR $SRC_DIR
 
 RUN chmod 0755 /root/*
 
-# Get the repo CLI tool from Google
-###################################
-
-ADD https://storage.googleapis.com/git-repo-downloads/repo /usr/local/bin/
-RUN chmod 0755 /usr/local/bin/repo
-
 # Enable multilib support
 #########################
 
