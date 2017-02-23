@@ -117,8 +117,7 @@ RUN pacman -U --noconfirm --noprogressbar /root/apacman-3.1-1-any.pkg.tar.xz \
 
 RUN apacman -S --noconfirm --noprogressbar \
     ncurses5-compat-libs \
-    lib32-ncurses5-compat-libs \
-    jdk
+    lib32-ncurses5-compat-libs
 
 # Install required Android AOSP packages
 ########################################
@@ -152,7 +151,8 @@ RUN pacman -Sy --needed --noconfirm --noprogressbar \
       libxml2 \
       cronie \
       ninja \
-      wget
+      wget \
+      jdk8-openjdk
 
 # Create missing symlink to python2
 ###################################
