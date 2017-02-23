@@ -100,18 +100,13 @@ RUN pacman -Sy --needed --noconfirm --noprogressbar base-devel
 
 RUN yes | pacman -Sy --noprogressbar --needed gcc-multilib
 
-# Install AUR package manager
-#############################
+# Install manually compiled packages
+####################################
 
-RUN pacman -U --noconfirm --noprogressbar /root/apacman-3.1-1-any.pkg.tar.xz \
-    && rm /root/apacman-3.1-1-any.pkg.tar.xz
-
-# Install missing AUR packages
-##############################
-
-RUN apacman -S --noconfirm --noprogressbar \
-    ncurses5-compat-libs \
-    lib32-ncurses5-compat-libs
+RUN pacman -U --noconfirm --noprogressbar /root/ncurses5-compat-libs-6.0+20161224-1-x86_64.pkg.tar.xz \
+    && rm /root/ncurses5-compat-libs-6.0+20161224-1-x86_64.pkg.tar.xz \
+    && pacman -U --noconfirm --noprogressbar /root/lib32-ncurses5-compat-libs-6.0-4-x86_64.pkg.tar.xz \
+    && rm /root/lib32-ncurses5-compat-libs-6.0-4-x86_64.pkg.tar.xz
 
 # Install required Android AOSP packages
 ########################################
@@ -159,8 +154,7 @@ RUN ln -sf /proc/1/fd/1 /var/log/docker.log
 # Cleanup
 #########
 
-RUN yes | pacman -Scc \
-    && yes | pacman -Sc --cachedir=/var/cache/apacman/pkg
+RUN yes | pacman -Scc
 
 # Set the entry point to init.sh
 ###########################################
