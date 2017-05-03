@@ -12,7 +12,7 @@ fi
 
 # Initialize CCache if it will be used
 if [ "$USE_CCACHE" = 1 ]; then
-  ccache -M 50G 2>&1 >&$DEBUG_LOG
+  ccache -M 100G 2>&1 >&$DEBUG_LOG
 fi
 
 # Initialize Git user information

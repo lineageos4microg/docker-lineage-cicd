@@ -19,7 +19,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
   if ! [ "$(ls -A $SRC_DIR)" ]; then
     # Initialize repository
     echo ">> [$(date)] Initializing repository" >> $DOCKER_LOG
-    yes | repo init -u git://github.com/lineageos/android.git -b $BRANCH_NAME 2>&1 >&$DEBUG_LOG
+    yes | repo init -u https://github.com/lineageos/android.git -b $BRANCH_NAME 2>&1 >&$DEBUG_LOG
   fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
@@ -37,6 +37,18 @@ if ! [ -z "$DEVICE_LIST" ]; then
   echo ">> [$(date)] Syncing repository" >> $DOCKER_LOG
   repo sync 2>&1 >&$DEBUG_LOG
 
+  # If not yet done, apply the MicroG's signature spoofing patch
+  cd frameworks/base
+  if [ $(git rev-parse --abbrev-ref HEAD) != "signature_spoofing" ]; then
+    echo ">> [$(date)] Applying signature spoofing patch to frameworks/base" >> $DOCKER_LOG
+    repo start signature_spoofing
+    wget -qO- https://raw.githubusercontent.com/microg/android_packages_apps_GmsCore/master/patches/android_frameworks_base-N.patch | patch -p1
+    git clean -f
+    git add .
+    git commit -m "Add signature spoofing patch"
+  fi
+  cd $SRC_DIR
+
   # If requested, clean the OUT dir in order to avoid clutter
   if [ "$CLEAN_OUTDIR" = true ]; then
     echo ">> [$(date)] Cleaning '$ZIP_DIR'" >> $DOCKER_LOG
@@ -53,6 +65,24 @@ if ! [ -z "$DEVICE_LIST" ]; then
   if ! [ -z "$OTA_URL" ]; then
     echo ">> [$(date)] Adding OTA URL '$OTA_URL' to build.prop" >> $DOCKER_LOG
     sed -i "1s;^;PRODUCT_PROPERTY_OVERRIDES += cm.updater.uri=$OTA_URL\n\n;" vendor/cm/config/common.mk >&$DEBUG_LOG
+  fi
+
+  # Add custom packages to be installed
+  if ! [ -z "$CUSTOM_PACKAGES" ]; then
+    echo ">> [$(date)] Adding custom packages ($CUSTOM_PACKAGES)" >> $DOCKER_LOG
+    echo "PRODUCT_PACKAGES += $CUSTOM_PACKAGES" >> vendor/cm/config/common.mk
+  fi
+
+  # Add custom static Java libraries to be installed
+  if ! [ -z "$CUSTOM_STATIC_JAVA_LIBRARY" ]; then
+    echo ">> [$(date)] Adding custom static Java libraries ($CUSTOM_STATIC_JAVA_LIBRARY)" >> $DOCKER_LOG
+    echo "LOCAL_STATIC_JAVA_LIBRARIES += $CUSTOM_STATIC_JAVA_LIBRARY" >> vendor/cm/config/common.mk
+  fi
+
+  # Add keys
+  if ! [ -z "$RELEASEKEY_PATH" ]; then
+    echo ">> [$(date)] Adding keys path ($SRC_DIR/$RELEASEKEY_PATH)" >> $DOCKER_LOG
+    echo "PRODUCT_DEFAULT_DEV_CERTIFICATE := $SRC_DIR/$RELEASEKEY_PATH" >> vendor/cm/config/common.mk
   fi
 
   # Cycle DEVICE_LIST environment variable, to know which one may be executed next

@@ -1,5 +1,5 @@
 FROM finalduty/archlinux
-MAINTAINER Julian Xhokaxhiu <info at julianxhokaxhiu dot com>
+MAINTAINER Nicola Corna <nicola@corna.info>
 
 # Environment variables
 #######################
@@ -53,6 +53,15 @@ ENV WITH_SU true
 
 # Provide a default JACK configuration in order to avoid out-of-memory issues
 ENV ANDROID_JACK_VM_ARGS "-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
+
+# Custom packages to be installed
+ENV CUSTOM_PACKAGES ''
+
+# Custom static Java libraries to be installed
+ENV CUSTOM_STATIC_JAVA_LIBRARY ''
+
+# Key path (from the root of the android source)
+ENV RELEASEKEY_PATH ''
 
 # Create Volume entry points
 ############################
