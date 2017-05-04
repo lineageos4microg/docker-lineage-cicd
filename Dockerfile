@@ -40,6 +40,7 @@ ENV CLEAN_OUTDIR true
 
 # Change this cron rule to what fits best for you
 # By Default = At 10:00 UTC ~ 2am PST/PDT
+# Use 'now' to start the build immediately
 ENV CRONTAB_TIME '0 10 * * *'
 
 # Print detailed output rather than only summary
