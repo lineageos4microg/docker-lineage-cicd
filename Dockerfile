@@ -1,4 +1,4 @@
-FROM finalduty/archlinux
+FROM ubuntu:16.04
 MAINTAINER Nicola Corna <nicola@corna.info>
 
 # Environment variables
@@ -8,6 +8,8 @@ ENV SRC_DIR /srv/src
 ENV CCACHE_DIR /srv/ccache
 ENV ZIP_DIR /srv/zips
 ENV LMANIFEST_DIR /srv/local_manifests
+ENV DEBIAN_FRONTEND noninteractive
+ENV USER root
 
 # Configurable environment variables
 ####################################
@@ -95,76 +97,27 @@ WORKDIR $SRC_DIR
 
 RUN chmod 0755 /root/*
 
-# Enable multilib support
-#########################
+# Install build dependencies
+############################
 
-RUN sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
+RUN sed -i 's/main$/main universe/' /etc/apt/sources.list
+RUN apt-get -qq update
+RUN apt-get -qqy upgrade
 
-# Install development tools
-##############################
+RUN apt-get install -y bc bison build-essential ccache curl flex g++-multilib \
+      gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev \
+      lib32readline6-dev lib32z1-dev libesd0-dev liblz4-tool libncurses5-dev \
+      libsdl1.2-dev libssl-dev libwxgtk3.0-dev libxml2 libxml2-utils lzop \
+      openjdk-8-jdk pngcrush rsync schedtool squashfs-tools wget xsltproc zip \
+      zlib1g-dev
 
-RUN pacman -Sy --needed --noconfirm --noprogressbar base-devel
-
-# Replace conflicting packages
-##############################
-
-RUN yes | pacman -Sy --noprogressbar --needed gcc-multilib
-
-# Install manually compiled packages
-####################################
-
-RUN pacman -U --noconfirm --noprogressbar /root/ncurses5-compat-libs-6.0+20161224-1-x86_64.pkg.tar.xz \
-    && rm /root/ncurses5-compat-libs-6.0+20161224-1-x86_64.pkg.tar.xz \
-    && pacman -U --noconfirm --noprogressbar /root/lib32-ncurses5-compat-libs-6.0-4-x86_64.pkg.tar.xz \
-    && rm /root/lib32-ncurses5-compat-libs-6.0-4-x86_64.pkg.tar.xz
-
-# Install required Android AOSP packages
-########################################
-
-RUN pacman -Sy --needed --noconfirm --noprogressbar \
-      git \
-      gnupg \
-      flex \
-      bison \
-      gperf \
-      sdl \
-      wxgtk \
-      squashfs-tools \
-      curl \
-      ncurses \
-      zlib \
-      schedtool \
-      perl-switch \
-      zip \
-      unzip \
-      libxslt \
-      bc \
-      lib32-zlib \
-      lib32-ncurses \
-      lib32-readline \
-      rsync \
-      maven \
-      repo \
-      imagemagick \
-      ccache \
-      libxml2 \
-      cronie \
-      ninja \
-      wget \
-      jdk8-openjdk
-
-# Create missing symlink to python2
-###################################
-RUN ln -s /usr/bin/python2 /usr/local/bin/python
+RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
+RUN chmod a+x /usr/local/bin/repo
 
 # Allow redirection of stdout to docker logs
 ############################################
+
 RUN ln -sf /proc/1/fd/1 /var/log/docker.log
-
-# Cleanup
-#########
-
-RUN yes | pacman -Scc
 
 # Set the entry point to init.sh
 ###########################################
