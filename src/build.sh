@@ -35,6 +35,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
 
   # Sync the source code
   echo ">> [$(date)] Syncing repository" >> $DOCKER_LOG
+  builddate=$(date +%Y%m%d)
   repo sync 2>&1 >&$DEBUG_LOG
 
   # If not yet done, apply the MicroG's signature spoofing patch
@@ -70,19 +71,13 @@ if ! [ -z "$DEVICE_LIST" ]; then
   # Add custom packages to be installed
   if ! [ -z "$CUSTOM_PACKAGES" ]; then
     echo ">> [$(date)] Adding custom packages ($CUSTOM_PACKAGES)" >> $DOCKER_LOG
-    echo "PRODUCT_PACKAGES += $CUSTOM_PACKAGES" >> vendor/cm/config/common.mk
+    sed -i "1s;^;PRODUCT_PACKAGES += $CUSTOM_PACKAGES\n\n;" vendor/cm/config/common.mk
   fi
 
   # Add custom static Java libraries to be installed
   if ! [ -z "$CUSTOM_STATIC_JAVA_LIBRARY" ]; then
     echo ">> [$(date)] Adding custom static Java libraries ($CUSTOM_STATIC_JAVA_LIBRARY)" >> $DOCKER_LOG
-    echo "LOCAL_STATIC_JAVA_LIBRARIES += $CUSTOM_STATIC_JAVA_LIBRARY" >> vendor/cm/config/common.mk
-  fi
-
-  # Add keys
-  if ! [ -z "$RELEASEKEY_PATH" ]; then
-    echo ">> [$(date)] Adding keys path ($SRC_DIR/$RELEASEKEY_PATH)" >> $DOCKER_LOG
-    echo "PRODUCT_DEFAULT_DEV_CERTIFICATE := $SRC_DIR/$RELEASEKEY_PATH" >> vendor/cm/config/common.mk
+    sed -i "1s;^;LOCAL_STATIC_JAVA_LIBRARIES += $CUSTOM_STATIC_JAVA_LIBRARY\n\n;" vendor/cm/config/common.mk
   fi
 
   # Cycle DEVICE_LIST environment variable, to know which one may be executed next
@@ -90,14 +85,41 @@ if ! [ -z "$DEVICE_LIST" ]; then
   for codename in $DEVICE_LIST; do
     if ! [ -z "$codename" ]; then
       # Start the build
-      echo ">> [$(date)] Starting build for $codename" >> $DOCKER_LOG
-      if brunch $codename 2>&1 >&$DEBUG_LOG; then
-        # Move produced ZIP files to the main OUT directory
-        echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR'" >> $DOCKER_LOG
-        cd $SRC_DIR
-        find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec mv {} $ZIP_DIR \; >&$DEBUG_LOG
+      if [ -z "$KEYS_DIR" ]; then
+        echo ">> [$(date)] Starting build for $codename" >> $DOCKER_LOG
+        if brunch $codename 2>&1 >&$DEBUG_LOG; then
+          # Move produced ZIP files to the main OUT directory
+          echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR'" >> $DOCKER_LOG
+          cd $SRC_DIR
+          find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec mv {} $ZIP_DIR \; >&$DEBUG_LOG
+        else
+          echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
+        fi
       else
-        echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
+        echo ">> [$(date)] Starting build for $codename" >> $DOCKER_LOG
+        rm -f $SRC_DIR/out/dist/lineage_$codename-target_files-*
+        rm -f $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip
+        if breakfast $codename 2>&1 >&$DEBUG_LOG && \
+             mka target-files-package dist 2>&1 >&$DEBUG_LOG; then
+          echo ">> [$(date)] Signing build output for $codename" >> $DOCKER_LOG
+          if $SRC_DIR/build/tools/releasetools/sign_target_files_apks -o -d $SRC_DIR/$KEYS_DIR \
+               $SRC_DIR/out/dist/lineage_$codename-target_files-* \
+               $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip 2>&1 >&$DEBUG_LOG && \
+             $SRC_DIR/build/tools/releasetools/ota_from_target_files -k $SRC_DIR/$KEYS_DIR/releasekey --block --backup=true \
+               $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip \
+               $ZIP_DIR/lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip 2>&1 >&$DEBUG_LOG; then
+            cd $ZIP_DIR
+            md5sum lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip > lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip.md5sum
+            cd $SRC_DIR
+            echo ">> [$(date)] Build completed for $codename" >> $DOCKER_LOG
+          else
+            echo ">> [$(date)] Failed signing for $codename" >> $DOCKER_LOG
+          fi
+          rm -f $SRC_DIR/out/dist/lineage_$codename-target_files-*
+          rm -f $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip
+        else
+          echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
+        fi
       fi
       # Clean everything, in order to start fresh on next build
       if [ "$CLEAN_AFTER_BUILD" = true ]; then

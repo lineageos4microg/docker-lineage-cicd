@@ -31,5 +31,5 @@ else
   rm $cronFile
 
   # Run crond in foreground
-  crond -n -m off 2>&1
+  cron -f 2>&1
 fi

@@ -64,7 +64,7 @@ ENV CUSTOM_PACKAGES ''
 ENV CUSTOM_STATIC_JAVA_LIBRARY ''
 
 # Key path (from the root of the android source)
-ENV RELEASEKEY_PATH ''
+ENV KEYS_DIR ''
 
 # Create Volume entry points
 ############################
