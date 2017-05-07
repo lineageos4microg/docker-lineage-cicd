@@ -60,9 +60,6 @@ ENV ANDROID_JACK_VM_ARGS "-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
 # Custom packages to be installed
 ENV CUSTOM_PACKAGES ''
 
-# Custom static Java libraries to be installed
-ENV CUSTOM_STATIC_JAVA_LIBRARY ''
-
 # Key path (from the root of the android source)
 ENV KEYS_DIR ''
 
@@ -104,8 +101,8 @@ RUN sed -i 's/main$/main universe/' /etc/apt/sources.list
 RUN apt-get -qq update
 RUN apt-get -qqy upgrade
 
-RUN apt-get install -y bc bison build-essential ccache curl flex g++-multilib \
-      gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev \
+RUN apt-get install -y bc bison build-essential ccache cron curl flex \
+      g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev \
       lib32readline6-dev lib32z1-dev libesd0-dev liblz4-tool libncurses5-dev \
       libsdl1.2-dev libssl-dev libwxgtk3.0-dev libxml2 libxml2-utils lzop \
       openjdk-8-jdk pngcrush rsync schedtool squashfs-tools wget xsltproc zip \

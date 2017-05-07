@@ -74,12 +74,6 @@ if ! [ -z "$DEVICE_LIST" ]; then
     sed -i "1s;^;PRODUCT_PACKAGES += $CUSTOM_PACKAGES\n\n;" vendor/cm/config/common.mk
   fi
 
-  # Add custom static Java libraries to be installed
-  if ! [ -z "$CUSTOM_STATIC_JAVA_LIBRARY" ]; then
-    echo ">> [$(date)] Adding custom static Java libraries ($CUSTOM_STATIC_JAVA_LIBRARY)" >> $DOCKER_LOG
-    sed -i "1s;^;LOCAL_STATIC_JAVA_LIBRARIES += $CUSTOM_STATIC_JAVA_LIBRARY\n\n;" vendor/cm/config/common.mk
-  fi
-
   # Cycle DEVICE_LIST environment variable, to know which one may be executed next
   IFS=','
   for codename in $DEVICE_LIST; do
