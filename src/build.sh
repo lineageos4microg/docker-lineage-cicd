@@ -39,14 +39,12 @@ if ! [ -z "$DEVICE_LIST" ]; then
   repo sync 2>&1 >&$DEBUG_LOG
 
   # If not yet done, apply the MicroG's signature spoofing patch
+  # The patch has been modified to allow only privileged apps to obtain the signature spoofing permission
   cd frameworks/base
   if [ $(git rev-parse --abbrev-ref HEAD) != "signature_spoofing" ]; then
     echo ">> [$(date)] Applying signature spoofing patch to frameworks/base" >> $DOCKER_LOG
     repo start signature_spoofing
-    wget -qO- https://raw.githubusercontent.com/microg/android_packages_apps_GmsCore/master/patches/android_frameworks_base-N.patch | patch -p1
-    git clean -f
-    git add .
-    git commit -m "Add signature spoofing patch"
+    git am /root/android_frameworks_base-N.patch
   fi
   cd $SRC_DIR
 
