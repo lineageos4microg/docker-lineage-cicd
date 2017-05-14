@@ -83,7 +83,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR'" >> $DOCKER_LOG
           cd $SRC_DIR
-          find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec mv {} $ZIP_DIR \; >&$DEBUG_LOG
+          find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec sh -c 'sha256sum {} > $ZIP_DIR/{}.sha256sum && mv {} $ZIP_DIR' \; >&$DEBUG_LOG
         else
           echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
         fi
@@ -102,6 +102,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
                $ZIP_DIR/lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip 2>&1 >&$DEBUG_LOG; then
             cd $ZIP_DIR
             md5sum lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip > lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip.md5sum
+            sha256sum lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip > lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip.sha256sum
             cd $SRC_DIR
             echo ">> [$(date)] Build completed for $codename" >> $DOCKER_LOG
           else
