@@ -76,14 +76,20 @@ if ! [ -z "$DEVICE_LIST" ]; then
   IFS=','
   for codename in $DEVICE_LIST; do
     if ! [ -z "$codename" ]; then
+      if [ "$ZIP_SUBDIR" = true ]; then
+        zipsubdir=$codename
+        mkdir -p $ZIP_DIR/$zipsubdir
+      else
+        zipsubdir=
+      fi
       # Start the build
       if [ -z "$KEYS_DIR" ]; then
         echo ">> [$(date)] Starting build for $codename" >> $DOCKER_LOG
         if brunch $codename 2>&1 >&$DEBUG_LOG; then
           # Move produced ZIP files to the main OUT directory
-          echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR'" >> $DOCKER_LOG
+          echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" >> $DOCKER_LOG
           cd $SRC_DIR
-          find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec sh -c 'sha256sum {} > $ZIP_DIR/{}.sha256sum && mv {} $ZIP_DIR' \; >&$DEBUG_LOG
+          find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec sh -c 'sha256sum {} > $ZIP_DIR/$zipsubdir/{}.sha256sum && mv {} $ZIP_DIR/$zipsubdir/' \; >&$DEBUG_LOG
         else
           echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
         fi
@@ -99,8 +105,8 @@ if ! [ -z "$DEVICE_LIST" ]; then
                $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip 2>&1 >&$DEBUG_LOG && \
              $SRC_DIR/build/tools/releasetools/ota_from_target_files -k $SRC_DIR/$KEYS_DIR/releasekey --block --backup=true \
                $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip \
-               $ZIP_DIR/lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip 2>&1 >&$DEBUG_LOG; then
-            cd $ZIP_DIR
+               $ZIP_DIR/$zipsubdir/lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip 2>&1 >&$DEBUG_LOG; then
+            cd $ZIP_DIR/$zipsubdir
             md5sum lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip > lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip.md5sum
             sha256sum lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip > lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip.sha256sum
             cd $SRC_DIR

@@ -63,6 +63,9 @@ ENV CUSTOM_PACKAGES ''
 # Key path (from the root of the android source)
 ENV KEYS_DIR ''
 
+# Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
+ENV ZIP_SUBDIR false
+
 # Create Volume entry points
 ############################
 
