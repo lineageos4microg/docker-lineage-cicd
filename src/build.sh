@@ -123,7 +123,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
       # Clean everything, in order to start fresh on next build
       if [ "$CLEAN_AFTER_BUILD" = true ]; then
         echo ">> [$(date)] Cleaning build for $codename" >> $DOCKER_LOG
-        make clean 2>&1 >&$DEBUG_LOG
+        rm -rf $SRC_DIR/out/target/product/$codename/
       fi
       echo ">> [$(date)] Finishing build for $codename" >> $DOCKER_LOG
     fi
