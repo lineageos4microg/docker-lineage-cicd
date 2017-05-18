@@ -95,16 +95,15 @@ if ! [ -z "$DEVICE_LIST" ]; then
         fi
       else
         echo ">> [$(date)] Starting build for $codename" >> $DOCKER_LOG
-        rm -f $SRC_DIR/out/dist/lineage_$codename-target_files-*
-        rm -f $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip
         if breakfast $codename 2>&1 >&$DEBUG_LOG && \
              mka target-files-package dist 2>&1 >&$DEBUG_LOG; then
           echo ">> [$(date)] Signing build output for $codename" >> $DOCKER_LOG
+          build_number=$(<$SRC_DIR/out/build_number.txt)
           if $SRC_DIR/build/tools/releasetools/sign_target_files_apks -o -d $SRC_DIR/$KEYS_DIR \
-               $SRC_DIR/out/dist/lineage_$codename-target_files-* \
-               $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip 2>&1 >&$DEBUG_LOG && \
+               $SRC_DIR/out/dist/lineage_$codename-target_files-$build_number.zip \
+               $SRC_DIR/out/dist/lineage_$codename-signed_target_files-$build_number.zip 2>&1 >&$DEBUG_LOG && \
              $SRC_DIR/build/tools/releasetools/ota_from_target_files -k $SRC_DIR/$KEYS_DIR/releasekey --block --backup=true \
-               $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip \
+               $SRC_DIR/out/dist/lineage_$codename-signed_target_files-$build_number.zip \
                $ZIP_DIR/$zipsubdir/lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip 2>&1 >&$DEBUG_LOG; then
             cd $ZIP_DIR/$zipsubdir
             md5sum lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip > lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip.md5sum
@@ -114,8 +113,8 @@ if ! [ -z "$DEVICE_LIST" ]; then
           else
             echo ">> [$(date)] Failed signing for $codename" >> $DOCKER_LOG
           fi
-          rm -f $SRC_DIR/out/dist/lineage_$codename-target_files-*
-          rm -f $SRC_DIR/out/dist/lineage_$codename-signed_target_files.zip
+          rm -f $SRC_DIR/out/dist/lineage_$codename-target_files-$build_number.zip
+          rm -f $SRC_DIR/out/dist/lineage_$codename-signed_target_files-$build_number.zip
         else
           echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
         fi
