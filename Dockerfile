@@ -66,6 +66,11 @@ ENV KEYS_DIR ''
 # Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
 ENV ZIP_SUBDIR false
 
+# Apply the signature spoofing patch
+# Valid values are "no", "yes" (for the original MicroG's patch) and "restricted" (to grant the
+# permission only to the privileged apps)
+ENV SIGNATURE_SPOOFING "no"
+
 # Create Volume entry points
 ############################
 

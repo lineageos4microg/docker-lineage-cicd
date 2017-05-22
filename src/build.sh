@@ -26,9 +26,16 @@ if ! [ -z "$DEVICE_LIST" ]; then
   echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '$SRC_DIR/.repo/local_manifests/'" >> $DOCKER_LOG
   cp $LMANIFEST_DIR/*.xml $SRC_DIR/.repo/local_manifests/ >&$DEBUG_LOG
 
-  # Go to "vendor/cm" and reset it's current git status ( remove previous changes ) only if the directory exists
+  # Reset the current git status of "vendor/cm" (remove previous changes) if the directory exists
   if [ -d "vendor/cm" ]; then
     cd vendor/cm
+    git reset --hard 2>&1 >&$DEBUG_LOG
+    cd $SRC_DIR
+  fi
+
+  # Reset the current git status of "frameworks/base" (remove previous changes) if the directory exists
+  if [ -d "frameworks/base" ]; then
+    cd frameworks/base
     git reset --hard 2>&1 >&$DEBUG_LOG
     cd $SRC_DIR
   fi
@@ -38,13 +45,16 @@ if ! [ -z "$DEVICE_LIST" ]; then
   builddate=$(date +%Y%m%d)
   repo sync 2>&1 >&$DEBUG_LOG
 
-  # If not yet done, apply the MicroG's signature spoofing patch
-  # The patch has been modified to allow only privileged apps to obtain the signature spoofing permission
+  # If needed, apply the MicroG's signature spoofing patch
   cd frameworks/base
-  if [ $(git rev-parse --abbrev-ref HEAD) != "signature_spoofing" ]; then
-    echo ">> [$(date)] Applying signature spoofing patch to frameworks/base" >> $DOCKER_LOG
-    repo start signature_spoofing
-    git am /root/android_frameworks_base-N.patch
+  if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+    echo ">> [$(date)] Applying the standard signature spoofing patch to frameworks/base" >> $DOCKER_LOG
+    patch -p1 -i /root/android_frameworks_base-N.patch
+    git clean -f
+  elif [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
+    echo ">> [$(date)] Applying the restricted signature spoofing patch to frameworks/base" >> $DOCKER_LOG
+    sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' /root/android_frameworks_base-N.patch | patch -p1 
+    git clean -f
   fi
   cd $SRC_DIR
 
