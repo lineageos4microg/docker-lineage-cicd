@@ -20,7 +20,7 @@ git config --global user.name $USER_NAME
 git config --global user.email $USER_MAIL
 
 if [ "$CRONTAB_TIME" = "now" ]; then
-  /usr/bin/flock -n /tmp/lock.build /root/build.sh >> $DOCKER_LOG 2>&1
+  /root/build.sh
 else
   # Initialize the cronjob
   cronFile=/tmp/buildcron
