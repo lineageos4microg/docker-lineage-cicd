@@ -8,6 +8,8 @@ ENV SRC_DIR /srv/src
 ENV CCACHE_DIR /srv/ccache
 ENV ZIP_DIR /srv/zips
 ENV LMANIFEST_DIR /srv/local_manifests
+ENV DELTA_DIR /srv/delta
+ENV KEYS_DIR /srv/keys
 ENV DEBIAN_FRONTEND noninteractive
 ENV USER root
 
@@ -61,7 +63,7 @@ ENV ANDROID_JACK_VM_ARGS "-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
 ENV CUSTOM_PACKAGES ''
 
 # Key path (from the root of the android source)
-ENV KEYS_DIR ''
+ENV SIGN_BUILDS false
 
 # Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
 ENV ZIP_SUBDIR false
@@ -71,6 +73,9 @@ ENV ZIP_SUBDIR false
 # permission only to the privileged apps)
 ENV SIGNATURE_SPOOFING "no"
 
+# Generate delta files (saved in $ZIP_DIR/delta)
+ENV BUILD_DELTA false
+
 # Create Volume entry points
 ############################
 
@@ -78,6 +83,8 @@ VOLUME $SRC_DIR
 VOLUME $CCACHE_DIR
 VOLUME $ZIP_DIR
 VOLUME $LMANIFEST_DIR
+VOLUME $DELTA_DIR
+VOLUME $KEYS_DIR
 
 # Copy required files and fix permissions
 #####################
@@ -91,11 +98,8 @@ RUN mkdir -p $SRC_DIR
 RUN mkdir -p $CCACHE_DIR
 RUN mkdir -p $ZIP_DIR
 RUN mkdir -p $LMANIFEST_DIR
-
-# Set the work directory
-########################
-
-WORKDIR $SRC_DIR
+RUN mkdir -p $DELTA_DIR
+RUN mkdir -p $KEYS_DIR
 
 # Fix permissions
 #################
@@ -118,6 +122,32 @@ RUN apt-get install -y bc bison build-essential ccache cron curl flex \
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
 RUN chmod a+x /usr/local/bin/repo
+
+# Download and build delta tools
+################################
+RUN cd /root/ && \
+        mkdir delta && \
+        git clone https://github.com/omnirom/android_packages_apps_OpenDelta.git OpenDelta && \
+        cd OpenDelta/jni && \
+        gcc -o /root/delta/zipadjust zipadjust.c zipadjust_run.c -lz && \
+        cd xdelta3* && \
+        chmod +x configure && \
+        ./configure && \
+        make && \
+        cp xdelta3 /root/OpenDelta/server/minsignapk.jar /root/OpenDelta/server/opendelta.sh /root/delta/ && \
+        rm -rf /root/OpenDelta && \
+        chmod +x /root/delta/opendelta.sh && \
+        sed -i -e 's/^\s*HOME=.*/HOME=\/root/' /root/delta/opendelta.sh && \
+        sed -i -e 's/^\s*FILE_MATCH=.*/FILE_MATCH=lineage-\*.zip/' /root/delta/opendelta.sh && \
+        sed -i -e 's/^\s*PATH_CURRENT=.*/PATH_CURRENT=$SRC_DIR\/out\/target\/product\/$DEVICE/' /root/delta/opendelta.sh && \
+        sed -i -e 's/^\s*PATH_LAST=.*/PATH_LAST=$SRC_DIR\/delta_last\/$DEVICE/' /root/delta/opendelta.sh && \
+        sed -i -e 's/^\s*KEY_X509=.*/KEY_X509=$KEYS_DIR\/releasekey.x509.pem/' /root/delta/opendelta.sh && \
+        sed -i -e 's/^\s*KEY_PK8=.*/KEY_PK8=$KEYS_DIR\/releasekey.pk8/' /root/delta/opendelta.sh && \
+        sed -i -e 's/publish/$DELTA_DIR/g' /root/delta/opendelta.sh
+
+# Set the work directory
+########################
+WORKDIR $SRC_DIR
 
 # Allow redirection of stdout to docker logs
 ############################################

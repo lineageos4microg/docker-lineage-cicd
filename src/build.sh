@@ -82,6 +82,11 @@ if ! [ -z "$DEVICE_LIST" ]; then
     sed -i "1s;^;PRODUCT_PACKAGES += $CUSTOM_PACKAGES\n\n;" vendor/cm/config/common.mk
   fi
 
+  if [ "$SIGN_BUILDS" = true ]; then
+    echo ">> [$(date)] Adding keys path ($KEYS_DIR)" >> $DOCKER_LOG
+    sed -i "1s;^;PRODUCT_DEFAULT_DEV_CERTIFICATE := $KEYS_DIR/releasekey\nPRODUCT_OTA_PUBLIC_KEYS := $KEYS_DIR/releasekey\n\n;" vendor/cm/config/common.mk
+  fi
+
   # Cycle DEVICE_LIST environment variable, to know which one may be executed next
   IFS=','
   for codename in $DEVICE_LIST; do
@@ -93,41 +98,31 @@ if ! [ -z "$DEVICE_LIST" ]; then
         zipsubdir=
       fi
       # Start the build
-      if [ -z "$KEYS_DIR" ]; then
-        echo ">> [$(date)] Starting build for $codename" >> $DOCKER_LOG
-        if brunch $codename 2>&1 >&$DEBUG_LOG; then
-          # Move produced ZIP files to the main OUT directory
-          echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" >> $DOCKER_LOG
-          cd $SRC_DIR
-          find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec sh -c 'sha256sum {} > $ZIP_DIR/$zipsubdir/{}.sha256sum && mv {} $ZIP_DIR/$zipsubdir/' \; >&$DEBUG_LOG
-        else
-          echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
-        fi
-      else
-        echo ">> [$(date)] Starting build for $codename" >> $DOCKER_LOG
-        if breakfast $codename 2>&1 >&$DEBUG_LOG && \
-             mka target-files-package dist 2>&1 >&$DEBUG_LOG; then
-          echo ">> [$(date)] Signing build output for $codename" >> $DOCKER_LOG
-          build_number=$(<$SRC_DIR/out/build_number.txt)
-          if $SRC_DIR/build/tools/releasetools/sign_target_files_apks -o -d $SRC_DIR/$KEYS_DIR \
-               $SRC_DIR/out/dist/lineage_$codename-target_files-$build_number.zip \
-               $SRC_DIR/out/dist/lineage_$codename-signed_target_files-$build_number.zip 2>&1 >&$DEBUG_LOG && \
-             $SRC_DIR/build/tools/releasetools/ota_from_target_files -k $SRC_DIR/$KEYS_DIR/releasekey --block --backup=true \
-               $SRC_DIR/out/dist/lineage_$codename-signed_target_files-$build_number.zip \
-               $ZIP_DIR/$zipsubdir/lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip 2>&1 >&$DEBUG_LOG; then
-            cd $ZIP_DIR/$zipsubdir
-            md5sum lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip > lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip.md5sum
-            sha256sum lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip > lineage-14.1-$builddate-UNOFFICIAL-$codename-signed.zip.sha256sum
-            cd $SRC_DIR
-            echo ">> [$(date)] Build completed for $codename" >> $DOCKER_LOG
+      echo ">> [$(date)] Starting build for $codename" >> $DOCKER_LOG
+      if brunch $codename 2>&1 >&$DEBUG_LOG; then
+        if [ "$BUILD_DELTA" = true ]; then
+          if [ -d "$SRC_DIR/delta_last/$codename/" ]; then
+            # If not the first build, create delta files
+            echo ">> [$(date)] Generating delta files for $codename" >> $DOCKER_LOG
+            cd /root/delta
+            if ./opendelta.sh $codename >&$DEBUG_LOG; then
+              echo ">> [$(date)] Delta generation for $codename completed" >> $DOCKER_LOG
+            else
+              echo ">> [$(date)] Delta generation for $codename failed" >> $DOCKER_LOG
+            fi
           else
-            echo ">> [$(date)] Failed signing for $codename" >> $DOCKER_LOG
+            # If the first build, copy the current full zip in $SRC_DIR/delta_last/$codename/
+            echo ">> [$(date)] No previous build for $codename; using current build as base for the next delta" >> $DOCKER_LOG
+            mkdir -p $SRC_DIR/delta_last/$codename/
+            find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec cp {} $SRC_DIR/delta_last/$codename/ \;
           fi
-          rm -f $SRC_DIR/out/dist/lineage_$codename-target_files-$build_number.zip
-          rm -f $SRC_DIR/out/dist/lineage_$codename-signed_target_files-$build_number.zip
-        else
-          echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
         fi
+        # Move produced ZIP files to the main OUT directory
+        echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" >> $DOCKER_LOG
+        cd $SRC_DIR
+        find out/target/product/$codename -name '*UNOFFICIAL*.zip*' -exec mv {} $ZIP_DIR/$zipsubdir/ \; >&$DEBUG_LOG
+      else
+        echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
       fi
       # Clean everything, in order to start fresh on next build
       if [ "$CLEAN_AFTER_BUILD" = true ]; then
