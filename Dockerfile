@@ -78,7 +78,6 @@ ENV BUILD_DELTA false
 
 # Create Volume entry points
 ############################
-
 VOLUME $SRC_DIR
 VOLUME $CCACHE_DIR
 VOLUME $ZIP_DIR
@@ -86,14 +85,12 @@ VOLUME $LMANIFEST_DIR
 VOLUME $DELTA_DIR
 VOLUME $KEYS_DIR
 
-# Copy required files and fix permissions
+# Copy required files
 #####################
-
 COPY src/* /root/
 
 # Create missing directories
 ############################
-
 RUN mkdir -p $SRC_DIR
 RUN mkdir -p $CCACHE_DIR
 RUN mkdir -p $ZIP_DIR
@@ -101,14 +98,8 @@ RUN mkdir -p $LMANIFEST_DIR
 RUN mkdir -p $DELTA_DIR
 RUN mkdir -p $KEYS_DIR
 
-# Fix permissions
-#################
-
-RUN chmod 0755 /root/*
-
 # Install build dependencies
 ############################
-
 RUN sed -i 's/main$/main universe/' /etc/apt/sources.list
 RUN apt-get -qq update
 RUN apt-get -qqy upgrade
@@ -151,10 +142,8 @@ WORKDIR $SRC_DIR
 
 # Allow redirection of stdout to docker logs
 ############################################
-
 RUN ln -sf /proc/1/fd/1 /var/log/docker.log
 
 # Set the entry point to init.sh
 ###########################################
-
 ENTRYPOINT /root/init.sh
