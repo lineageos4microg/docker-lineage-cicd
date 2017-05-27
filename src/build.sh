@@ -84,7 +84,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
 
   if [ "$SIGN_BUILDS" = true ]; then
     echo ">> [$(date)] Adding keys path ($KEYS_DIR)" >> $DOCKER_LOG
-    sed -i "1s;^;PRODUCT_DEFAULT_DEV_CERTIFICATE := $KEYS_DIR/releasekey\nPRODUCT_OTA_PUBLIC_KEYS := $KEYS_DIR/releasekey\n\n;" vendor/cm/config/common.mk
+    sed -i "1s;^;PRODUCT_DEFAULT_DEV_CERTIFICATE := $KEYS_DIR/releasekey\nPRODUCT_OTA_PUBLIC_KEYS := $KEYS_DIR/releasekey\nPRODUCT_EXTRA_RECOVERY_KEYS := $KEYS_DIR/releasekey\n\n;" vendor/cm/config/common.mk
   fi
 
   # Cycle DEVICE_LIST environment variable, to know which one may be executed next
