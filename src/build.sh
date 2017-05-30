@@ -70,6 +70,10 @@ if ! [ -z "$DEVICE_LIST" ]; then
   echo ">> [$(date)] Preparing build environment" >> $DOCKER_LOG
   source build/envsetup.sh 2>&1 >&$DEBUG_LOG
 
+  echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type" >> $DOCKER_LOG
+  sed -i '/#.*Filter out random types/d' vendor/cm/config/common.mk
+  sed -i '/$(filter .*$(CM_BUILDTYPE)/,+3d' vendor/cm/config/common.mk
+
   # Set a custom updater URI if a OTA URL is provided
   if ! [ -z "$OTA_URL" ]; then
     echo ">> [$(date)] Adding OTA URL '$OTA_URL' to build.prop" >> $DOCKER_LOG
