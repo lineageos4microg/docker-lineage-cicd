@@ -94,6 +94,14 @@ if ! [ -z "$DEVICE_LIST" ]; then
   # Cycle DEVICE_LIST environment variable, to know which one may be executed next
   IFS=','
   for codename in $DEVICE_LIST; do
+    currentdate=$(date +%Y%m%d)
+    if [ "$builddate" != "$currentdate" ]; then
+      # Sync the source code
+      echo ">> [$(date)] Syncing repository" >> $DOCKER_LOG
+      builddate=$currentdate
+      repo sync 2>&1 >&$DEBUG_LOG
+    fi
+
     if ! [ -z "$codename" ]; then
       if [ "$ZIP_SUBDIR" = true ]; then
         zipsubdir=$codename
@@ -104,6 +112,11 @@ if ! [ -z "$DEVICE_LIST" ]; then
       # Start the build
       echo ">> [$(date)] Starting build for $codename" >> $DOCKER_LOG
       if brunch $codename 2>&1 >&$DEBUG_LOG; then
+        currentdate=$(date +%Y%m%d)
+        if [ "$builddate" != "$currentdate" ]; then
+          find out/target/product/$codename -name "lineage-*-$currentdate-*.zip*" -exec sh /root/fix_build_date.sh {} $currentdate $builddate \;
+        fi
+
         if [ "$BUILD_DELTA" = true ]; then
           if [ -d "$SRC_DIR/delta_last/$codename/" ]; then
             # If not the first build, create delta files
