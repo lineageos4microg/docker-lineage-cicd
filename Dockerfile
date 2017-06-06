@@ -56,7 +56,7 @@ ENV DEBUG false
 # Clean artifacts output after each build
 ENV CLEAN_AFTER_BUILD true
 
-# Provide root capabilities builtin inside the ROM ( see http://lineageos.org/Update-and-Build-Prep/ )
+# Provide root capabilities builtin inside the ROM (see http://lineageos.org/Update-and-Build-Prep/)
 ENV WITH_SU true
 
 # Provide a default JACK configuration in order to avoid out-of-memory issues
@@ -76,8 +76,14 @@ ENV ZIP_SUBDIR false
 # permission only to the privileged apps)
 ENV SIGNATURE_SPOOFING "no"
 
-# Generate delta files (saved in $ZIP_DIR/delta)
+# Generate delta files
 ENV BUILD_DELTA false
+
+# Delete old zips in $ZIP_DIR, keep only the N latest one (0 to disable)
+ENV DELETE_OLD_ZIPS 0
+
+# Delete old deltas in $DELTA_DIR, keep only the N latest one (0 to disable)
+ENV DELETE_OLD_DELTAS 0
 
 # Create Volume entry points
 ############################

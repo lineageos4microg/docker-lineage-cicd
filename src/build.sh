@@ -132,12 +132,18 @@ if ! [ -z "$DEVICE_LIST" ]; then
             echo ">> [$(date)] No previous build for $codename; using current build as base for the next delta" >> $DOCKER_LOG
             mkdir -p $SRC_DIR/delta_last/$codename/
             find out/target/product/$codename -name 'lineage-*.zip' -exec cp {} $SRC_DIR/delta_last/$codename/ \;
+            if [ "$DELETE_OLD_DELTAS" -gt "0" ]; then
+              /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS $DELTA_DIR
+            fi
           fi
         fi
         # Move produced ZIP files to the main OUT directory
         echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" >> $DOCKER_LOG
         cd $SRC_DIR
         find out/target/product/$codename -name 'lineage-*.zip*' -exec mv {} $ZIP_DIR/$zipsubdir/ \; >&$DEBUG_LOG
+        if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
+          /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS $ZIP_DIR
+        fi
       else
         echo ">> [$(date)] Failed build for $codename" >> $DOCKER_LOG
       fi
