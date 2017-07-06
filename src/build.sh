@@ -140,14 +140,14 @@ if ! [ -z "$DEVICE_LIST" ]; then
             else
               echo ">> [$(date)] Delta generation for $codename failed" >> $DOCKER_LOG
             fi
+            if [ "$DELETE_OLD_DELTAS" -gt "0" ]; then
+              /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS $DELTA_DIR
+            fi
           else
             # If the first build, copy the current full zip in $SRC_DIR/delta_last/$codename/
             echo ">> [$(date)] No previous build for $codename; using current build as base for the next delta" >> $DOCKER_LOG
             mkdir -p $SRC_DIR/delta_last/$codename/
             find out/target/product/$codename -name 'lineage-*.zip' -exec cp {} $SRC_DIR/delta_last/$codename/ \;
-            if [ "$DELETE_OLD_DELTAS" -gt "0" ]; then
-              /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS $DELTA_DIR
-            fi
           fi
         fi
         # Move produced ZIP files to the main OUT directory
