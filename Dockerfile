@@ -117,8 +117,8 @@ RUN apt-get install -y bc bison build-essential ccache cron curl flex \
       g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev \
       lib32readline6-dev lib32z1-dev libesd0-dev liblz4-tool libncurses5-dev \
       libsdl1.2-dev libssl-dev libwxgtk3.0-dev libxml2 libxml2-utils lzop \
-      openjdk-8-jdk pngcrush rsync schedtool squashfs-tools wget xsltproc zip \
-      zlib1g-dev
+      openjdk-8-jdk pngcrush rsync schedtool squashfs-tools wget xdelta3 \
+      xsltproc zip zlib1g-dev
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
 RUN chmod a+x /usr/local/bin/repo
@@ -127,23 +127,19 @@ RUN chmod a+x /usr/local/bin/repo
 ################################
 RUN cd /root/ && \
         mkdir delta && \
-        git clone https://github.com/omnirom/android_packages_apps_OpenDelta.git OpenDelta && \
-        cd OpenDelta/jni && \
-        gcc -o /root/delta/zipadjust zipadjust.c zipadjust_run.c -lz && \
-        cd xdelta3* && \
-        chmod +x configure && \
-        ./configure && \
-        make && \
-        cp xdelta3 /root/OpenDelta/server/minsignapk.jar /root/OpenDelta/server/opendelta.sh /root/delta/ && \
-        rm -rf /root/OpenDelta && \
-        chmod +x /root/delta/opendelta.sh && \
-        sed -i -e 's/^\s*HOME=.*/HOME=\/root/' /root/delta/opendelta.sh && \
-        sed -i -e 's/^\s*FILE_MATCH=.*/FILE_MATCH=lineage-\*.zip/' /root/delta/opendelta.sh && \
-        sed -i -e 's/^\s*PATH_CURRENT=.*/PATH_CURRENT=$SRC_DIR\/out\/target\/product\/$DEVICE/' /root/delta/opendelta.sh && \
-        sed -i -e 's/^\s*PATH_LAST=.*/PATH_LAST=$SRC_DIR\/delta_last\/$DEVICE/' /root/delta/opendelta.sh && \
-        sed -i -e 's/^\s*KEY_X509=.*/KEY_X509=$KEYS_DIR\/releasekey.x509.pem/' /root/delta/opendelta.sh && \
-        sed -i -e 's/^\s*KEY_PK8=.*/KEY_PK8=$KEYS_DIR\/releasekey.pk8/' /root/delta/opendelta.sh && \
-        sed -i -e 's/publish/$DELTA_DIR/g' /root/delta/opendelta.sh
+        git clone --depth=1 https://github.com/omnirom/android_packages_apps_OpenDelta.git OpenDelta && \
+        gcc -o delta/zipadjust OpenDelta/jni/zipadjust.c OpenDelta/jni/zipadjust_run.c -lz && \
+        cp OpenDelta/server/minsignapk.jar OpenDelta/server/opendelta.sh delta/ && \
+        chmod +x delta/opendelta.sh && \
+        rm -rf OpenDelta/ && \
+        sed -i -e 's|^\s*HOME=.*|HOME=/root|; \
+                   s|^\s*BIN_XDELTA=.*|BIN_XDELTA=xdelta3|; \
+                   s|^\s*FILE_MATCH=.*|FILE_MATCH=lineage-\*.zip|; \
+                   s|^\s*PATH_CURRENT=.*|PATH_CURRENT=$SRC_DIR/out/target/product/$DEVICE|; \
+                   s|^\s*PATH_LAST=.*|PATH_LAST=$SRC_DIR/delta_last/$DEVICE|; \
+                   s|^\s*KEY_X509=.*|KEY_X509=$KEYS_DIR/releasekey.x509.pem|; \
+                   s|^\s*KEY_PK8=.*|KEY_PK8=$KEYS_DIR/releasekey.pk8|; \
+                   s|publish|$DELTA_DIR|g' /root/delta/opendelta.sh
 
 # Set the work directory
 ########################
