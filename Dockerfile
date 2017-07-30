@@ -71,9 +71,15 @@ ENV SIGN_BUILDS false
 # Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
 ENV ZIP_SUBDIR false
 
-# Apply the signature spoofing patch
-# Valid values are "no", "yes" (for the original MicroG's patch) and "restricted" (to grant the
-# permission only to the privileged apps)
+# Apply the MicroG's signature spoofing patch
+# Valid values are "no", "yes" (for the original MicroG's patch) and
+# "restricted" (to grant the permission only to the system privileged apps).
+#
+# The original ("yes") patch allows user apps to gain the ability to spoof
+# themselves as other apps, which can be a major security threat. Using the
+# restricted patch and embedding the apps that requires it as system privileged
+# apps is a much secure option. See the README.md ("Custom mode") for an
+# example.
 ENV SIGNATURE_SPOOFING "no"
 
 # Generate delta files
@@ -96,7 +102,7 @@ VOLUME $KEYS_DIR
 
 # Copy required files
 #####################
-COPY src/* /root/
+COPY src/ /root/
 
 # Create missing directories
 ############################

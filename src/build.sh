@@ -59,15 +59,33 @@ if ! [ -z "$DEVICE_LIST" ]; then
   repo sync 2>&1 >&$DEBUG_LOG
 
   # If needed, apply the MicroG's signature spoofing patch
-  cd frameworks/base
-  if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-    echo ">> [$(date)] Applying the standard signature spoofing patch to frameworks/base" >> $DOCKER_LOG
-    patch -p1 -i /root/android_frameworks_base-N.patch
-    git clean -f
-  elif [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
-    echo ">> [$(date)] Applying the restricted signature spoofing patch to frameworks/base" >> $DOCKER_LOG
-    sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' /root/android_frameworks_base-N.patch | patch -p1 
-    git clean -f
+  if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
+    # Determine which patch should be applied to the current branch
+    patch_name=""
+    git_branch=$(repo --no-pager info 2> /dev/null | grep -i "Manifest branch: ")
+    git_branch=${git_branch#Manifest branch: }
+    case $(echo $git_branch | grep -o "cm-[0-9][0-9]*\.[0-9]") in
+      "cm-11.0")            patch_name="android_frameworks_base-KK-LP.patch" ;;
+      "cm-12.0"|"cm-12.1")  patch_name="android_frameworks_base-KK-LP.patch" ;;
+      "cm-13.0")            patch_name="android_frameworks_base-M.patch" ;;
+      "cm-14.0"|"cm-14.1")  patch_name="android_frameworks_base-N.patch" ;;
+    esac
+
+    if ! [ -z $patch_name ]; then
+      cd frameworks/base
+      if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+        echo ">> [$(date)] Applying the standard signature spoofing patch ($patch_name) to frameworks/base" >> $DOCKER_LOG
+        echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat" >> $DOCKER_LOG
+        patch -p1 -i "/root/signature_spoofing_patches/$patch_name"
+      else
+        echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $patch_name) to frameworks/base" >> $DOCKER_LOG
+        sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch -p1
+      fi
+      git clean -f
+    else
+      echo ">> [$(date)] ERROR: can't find a suitable signature spoofing patch for the current LineageOS branch ($git_branch)" >> $DOCKER_LOG
+      exit 1
+    fi
   fi
   cd $SRC_DIR
 
