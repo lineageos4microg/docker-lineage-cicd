@@ -24,7 +24,7 @@ ENV USE_CCACHE 1
 # See https://github.com/LineageOS/android_vendor_cm/branches for possible options
 ENV BRANCH_NAME 'cm-14.1'
 
-# Environment for the device list ( separate by comma if more than one)
+# Environment for the device list (separate by comma if more than one)
 # eg. DEVICE_LIST=hammerhead,bullhead,angler
 ENV DEVICE_LIST ''
 
@@ -39,7 +39,7 @@ ENV OTA_URL ''
 ENV USER_NAME 'LineageOS Buildbot'
 ENV USER_MAIL 'lineageos-buildbot@docker.host'
 
-# If you want to start always fresh ( re-download all the source code everytime ) set this to 'true'
+# If you want to start always fresh (re-download all the source code everytime) set this to 'true'
 ENV CLEAN_SRCDIR false
 
 # If you want to preserve old ZIPs set this to 'false'

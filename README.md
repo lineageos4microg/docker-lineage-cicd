@@ -12,13 +12,13 @@ Because I'm a big fan of isolating everything if possible. I don't want to reins
 
 ## Requirements
 
-- At least Dual Core CPU ( Higher is better )
-- At least 6GB RAM ( Higher is better )
-- At least 250GB HDD Space ( Higher is better )
+- At least Dual Core CPU (Higher is better)
+- At least 6GB RAM (Higher is better)
+- At least 250GB HDD Space (Higher is better)
 
 ### Android propretary binaries
 
-By default when you build Android from scratch you need to pull the Binaries of your interested device via ADB. Although via this Docker is not possible to do so ( would imply having all the devices connected to that machine and ideally know how to switch from one to the other before pulling ). Therefore, I highly suggest to download this manifest ( https://github.com/TheMuppets/manifests ) inside your mapped `/srv/local_manifests` folder.
+By default when you build Android from scratch you need to pull the Binaries of your interested device via ADB. Although via this Docker is not possible to do so (would imply having all the devices connected to that machine and ideally know how to switch from one to the other before pulling). Therefore, I highly suggest to download this manifest (https://github.com/TheMuppets/manifests) inside your mapped `/srv/local_manifests` folder.
 
 ## How it works
 
