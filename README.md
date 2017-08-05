@@ -111,6 +111,7 @@ docker run \
     -e "BUILD_DELTA=true" \
     -e "DELETE_OLD_ZIPS=3" \
     -e "DELETE_OLD_DELTAS=10" \
+    -e "OPENDELTA_BUILDS_JSON=builds.json" \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
     -v "/home/user/public/full:/srv/zips" \

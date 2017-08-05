@@ -91,6 +91,12 @@ ENV DELETE_OLD_ZIPS 0
 # Delete old deltas in $DELTA_DIR, keep only the N latest one (0 to disable)
 ENV DELETE_OLD_DELTAS 0
 
+# Create a JSON file that indexes the build zips at the end of the build process
+# (for the updates in OpenDelta). The file will be created in $ZIP_DIR with the
+# specified name; leave empty to skip it.
+# Requires ZIP_SUBDIR.
+ENV OPENDELTA_BUILDS_JSON ''
+
 # Create Volume entry points
 ############################
 VOLUME $SRC_DIR
