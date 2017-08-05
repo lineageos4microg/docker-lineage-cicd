@@ -46,7 +46,7 @@ docker run \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
-    corna/docker-lineage-cicd
+    lineageos4microg/docker-lineage-cicd
 ```
 
 ### Advanced mode
@@ -65,7 +65,7 @@ docker run \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
-    corna/docker-lineage-cicd
+    lineageos4microg/docker-lineage-cicd
 ```
 
 ### Expert mode
@@ -86,7 +86,7 @@ docker run \
     -v "/home/user/source:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
     -v "/home/user/local_manifests:/srv/local_manifests" \
-    corna/docker-lineage-cicd
+    lineageos4microg/docker-lineage-cicd
 ```
 
 ### Custom mode
@@ -117,15 +117,14 @@ docker run \
     -v "/home/user/local_manifests:/srv/local_manifests" \
     -v "/home/user/keys:/srv/keys" \
     -v "/home/user/public/delta:/srv/delta" \
-    corna/docker-lineage-cicd
+    lineageos4microg/docker-lineage-cicd
 ```
 with the following XML in local_manifests
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <remote name="gitlab" fetch="https://gitlab.com/" />
-  <project path="prebuilts/misc/common/custompackages" name="corna/android-prebuilts.git" remote="gitlab" revision="master" />
-  <project path="packages/apps/OpenDelta" name="corna/android_packages_apps_OpenDelta" remote="github" revision="android-7.1" />
+  <project path="prebuilts/prebuiltapks" name="lineageos4microg/android_prebuilts_prebuiltapks" remote="github" revision="master" />
+  <project path="packages/apps/OpenDelta" name="lineageos4microg/android_packages_apps_OpenDelta" remote="github" revision="android-7.1" />
 </manifest>
 ```
 
