@@ -10,6 +10,7 @@ ENV ZIP_DIR /srv/zips
 ENV LMANIFEST_DIR /srv/local_manifests
 ENV DELTA_DIR /srv/delta
 ENV KEYS_DIR /srv/keys
+
 ENV DEBIAN_FRONTEND noninteractive
 ENV USER root
 
@@ -43,12 +44,12 @@ ENV USER_MAIL 'lineageos-buildbot@docker.host'
 ENV CLEAN_SRCDIR false
 
 # If you want to preserve old ZIPs set this to 'false'
-ENV CLEAN_OUTDIR true
+ENV CLEAN_OUTDIR false
 
 # Change this cron rule to what fits best for you
-# By Default = At 10:00 UTC ~ 2am PST/PDT
 # Use 'now' to start the build immediately
-ENV CRONTAB_TIME '0 10 * * *'
+# For example, '0 10 * * *' means 'Every day at 10:00 UTC'
+ENV CRONTAB_TIME 'now'
 
 # Print detailed output rather than only summary
 ENV DEBUG false
@@ -57,7 +58,7 @@ ENV DEBUG false
 ENV CLEAN_AFTER_BUILD true
 
 # Provide root capabilities builtin inside the ROM (see http://lineageos.org/Update-and-Build-Prep/)
-ENV WITH_SU true
+ENV WITH_SU false
 
 # Provide a default JACK configuration in order to avoid out-of-memory issues
 ENV ANDROID_JACK_VM_ARGS "-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
@@ -69,7 +70,7 @@ ENV CUSTOM_PACKAGES ''
 ENV SIGN_BUILDS false
 
 # Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
-ENV ZIP_SUBDIR false
+ENV ZIP_SUBDIR true
 
 # Apply the MicroG's signature spoofing patch
 # Valid values are "no", "yes" (for the original MicroG's patch) and
@@ -121,7 +122,6 @@ RUN mkdir -p $KEYS_DIR
 
 # Install build dependencies
 ############################
-RUN sed -i 's/main$/main universe/' /etc/apt/sources.list
 RUN apt-get -qq update
 RUN apt-get -qqy upgrade
 
@@ -162,5 +162,5 @@ WORKDIR $SRC_DIR
 RUN ln -sf /proc/1/fd/1 /var/log/docker.log
 
 # Set the entry point to init.sh
-###########################################
+################################
 ENTRYPOINT /root/init.sh
