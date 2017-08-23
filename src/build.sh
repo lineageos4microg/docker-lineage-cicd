@@ -60,15 +60,14 @@ if ! [ -z "$DEVICE_LIST" ]; then
 
   # If needed, apply the MicroG's signature spoofing patch
   if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
-    # Determine which patch should be applied to the current branch
+    # Determine which patch should be applied to the current Android source tree
     patch_name=""
-    git_branch=$(repo --no-pager info 2> /dev/null | grep -i "Manifest branch: ")
-    git_branch=${git_branch#Manifest branch: }
-    case $(echo $git_branch | grep -o "cm-[0-9][0-9]*\.[0-9]") in
-      "cm-11.0")            patch_name="android_frameworks_base-KK-LP.patch" ;;
-      "cm-12.0"|"cm-12.1")  patch_name="android_frameworks_base-KK-LP.patch" ;;
-      "cm-13.0")            patch_name="android_frameworks_base-M.patch" ;;
-      "cm-14.0"|"cm-14.1")  patch_name="android_frameworks_base-N.patch" ;;
+    android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION := //p' build/core/version_defaults.mk)
+    case $android_version in
+      4.4* )    patch_name="android_frameworks_base-KK-LP.patch" ;;
+      5.*  )    patch_name="android_frameworks_base-KK-LP.patch" ;;
+      6.*  )    patch_name="android_frameworks_base-M.patch" ;;
+      7.*  )    patch_name="android_frameworks_base-N.patch" ;;
     esac
 
     if ! [ -z $patch_name ]; then
@@ -83,7 +82,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
       fi
       git clean -f
     else
-      echo ">> [$(date)] ERROR: can't find a suitable signature spoofing patch for the current LineageOS branch ($git_branch)" >> $DOCKER_LOG
+      echo ">> [$(date)] ERROR: can't find a suitable signature spoofing patch for the current Android version ($android_version)" >> $DOCKER_LOG
       exit 1
     fi
   fi
