@@ -75,12 +75,12 @@ if ! [ -z "$DEVICE_LIST" ]; then
       if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
         echo ">> [$(date)] Applying the standard signature spoofing patch ($patch_name) to frameworks/base" >> $DOCKER_LOG
         echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat" >> $DOCKER_LOG
-        patch -p1 -i "/root/signature_spoofing_patches/$patch_name"
+        patch -p1 -i "/root/signature_spoofing_patches/$patch_name" 2>&1 >&$DEBUG_LOG
       else
         echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $patch_name) to frameworks/base" >> $DOCKER_LOG
-        sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch -p1
+        sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch -p1 2>&1 >&$DEBUG_LOG
       fi
-      git clean -f
+      git clean -f 2>&1 >&$DEBUG_LOG
     else
       echo ">> [$(date)] ERROR: can't find a suitable signature spoofing patch for the current Android version ($android_version)" >> $DOCKER_LOG
       exit 1
