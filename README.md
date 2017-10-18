@@ -106,11 +106,12 @@ docker run \
     -e "SIGN_BUILDS=true" \
     -e "CLEAN_OUTDIR=false" \
     -e "CLEAN_AFTER_BUILD=true" \
-    -e "DEBUG=true" \
     -e "ZIP_SUBDIR=true" \
+    -e "LOGS_SUBDIR=true" \
     -e "BUILD_DELTA=true" \
     -e "DELETE_OLD_ZIPS=3" \
     -e "DELETE_OLD_DELTAS=10" \
+    -e "DELETE_OLD_LOGS=10" \
     -e "OPENDELTA_BUILDS_JSON=builds.json" \
     -v "/home/user/ccache:/srv/ccache" \
     -v "/home/user/source:/srv/src" \
@@ -118,6 +119,7 @@ docker run \
     -v "/home/user/local_manifests:/srv/local_manifests" \
     -v "/home/user/keys:/srv/keys" \
     -v "/home/user/public/delta:/srv/delta" \
+    -v "/home/user/logs:/srv/logs" \
     lineageos4microg/docker-lineage-cicd
 ```
 with the following XML in local_manifests

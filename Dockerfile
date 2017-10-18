@@ -10,6 +10,7 @@ ENV ZIP_DIR /srv/zips
 ENV LMANIFEST_DIR /srv/local_manifests
 ENV DELTA_DIR /srv/delta
 ENV KEYS_DIR /srv/keys
+ENV LOGS_DIR /srv/logs
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV USER root
@@ -51,9 +52,6 @@ ENV CLEAN_OUTDIR false
 # For example, '0 10 * * *' means 'Every day at 10:00 UTC'
 ENV CRONTAB_TIME 'now'
 
-# Print detailed output rather than only summary
-ENV DEBUG false
-
 # Clean artifacts output after each build
 ENV CLEAN_AFTER_BUILD true
 
@@ -71,6 +69,9 @@ ENV SIGN_BUILDS false
 
 # Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
 ENV ZIP_SUBDIR true
+
+# Write the verbose logs to $LOGS_DIR/$codename instead of $LOGS_DIR/
+ENV LOGS_SUBDIR true
 
 # Apply the MicroG's signature spoofing patch
 # Valid values are "no", "yes" (for the original MicroG's patch) and
@@ -92,6 +93,9 @@ ENV DELETE_OLD_ZIPS 0
 # Delete old deltas in $DELTA_DIR, keep only the N latest one (0 to disable)
 ENV DELETE_OLD_DELTAS 0
 
+# Delete old logs in $LOGS_DIR, keep only the N latest one (0 to disable)
+ENV DELETE_OLD_LOGS 0
+
 # Create a JSON file that indexes the build zips at the end of the build process
 # (for the updates in OpenDelta). The file will be created in $ZIP_DIR with the
 # specified name; leave empty to skip it.
@@ -106,6 +110,7 @@ VOLUME $ZIP_DIR
 VOLUME $LMANIFEST_DIR
 VOLUME $DELTA_DIR
 VOLUME $KEYS_DIR
+VOLUME $LOGS_DIR
 
 # Copy required files
 #####################
@@ -119,6 +124,7 @@ RUN mkdir -p $ZIP_DIR
 RUN mkdir -p $LMANIFEST_DIR
 RUN mkdir -p $DELTA_DIR
 RUN mkdir -p $KEYS_DIR
+RUN mkdir -p $LOGS_DIR
 
 # Install build dependencies
 ############################

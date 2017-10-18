@@ -17,15 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-DOCKER_LOG=/var/log/docker.log
-DEBUG_LOG=/dev/null
-if [ "$DEBUG" = true ]; then
-  DEBUG_LOG=$DOCKER_LOG
-fi
-
 # Initialize CCache if it will be used
 if [ "$USE_CCACHE" = 1 ]; then
-  ccache -M 100G 2>&1 >&$DEBUG_LOG
+  ccache -M 100G 2>&1
 fi
 
 # Initialize Git user information
