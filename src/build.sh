@@ -22,6 +22,11 @@ if ! [ -z "$DEVICE_LIST" ]; then
   # cd to working directory
   cd $SRC_DIR
 
+  if [ -f /root/userscripts/begin.sh ]; then
+    echo ">> [$(date)] Running begin.sh"
+    /root/userscripts/begin.sh
+  fi
+
   # If the source directory is empty
   if ! [ "$(ls -A $SRC_DIR)" ]; then
     # Initialize repository
@@ -115,6 +120,11 @@ if ! [ -z "$DEVICE_LIST" ]; then
     sed -i "1s;^;PRODUCT_DEFAULT_DEV_CERTIFICATE := $KEYS_DIR/releasekey\nPRODUCT_OTA_PUBLIC_KEYS := $KEYS_DIR/releasekey\nPRODUCT_EXTRA_RECOVERY_KEYS := $KEYS_DIR/releasekey\n\n;" vendor/cm/config/common.mk
   fi
 
+  if [ -f /root/userscripts/before.sh ]; then
+    echo ">> [$(date)] Running before.sh"
+    /root/userscripts/before.sh
+  fi
+
   # Cycle DEVICE_LIST environment variable, to know which one may be executed next
   IFS=','
   for codename in $DEVICE_LIST; do
@@ -142,6 +152,12 @@ if ! [ -z "$DEVICE_LIST" ]; then
       los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' vendor/cm/config/common.mk)
       los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' vendor/cm/config/common.mk)
       DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver_major.$los_ver_minor-$builddate-$RELEASE_TYPE-$codename.log"
+
+      if [ -f /root/userscripts/pre-build.sh ]; then
+        echo ">> [$(date)] Running pre-build.sh for $codename" >> $DEBUG_LOG 2>&1
+        /root/userscripts/pre-build.sh $codename >> $DEBUG_LOG 2>&1
+      fi
+
       # Start the build
       echo ">> [$(date)] Starting build for $codename" | tee -a $DEBUG_LOG
       if brunch $codename >> $DEBUG_LOG 2>&1; then
@@ -189,6 +205,10 @@ if ! [ -z "$DEVICE_LIST" ]; then
         echo ">> [$(date)] Cleaning build for $codename" | tee -a $DEBUG_LOG
         rm -rf $SRC_DIR/out/target/product/$codename/ >> $DEBUG_LOG 2>&1
       fi
+      if [ -f /root/userscripts/post-build.sh ]; then
+        echo ">> [$(date)] Running post-build.sh for $codename" >> $DEBUG_LOG 2>&1
+        /root/userscripts/post-build.sh $codename >> $DEBUG_LOG 2>&1
+      fi
       echo ">> [$(date)] Finishing build for $codename" | tee -a $DEBUG_LOG
     fi
   done
@@ -205,5 +225,10 @@ if ! [ -z "$DEVICE_LIST" ]; then
   # Clean the src directory if requested
   if [ "$CLEAN_SRCDIR" = true ]; then
     rm -rf "$SRC_DIR/*"
+  fi
+
+  if [ -f /root/userscripts/end.sh ]; then
+    echo ">> [$(date)] Running end.sh"
+    /root/userscripts/end.sh
   fi
 fi

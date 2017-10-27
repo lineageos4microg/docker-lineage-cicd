@@ -11,6 +11,7 @@ ENV LMANIFEST_DIR /srv/local_manifests
 ENV DELTA_DIR /srv/delta
 ENV KEYS_DIR /srv/keys
 ENV LOGS_DIR /srv/logs
+ENV USERSCRIPTS_DIR /srv/userscripts
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV USER root
@@ -107,6 +108,15 @@ ENV DELETE_OLD_LOGS 0
 # Requires ZIP_SUBDIR.
 ENV OPENDELTA_BUILDS_JSON ''
 
+# You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
+#  * begin.sh, run at the very beginning
+#  * before.sh, run after the syncing and patching, before starting the builds
+#  * pre-build.sh, run before the build of every device 
+#  * post-build.sh, run after the build of every device
+#  * end.sh, run at the very end
+# Each script will be run in $SRC_DIR and must be owned and writeable only by
+# root
+
 # Create Volume entry points
 ############################
 VOLUME $SRC_DIR
@@ -116,6 +126,7 @@ VOLUME $LMANIFEST_DIR
 VOLUME $DELTA_DIR
 VOLUME $KEYS_DIR
 VOLUME $LOGS_DIR
+VOLUME $USERSCRIPTS_DIR
 
 # Copy required files
 #####################
@@ -130,6 +141,7 @@ RUN mkdir -p $LMANIFEST_DIR
 RUN mkdir -p $DELTA_DIR
 RUN mkdir -p $KEYS_DIR
 RUN mkdir -p $LOGS_DIR
+RUN mkdir -p $USERSCRIPTS_DIR
 
 # Install build dependencies
 ############################
