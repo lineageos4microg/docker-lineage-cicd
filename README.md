@@ -90,7 +90,7 @@ docker run \
 ```
 
 ### Custom mode
-You can also apply some modifications to the LineageOS code before building it. This example is the build script used for [this LineageOS fork](https://lineageos.corna.info/), which has integrated microG apps, F-Droid (with F-Droid Privileged Extension) and OpenDelta (from the OmniROM project, for delta updates).
+You can also apply some modifications to the LineageOS code before building it. This example is the build script used for [LineageOS for microG](https://lineage.microg.org), which has integrated microG apps and F-Droid (with F-Droid Privileged Extension).
 ```
 docker run \
     --name=lineage-$(date +%Y%m%d_%H%M) \
@@ -99,27 +99,25 @@ docker run \
     -e "USER_MAIL=john.doe@awesome.email" \
     -e "WITH_SU=false" \
     -e "RELEASE_TYPE=microG" \
-    -e "DEVICE_LIST=thea,falcon,onyx,bacon,Z00L" \
+    -e "DEVICE_LIST=$DEVICES" \
+    -e "OTA_URL=https://api.lineage.microg.org" \
     -e "CRONTAB_TIME=now" \
     -e "SIGNATURE_SPOOFING=restricted" \
-    -e "CUSTOM_PACKAGES=GmsCore GsfProxy FakeStore FDroid FDroidPrivilegedExtension com.google.android.maps.jar MozillaNlpBackend NominatimNlpBackend OpenDelta" \
+    -e "CUSTOM_PACKAGES=GmsCore GsfProxy FakeStore FDroid FDroidPrivilegedExtension MozillaNlpBackend NominatimNlpBackend com.google.android.maps.jar" \
     -e "SIGN_BUILDS=true" \
     -e "CLEAN_OUTDIR=false" \
     -e "CLEAN_AFTER_BUILD=true" \
     -e "ZIP_SUBDIR=true" \
     -e "LOGS_SUBDIR=true" \
-    -e "BUILD_DELTA=true" \
     -e "DELETE_OLD_ZIPS=3" \
-    -e "DELETE_OLD_DELTAS=10" \
-    -e "DELETE_OLD_LOGS=10" \
-    -e "OPENDELTA_BUILDS_JSON=builds.json" \
-    -v "/home/user/ccache:/srv/ccache" \
-    -v "/home/user/source:/srv/src" \
-    -v "/home/user/public/full:/srv/zips" \
-    -v "/home/user/local_manifests:/srv/local_manifests" \
-    -v "/home/user/keys:/srv/keys" \
-    -v "/home/user/public/delta:/srv/delta" \
+    -e "DELETE_OLD_LOGS=3" \
+    -v "/home/user/cache:/srv/ccache" \
+    -v "/home/user/lineage:/srv/src" \
+    -v "/home/user/zips:/srv/zips" \
+    -v "/home/user/lineage_manifests:/srv/local_manifests" \
+    -v "/home/user/lineage_keys:/srv/keys" \
     -v "/home/user/logs:/srv/logs" \
+    -v "/home/user/lineage_scripts:/srv/userscripts" \
     lineageos4microg/docker-lineage-cicd
 ```
 with the following XML in local_manifests
@@ -127,7 +125,6 @@ with the following XML in local_manifests
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <project path="prebuilts/prebuiltapks" name="lineageos4microg/android_prebuilts_prebuiltapks" remote="github" revision="master" />
-  <project path="packages/apps/OpenDelta" name="lineageos4microg/android_packages_apps_OpenDelta" remote="github" revision="android-7.1" />
 </manifest>
 ```
 
