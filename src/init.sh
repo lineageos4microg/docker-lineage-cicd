@@ -17,27 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function check_and_copy {
-  if [ -f $1/$2 ]; then
-    if [[ $(stat --format '%U' $1/$2) == "root" ]]; then
-      if [[ $(stat --format '%A' $1/$2) =~ .r.x.-..-. ]]; then
-        echo ">> [$(date)] Valid $2 found"
-        cp $1/$2 /root/userscripts/
-      else
-        echo ">> [$(date)] $2 has wrong permissions, ignoring"
-      fi
-    else
-      echo ">> [$(date)] $2 isn't owned by root, ignoring"
-    fi
-  fi
-}
-
-userscripts="begin.sh before.sh pre-build.sh post-build.sh end.sh"
-
+# Copy the user scripts
 mkdir -p /root/userscripts
-for f in $userscripts; do
-  check_and_copy $USERSCRIPTS_DIR $f
-done
+cp -r $USERSCRIPTS_DIR/. /root/userscripts
+find /root/userscripts ! -type d ! -user root -exec echo ">> [$(date)] {} is not owned by root, removing" \; -exec rm {} \;
+find /root/userscripts ! -type d -perm /g=w,o=w -exec echo ">> [$(date)] {} is writable by non-root users, removing" \; -exec rm {} \;
 
 # Initialize CCache if it will be used
 if [ "$USE_CCACHE" = 1 ]; then
