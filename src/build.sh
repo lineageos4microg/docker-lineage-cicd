@@ -31,7 +31,7 @@ if ! [ -z "$DEVICE_LIST" ]; then
   if ! [ "$(ls -A $SRC_DIR)" ]; then
     # Initialize repository
     echo ">> [$(date)] Initializing repository"
-    yes | repo init -u https://github.com/lineageos/android.git -b
+    yes | repo init -u https://github.com/lineageos/android.git -b ${BRANCH_NAME:-cm-14.1}
   fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
