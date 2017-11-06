@@ -23,6 +23,11 @@ ENV USER root
 # WARNING: disabling this may slow down a lot your builds!
 ENV USE_CCACHE 1
 
+# ccache maximum size. It should be a number followed by an optional suffix: k,
+# M, G, T (decimal), Ki, Mi, Gi or Ti (binary). The default suffix is G. Use 0
+# for no limit.
+ENV CCACHE_SIZE 50G
+
 # Environment for the LineageOS Branch name
 # See https://github.com/LineageOS/android_vendor_cm/branches for possible options
 ENV BRANCH_NAME 'cm-14.1'

@@ -25,7 +25,7 @@ find /root/userscripts ! -type d -perm /g=w,o=w -exec echo ">> [$(date)] {} is w
 
 # Initialize CCache if it will be used
 if [ "$USE_CCACHE" = 1 ]; then
-  ccache -M 100G 2>&1
+  ccache -M $CCACHE_SIZE 2>&1
 fi
 
 # Initialize Git user information
