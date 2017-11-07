@@ -157,7 +157,7 @@ RUN apt-get install -y bc bison build-essential ccache cron curl flex \
       g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev \
       lib32readline6-dev lib32z1-dev libesd0-dev liblz4-tool libncurses5-dev \
       libsdl1.2-dev libssl-dev libwxgtk3.0-dev libxml2 libxml2-utils lzop \
-      openjdk-8-jdk pngcrush rsync schedtool squashfs-tools wget xdelta3 \
+      maven openjdk-8-jdk pngcrush rsync schedtool squashfs-tools wget xdelta3 \
       xsltproc zip zlib1g-dev
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
