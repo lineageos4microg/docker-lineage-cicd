@@ -188,8 +188,12 @@ if ! [ -z "$DEVICE_LIST" ]; then
         fi
         # Move produced ZIP files to the main OUT directory
         echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a $DEBUG_LOG
+        cd $SRC_DIR/out/target/product/$codename
+        for build in lineage-*.zip; do
+          sha256sum $build > $ZIP_DIR/$zipsubdir/$build.sha256sum
+        done
+        find . -name 'lineage-*.zip*' -type f -maxdepth 1 -exec mv {} $ZIP_DIR/$zipsubdir/ \; >> $DEBUG_LOG 2>&1
         cd $SRC_DIR
-        find out/target/product/$codename -name 'lineage-*.zip*' -type f -maxdepth 1 -exec mv {} $ZIP_DIR/$zipsubdir/ \; >> $DEBUG_LOG 2>&1
       else
         echo ">> [$(date)] Failed build for $codename" | tee -a $DEBUG_LOG
       fi
