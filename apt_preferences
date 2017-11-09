@@ -1,0 +1,28 @@
+Package: *
+Pin: release n=experimental
+Pin-Priority: -1
+
+Package: *
+Pin: release n=sid
+Pin-Priority: -1
+
+Package: openjdk-7-jdk
+Pin: release n=experimental
+Pin-Priority: 500
+
+Package: openjdk-7-jre
+Pin: release n=experimental
+Pin-Priority: 500
+
+Package: openjdk-7-jre-headless
+Pin: release n=experimental
+Pin-Priority: 500
+
+Package: libfontconfig1
+Pin: release n=sid
+Pin-Priority: 500
+
+Package: fontconfig-config
+Pin: release n=sid
+Pin-Priority: 500
+
