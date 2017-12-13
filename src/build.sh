@@ -63,7 +63,7 @@ fi
 # Copy local manifests to the appropriate folder in order take them into consideration
 echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to 'mirror/.repo/local_manifests/'"
 mkdir -p .repo/local_manifests
-rsync -a --delete --exclude 'roomservice.xml' --include '*.xml' --exclude '*' $LMANIFEST_DIR .repo/local_manifests/
+rsync -a --delete --include '*.xml' --exclude '*' $LMANIFEST_DIR/ .repo/local_manifests/
 
 if [ "$INCLUDE_PROPRIETARY" = true ]; then
   wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/mirror/default.xml"
@@ -107,7 +107,7 @@ for branch in $BRANCH_NAME; do
     # Copy local manifests to the appropriate folder in order take them into consideration
     echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
     mkdir -p .repo/local_manifests
-    rsync -a --delete --exclude 'roomservice.xml' --include '*.xml' --exclude '*' $LMANIFEST_DIR .repo/local_manifests/
+    rsync -a --delete --include '*.xml' --exclude '*' $LMANIFEST_DIR/ .repo/local_manifests/
 
     if [ "$INCLUDE_PROPRIETARY" = true ]; then
       if [[ $branch =~ .*cm\-13\.0.* ]]; then
