@@ -286,11 +286,6 @@ for branch in $BRANCH_NAME; do
         if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
           /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS $LOGS_DIR
         fi
-        # Clean everything, in order to start fresh on next build
-        if [ "$CLEAN_AFTER_BUILD" = true ]; then
-          echo ">> [$(date)] Cleaning build for $codename" | tee -a $DEBUG_LOG
-          rm -rf $SRC_DIR/merged/out/target/product/$codename/ >> $DEBUG_LOG 2>&1
-        fi
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> $DEBUG_LOG 2>&1
           /root/userscripts/post-build.sh $codename >> $DEBUG_LOG 2>&1
@@ -305,6 +300,11 @@ for branch in $BRANCH_NAME; do
       fi
     done
 
+    # Clean the branch source directory if requested
+    if [ "$CLEAN_SRCDIR" = true ]; then
+      rm -rf "$SRC_DIR/$branch_dir"
+    fi
+
   fi
 done
 
@@ -315,11 +315,6 @@ if ! [ -z "$OPENDELTA_BUILDS_JSON" ]; then
     echo ">> [$(date)] WARNING: OpenDelta requires zip builds separated per device! You should set ZIP_SUBDIR to true"
   fi
   /usr/bin/python /root/opendelta_builds_json.py $ZIP_DIR -o $ZIP_DIR/$OPENDELTA_BUILDS_JSON
-fi
-
-# Clean the src directory if requested
-if [ "$CLEAN_SRCDIR" = true ]; then
-  rm -rf "$SRC_DIR/*"
 fi
 
 if [ -f /root/userscripts/end.sh ]; then
