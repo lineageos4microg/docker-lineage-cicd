@@ -210,7 +210,7 @@ for branch in $BRANCH_NAME; do
           cd $SRC_DIR/mirror
           repo sync -q --no-clone-bundle
           echo ">> [$(date)] Syncing branch repository"
-          cd $TMP_DIR/$branch_dir
+          cd $SRC_DIR/$branch_dir
           repo sync -q -c
         fi
 
