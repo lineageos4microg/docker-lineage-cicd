@@ -21,7 +21,7 @@ IFS=','
 shopt -s dotglob
 
 # cd to working directory
-cd $SRC_DIR
+cd "$SRC_DIR"
 
 if [ -f /root/userscripts/begin.sh ]; then
   echo ">> [$(date)] Running begin.sh"
@@ -31,11 +31,11 @@ fi
 # If requested, clean the OUT dir in order to avoid clutter
 if [ "$CLEAN_OUTDIR" = true ]; then
   echo ">> [$(date)] Cleaning '$ZIP_DIR'"
-  rm $ZIP_DIR/*
+  rm "$ZIP_DIR/*"
 fi
 
 # Treat DEVICE_LIST as DEVICE_LIST_<first_branch>
-first_branch=$(cut -d ',' -f 1 <<< $BRANCH_NAME)
+first_branch=$(cut -d ',' -f 1 <<< "$BRANCH_NAME")
 if [ ! -z "$DEVICE_LIST" ]; then
   device_list_first_branch="DEVICE_LIST_$(sed 's/[^[:alnum:]]/_/g' <<< $first_branch)"
   device_list_first_branch=${device_list_first_branch^^}
@@ -43,17 +43,17 @@ if [ ! -z "$DEVICE_LIST" ]; then
 fi
 
 # If needed, migrate from the old SRC_DIR structure
-if [ -d $SRC_DIR/.repo ]; then
+if [ -d "$SRC_DIR/.repo" ]; then
   echo ">> [$(date)] Removing old repository"
-  rm -rf $SRC_DIR/*
+  rm -rf "$SRC_DIR/*"
 fi
 
-mkdir -p $TMP_DIR/device
-mkdir -p $TMP_DIR/workdir
-mkdir -p $TMP_DIR/merged
+mkdir -p "$TMP_DIR/device"
+mkdir -p "$TMP_DIR/workdir"
+mkdir -p "$TMP_DIR/merged"
 
-mkdir -p $SRC_DIR/mirror
-cd $SRC_DIR/mirror
+mkdir -p "$SRC_DIR/mirror"
+cd "$SRC_DIR/mirror"
 
 if [ ! -d .repo ]; then
   echo ">> [$(date)] Initializing mirror repository"
@@ -63,7 +63,7 @@ fi
 # Copy local manifests to the appropriate folder in order take them into consideration
 echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to 'mirror/.repo/local_manifests/'"
 mkdir -p .repo/local_manifests
-rsync -a --delete --include '*.xml' --exclude '*' $LMANIFEST_DIR/ .repo/local_manifests/
+rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_manifests/
 
 if [ "$INCLUDE_PROPRIETARY" = true ]; then
   wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/mirror/default.xml"
@@ -72,15 +72,15 @@ fi
 echo ">> [$(date)] Syncing mirror repository"
 repo sync -q --no-clone-bundle
 
-for branch in $BRANCH_NAME; do
+for branch in "$BRANCH_NAME"; do
   branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< $branch)
   branch_dir=${branch_dir^^}
   device_list_cur_branch="DEVICE_LIST_$branch_dir"
 
   if [ ! -z "$branch" ] && [ ! -z "${!device_list_cur_branch}" ]; then
 
-    mkdir -p $SRC_DIR/$branch_dir
-    cd $SRC_DIR/$branch_dir
+    mkdir -p "$SRC_DIR/$branch_dir"
+    cd "$SRC_DIR/$branch_dir"
 
     echo ">> [$(date)] Branch:  $branch"
     echo ">> [$(date)] Devices: ${!device_list_cur_branch}"
@@ -101,13 +101,13 @@ for branch in $BRANCH_NAME; do
 
     if [ ! -d .repo ]; then
       echo ">> [$(date)] Initializing branch repository"
-      yes | repo init -q -u https://github.com/LineageOS/android.git --reference $SRC_DIR/mirror/ -b $branch
+      yes | repo init -q -u https://github.com/LineageOS/android.git --reference "$SRC_DIR/mirror/" -b "$branch"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
     echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
     mkdir -p .repo/local_manifests
-    rsync -a --delete --include '*.xml' --exclude '*' $LMANIFEST_DIR/ .repo/local_manifests/
+    rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_manifests/
 
     if [ "$INCLUDE_PROPRIETARY" = true ]; then
       if [[ $branch =~ .*cm\-13\.0.* ]]; then
@@ -207,25 +207,25 @@ for branch in $BRANCH_NAME; do
           # Sync the source code
           echo ">> [$(date)] Syncing mirror repository"
           builddate=$currentdate
-          cd $SRC_DIR/mirror
+          cd "$SRC_DIR/mirror"
           repo sync -q --no-clone-bundle
           echo ">> [$(date)] Syncing branch repository"
-          cd $SRC_DIR/$branch_dir
+          cd "$SRC_DIR/$branch_dir"
           repo sync -q -c
         fi
 
-        mount -t overlay overlay -o lowerdir=$SRC_DIR/$branch_dir,upperdir=$TMP_DIR/device,workdir=$TMP_DIR/workdir $TMP_DIR/merged
-        cd $TMP_DIR/merged
+        mount -t overlay overlay -o lowerdir="$SRC_DIR/$branch_dir",upperdir="$TMP_DIR/device",workdir="$TMP_DIR/workdir" "$TMP_DIR/merged"
+        cd "$TMP_DIR/merged"
 
         if [ "$ZIP_SUBDIR" = true ]; then
           zipsubdir=$codename
-          mkdir -p $ZIP_DIR/$zipsubdir
+          mkdir -p "$ZIP_DIR/$zipsubdir"
         else
           zipsubdir=
         fi
         if [ "$LOGS_SUBDIR" = true ]; then
           logsubdir=$codename
-          mkdir -p $LOGS_DIR/$logsubdir
+          mkdir -p "$LOGS_DIR/$logsubdir"
         else
           logsubdir=
         fi
@@ -234,66 +234,66 @@ for branch in $BRANCH_NAME; do
         DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver_major.$los_ver_minor-$builddate-$RELEASE_TYPE-$codename.log"
 
         if [ -f /root/userscripts/pre-build.sh ]; then
-          echo ">> [$(date)] Running pre-build.sh for $codename" >> $DEBUG_LOG 2>&1
-          /root/userscripts/pre-build.sh $codename >> $DEBUG_LOG 2>&1
+          echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG" 2>&1
+          /root/userscripts/pre-build.sh $codename >> "$DEBUG_LOG" 2>&1
         fi
 
         # Start the build
-        echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a $DEBUG_LOG
-        if brunch $codename >> $DEBUG_LOG 2>&1; then
+        echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+        if brunch $codename >> "$DEBUG_LOG" 2>&1; then
           currentdate=$(date +%Y%m%d)
           if [ "$builddate" != "$currentdate" ]; then
-            find out/target/product/$codename -name "lineage-*-$currentdate-*.zip*" -type f -maxdepth 1 -exec sh /root/fix_build_date.sh {} $currentdate $builddate \; >> $DEBUG_LOG 2>&1
+            find out/target/product/$codename -name "lineage-*-$currentdate-*.zip*" -type f -maxdepth 1 -exec sh /root/fix_build_date.sh {} $currentdate $builddate \; >> "$DEBUG_LOG" 2>&1
           fi
 
           if [ "$BUILD_DELTA" = true ]; then
             if [ -d "delta_last/$codename/" ]; then
               # If not the first build, create delta files
-              echo ">> [$(date)] Generating delta files for $codename" | tee -a $DEBUG_LOG
+              echo ">> [$(date)] Generating delta files for $codename" | tee -a "$DEBUG_LOG"
               cd /root/delta
-              if ./opendelta.sh $codename >> $DEBUG_LOG 2>&1; then
-                echo ">> [$(date)] Delta generation for $codename completed" | tee -a $DEBUG_LOG
+              if ./opendelta.sh $codename >> "$DEBUG_LOG" 2>&1; then
+                echo ">> [$(date)] Delta generation for $codename completed" | tee -a "$DEBUG_LOG"
               else
-                echo ">> [$(date)] Delta generation for $codename failed" | tee -a $DEBUG_LOG
+                echo ">> [$(date)] Delta generation for $codename failed" | tee -a "$DEBUG_LOG"
               fi
               if [ "$DELETE_OLD_DELTAS" -gt "0" ]; then
-                /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS $DELTA_DIR >> $DEBUG_LOG 2>&1
+                /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS "$DELTA_DIR" >> "$DEBUG_LOG" 2>&1
               fi
-              cd $TMP_DIR/merged
+              cd "$TMP_DIR/merged"
             else
               # If the first build, copy the current full zip in $SRC_DIR/merged/delta_last/$codename/
-              echo ">> [$(date)] No previous build for $codename; using current build as base for the next delta" | tee -a $DEBUG_LOG
-              mkdir -p delta_last/$codename/ >> $DEBUG_LOG 2>&1
-              find out/target/product/$codename -name 'lineage-*.zip' -type f -maxdepth 1 -exec cp {} $SRC_DIR/merged/delta_last/$codename/ \; >> $DEBUG_LOG 2>&1
+              echo ">> [$(date)] No previous build for $codename; using current build as base for the next delta" | tee -a "$DEBUG_LOG"
+              mkdir -p delta_last/$codename/ >> "$DEBUG_LOG" 2>&1
+              find out/target/product/$codename -name 'lineage-*.zip' -type f -maxdepth 1 -exec cp {} "$SRC_DIR/merged/delta_last/$codename/" \; >> "$DEBUG_LOG" 2>&1
             fi
           fi
           # Move produced ZIP files to the main OUT directory
-          echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a $DEBUG_LOG
+          echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
           cd out/target/product/$codename
           for build in lineage-*.zip; do
-            sha256sum $build > $ZIP_DIR/$zipsubdir/$build.sha256sum
+            sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
           done
-          find . -name 'lineage-*.zip*' -type f -maxdepth 1 -exec mv {} $ZIP_DIR/$zipsubdir/ \; >> $DEBUG_LOG 2>&1
-          cd $TMP_DIR/merged
+          find . -name 'lineage-*.zip*' -type f -maxdepth 1 -exec mv {} "$ZIP_DIR/$zipsubdir/" \; >> "$DEBUG_LOG" 2>&1
+          cd "$TMP_DIR/merged"
         else
-          echo ">> [$(date)] Failed build for $codename" | tee -a $DEBUG_LOG
+          echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
         fi
 
         # Remove old zips and logs
         if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
-          /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS $ZIP_DIR
+          /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS "$ZIP_DIR"
         fi
         if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
-          /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS $LOGS_DIR
+          /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS "$LOGS_DIR"
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
-          echo ">> [$(date)] Running post-build.sh for $codename" >> $DEBUG_LOG 2>&1
-          /root/userscripts/post-build.sh $codename >> $DEBUG_LOG 2>&1
+          echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG" 2>&1
+          /root/userscripts/post-build.sh $codename >> "$DEBUG_LOG" 2>&1
         fi
-        echo ">> [$(date)] Finishing build for $codename" | tee -a $DEBUG_LOG
+        echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
-        cd $TMP_DIR
-        umount $TMP_DIR/merged
+        cd "$TMP_DIR"
+        umount "$TMP_DIR/merged"
         echo ">> [$(date)] Cleaning source dir for device $codename"
         rm -rf device/*
 
@@ -314,7 +314,7 @@ if ! [ -z "$OPENDELTA_BUILDS_JSON" ]; then
   if [ "$ZIP_SUBDIR" != true ]; then
     echo ">> [$(date)] WARNING: OpenDelta requires zip builds separated per device! You should set ZIP_SUBDIR to true"
   fi
-  /usr/bin/python /root/opendelta_builds_json.py $ZIP_DIR -o $ZIP_DIR/$OPENDELTA_BUILDS_JSON
+  /usr/bin/python /root/opendelta_builds_json.py "$ZIP_DIR" -o "$ZIP_DIR/$OPENDELTA_BUILDS_JSON"
 fi
 
 if [ -f /root/userscripts/end.sh ]; then
