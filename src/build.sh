@@ -279,6 +279,16 @@ for branch in "$BRANCH_NAME"; do
           echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
         fi
 
+        # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
+        if [ -f $TMP_DIR/merged/prebuilts/sdk/tools/jack-admin ]; then
+            jack_list_server=$($TMP_DIR/merged/prebuilts/sdk/tools/jack-admin list-server)
+            if ! [ -z "$jack_list_server" ]; then
+                jack_pid=$(echo $jack_list_server | tr -s ' ' | cut -d ' ' -f 2)
+                $TMP_DIR/merged/prebuilts/sdk/tools/jack-admin stop-server > /dev/null 2>&1 || true
+                while ps -p $jack_pid > /dev/null; do sleep 1; done
+            fi
+        fi
+
         # Remove old zips and logs
         if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
           /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS "$ZIP_DIR"
