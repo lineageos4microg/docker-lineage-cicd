@@ -52,8 +52,7 @@ mkdir -p "$TMP_DIR/device"
 mkdir -p "$TMP_DIR/workdir"
 mkdir -p "$TMP_DIR/merged"
 
-mkdir -p "$SRC_DIR/mirror"
-cd "$SRC_DIR/mirror"
+cd "$MIRROR_DIR"
 
 if [ ! -d .repo ]; then
   echo ">> [$(date)] Initializing mirror repository"
@@ -61,7 +60,7 @@ if [ ! -d .repo ]; then
 fi
 
 # Copy local manifests to the appropriate folder in order take them into consideration
-echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to 'mirror/.repo/local_manifests/'"
+echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
 mkdir -p .repo/local_manifests
 rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_manifests/
 
@@ -101,7 +100,7 @@ for branch in "$BRANCH_NAME"; do
 
     if [ ! -d .repo ]; then
       echo ">> [$(date)] Initializing branch repository"
-      yes | repo init -q -u https://github.com/LineageOS/android.git --reference "$SRC_DIR/mirror/" -b "$branch"
+      yes | repo init -q -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
@@ -207,7 +206,7 @@ for branch in "$BRANCH_NAME"; do
           # Sync the source code
           echo ">> [$(date)] Syncing mirror repository"
           builddate=$currentdate
-          cd "$SRC_DIR/mirror"
+          cd "$MIRROR_DIR"
           repo sync -q --no-clone-bundle
           echo ">> [$(date)] Syncing branch repository"
           cd "$SRC_DIR/$branch_dir"

@@ -4,6 +4,7 @@ MAINTAINER Nicola Corna <nicola@corna.info>
 # Environment variables
 #######################
 
+ENV MIRROR_DIR /srv/mirror
 ENV SRC_DIR /srv/src
 ENV TMP_DIR /srv/tmp
 ENV CCACHE_DIR /srv/ccache
@@ -126,6 +127,7 @@ ENV OPENDELTA_BUILDS_JSON ''
 
 # Create Volume entry points
 ############################
+VOLUME $MIRROR_DIR
 VOLUME $SRC_DIR
 VOLUME $TMP_DIR
 VOLUME $CCACHE_DIR
@@ -142,6 +144,7 @@ COPY src/ /root/
 
 # Create missing directories
 ############################
+RUN mkdir -p $MIRROR_DIR
 RUN mkdir -p $SRC_DIR
 RUN mkdir -p $TMP_DIR
 RUN mkdir -p $CCACHE_DIR
