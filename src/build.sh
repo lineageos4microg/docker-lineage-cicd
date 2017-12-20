@@ -71,7 +71,7 @@ fi
 echo ">> [$(date)] Syncing mirror repository"
 repo sync -q --no-clone-bundle
 
-for branch in "$BRANCH_NAME"; do
+for branch in $BRANCH_NAME; do
   branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< $branch)
   branch_dir=${branch_dir^^}
   device_list_cur_branch="DEVICE_LIST_$branch_dir"
