@@ -278,16 +278,6 @@ for branch in $BRANCH_NAME; do
           echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
         fi
 
-        # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
-        if [ -f $TMP_DIR/merged/prebuilts/sdk/tools/jack-admin ]; then
-            jack_list_server=$($TMP_DIR/merged/prebuilts/sdk/tools/jack-admin list-server)
-            if ! [ -z "$jack_list_server" ]; then
-                jack_pid=$(echo $jack_list_server | tr -s ' ' | cut -d ' ' -f 2)
-                $TMP_DIR/merged/prebuilts/sdk/tools/jack-admin stop-server > /dev/null 2>&1 || true
-                while ps -p $jack_pid > /dev/null; do sleep 1; done
-            fi
-        fi
-
         # Remove old zips and logs
         if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
           /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS "$ZIP_DIR"
@@ -301,7 +291,21 @@ for branch in $BRANCH_NAME; do
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
+        # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
         cd "$TMP_DIR"
+        if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
+          "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin stop-server" > /dev/null 2>&1 || true
+        fi
+
+        i=0
+        while [ ! -z "$(lsof | grep $TMP_DIR/merged)" ]; do
+          if [ "$i" -eq "5" ]; then
+            fuser -km $TMP_DIR/merged > /dev/null 2>&1
+          fi
+          sleep 1
+          i=$((i+1))
+        done
+
         umount "$TMP_DIR/merged"
         echo ">> [$(date)] Cleaning source dir for device $codename"
         rm -rf device/*
