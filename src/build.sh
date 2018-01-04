@@ -294,16 +294,12 @@ for branch in $BRANCH_NAME; do
         # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
         cd "$TMP_DIR"
         if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
-          "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin stop-server" > /dev/null 2>&1 || true
+          "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" > /dev/null 2>&1 || true
         fi
+        lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | xargs kill
 
-        i=0
         while [ ! -z "$(lsof | grep $TMP_DIR/merged)" ]; do
-          if [ "$i" -eq "5" ]; then
-            fuser -km $TMP_DIR/merged > /dev/null 2>&1
-          fi
           sleep 1
-          i=$((i+1))
         done
 
         umount "$TMP_DIR/merged"
