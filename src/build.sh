@@ -239,6 +239,7 @@ for branch in $BRANCH_NAME; do
 
         # Start the build
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+        build_successful=false
         if brunch $codename >> "$DEBUG_LOG" 2>&1; then
           currentdate=$(date +%Y%m%d)
           if [ "$builddate" != "$currentdate" ]; then
@@ -274,6 +275,7 @@ for branch in $BRANCH_NAME; do
           done
           find . -name 'lineage-*.zip*' -type f -maxdepth 1 -exec mv {} "$ZIP_DIR/$zipsubdir/" \; >> "$DEBUG_LOG" 2>&1
           cd "$TMP_DIR/merged"
+          build_successful=true
         else
           echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
         fi
@@ -287,7 +289,7 @@ for branch in $BRANCH_NAME; do
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG" 2>&1
-          /root/userscripts/post-build.sh $codename >> "$DEBUG_LOG" 2>&1
+          /root/userscripts/post-build.sh $codename $build_successful >> "$DEBUG_LOG" 2>&1
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
