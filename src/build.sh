@@ -298,7 +298,7 @@ for branch in $BRANCH_NAME; do
         if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
           "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" > /dev/null 2>&1 || true
         fi
-        lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | xargs kill
+        lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | xargs -r kill
 
         while [ ! -z "$(lsof | grep $TMP_DIR/merged)" ]; do
           sleep 1
