@@ -69,7 +69,7 @@ if [ "$INCLUDE_PROPRIETARY" = true ]; then
 fi
 
 echo ">> [$(date)] Syncing mirror repository"
-repo sync -q --no-clone-bundle
+repo sync -q --force-sync --no-clone-bundle
 
 for branch in $BRANCH_NAME; do
   branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< $branch)
@@ -122,7 +122,7 @@ for branch in $BRANCH_NAME; do
 
     echo ">> [$(date)] Syncing branch repository"
     builddate=$(date +%Y%m%d)
-    repo sync -q -c
+    repo sync -q -c --force-sync
 
     android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION := //p' build/core/version_defaults.mk)
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
@@ -207,10 +207,10 @@ for branch in $BRANCH_NAME; do
           echo ">> [$(date)] Syncing mirror repository"
           builddate=$currentdate
           cd "$MIRROR_DIR"
-          repo sync -q --no-clone-bundle
+          repo sync -q --force-sync --no-clone-bundle
           echo ">> [$(date)] Syncing branch repository"
           cd "$SRC_DIR/$branch_dir"
-          repo sync -q -c
+          repo sync -q -c --force-sync
         fi
 
         mount -t overlay overlay -o lowerdir="$SRC_DIR/$branch_dir",upperdir="$TMP_DIR/device",workdir="$TMP_DIR/workdir" "$TMP_DIR/merged"
