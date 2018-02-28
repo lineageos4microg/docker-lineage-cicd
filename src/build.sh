@@ -2,7 +2,7 @@
 
 # Docker build script
 # Copyright (c) 2017 Julian Xhokaxhiu
-# Copyright (C) 2017 Nicola Corna <nicola@corna.info>
+# Copyright (C) 2017-2018 Nicola Corna <nicola@corna.info>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -84,19 +84,14 @@ for branch in $BRANCH_NAME; do
     echo ">> [$(date)] Branch:  $branch"
     echo ">> [$(date)] Devices: ${!device_list_cur_branch}"
 
-    # Reset the current git status of "vendor/cm" (remove previous changes) if the directory exists
-    if [ -d "vendor/cm" ]; then
-      cd vendor/cm
-      git reset -q --hard
-      cd ../..
-    fi
-
-    # Reset the current git status of "frameworks/base" (remove previous changes) if the directory exists
-    if [ -d "frameworks/base" ]; then
-      cd frameworks/base
-      git reset -q --hard
-      cd ../..
-    fi
+    # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
+    for path in "vendor/cm" "vendor/lineage" "frameworks/base"; do
+      if [ -d "$path" ]; then
+        cd "$path"
+        git reset -q --hard
+        cd "$SRC_DIR/$branch_dir"
+      fi
+    done
 
     if [ ! -d .repo ]; then
       echo ">> [$(date)] Initializing branch repository"
@@ -113,8 +108,10 @@ for branch in $BRANCH_NAME; do
         themuppets_branch=cm-13.0
       elif [[ $branch =~ .*cm-14\.1.* ]]; then
         themuppets_branch=cm-14.1
+      elif [[ $branch =~ .*lineage-15\.1.* ]]; then
+        themuppets_branch=lineage-15.1
       else
-        themuppets_branch=cm-14.1
+        themuppets_branch=lineage-15.1
         echo ">> [$(date)] Can't find a matching branch on github.com/TheMuppets, using $themuppets_branch"
       fi
       wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
@@ -124,8 +121,22 @@ for branch in $BRANCH_NAME; do
     builddate=$(date +%Y%m%d)
     repo sync -q -c --force-sync
 
-    android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION := //p' build/core/version_defaults.mk)
+    android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.OPM1 := //p' build/core/version_defaults.mk)
+    if [ -z $android_version ]; then
+      android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION := //p' build/core/version_defaults.mk)
+    fi
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
+
+    if [ "$android_version_major" -ge "8" ]; then
+      vendor="lineage"
+    else
+      vendor="cm"
+    fi
+
+    if [ ! -d "vendor/$vendor" ]; then
+      echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
+      exit 1
+    fi
 
     # If needed, apply the microG's signature spoofing patch
     if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
@@ -136,6 +147,7 @@ for branch in $BRANCH_NAME; do
         5.*  )    patch_name="android_frameworks_base-KK-LP.patch" ;;
         6.*  )    patch_name="android_frameworks_base-M.patch" ;;
         7.*  )    patch_name="android_frameworks_base-N.patch" ;;
+        8.*  )    patch_name="android_frameworks_base-O.patch" ;;
       esac
 
       if ! [ -z $patch_name ]; then
@@ -157,24 +169,23 @@ for branch in $BRANCH_NAME; do
     fi
 
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
-    sed -i '/#.*Filter out random types/d' vendor/cm/config/common.mk
-    sed -i '/$(filter .*$(CM_BUILDTYPE)/,+3d' vendor/cm/config/common.mk
+    sed -i "/\$(filter .*\$(${vendor^^}_BUILDTYPE)/,+2d" "vendor/$vendor/config/common.mk"
 
     # Set a custom updater URI if a OTA URL is provided
     if ! [ -z "$OTA_URL" ]; then
       echo ">> [$(date)] Adding OTA URL '$OTA_URL' to build.prop"
-      sed -i "1s;^;PRODUCT_PROPERTY_OVERRIDES += $OTA_PROP=$OTA_URL\n\n;" vendor/cm/config/common.mk
+      sed -i "1s;^;PRODUCT_PROPERTY_OVERRIDES += $OTA_PROP=$OTA_URL\n\n;" "vendor/$vendor/config/common.mk"
     fi
 
     # Add custom packages to be installed
     if ! [ -z "$CUSTOM_PACKAGES" ]; then
       echo ">> [$(date)] Adding custom packages ($CUSTOM_PACKAGES)"
-      sed -i "1s;^;PRODUCT_PACKAGES += $CUSTOM_PACKAGES\n\n;" vendor/cm/config/common.mk
+      sed -i "1s;^;PRODUCT_PACKAGES += $CUSTOM_PACKAGES\n\n;" "vendor/$vendor/config/common.mk"
     fi
 
     if [ "$SIGN_BUILDS" = true ]; then
       echo ">> [$(date)] Adding keys path ($KEYS_DIR)"
-      sed -i "1s;^;PRODUCT_DEFAULT_DEV_CERTIFICATE := $KEYS_DIR/releasekey\nPRODUCT_OTA_PUBLIC_KEYS := $KEYS_DIR/releasekey\nPRODUCT_EXTRA_RECOVERY_KEYS := $KEYS_DIR/releasekey\n\n;" vendor/cm/config/common.mk
+      sed -i "1s;^;PRODUCT_DEFAULT_DEV_CERTIFICATE := $KEYS_DIR/releasekey\nPRODUCT_OTA_PUBLIC_KEYS := $KEYS_DIR/releasekey\nPRODUCT_EXTRA_RECOVERY_KEYS := $KEYS_DIR/releasekey\n\n;" "vendor/$vendor/config/common.mk"
     fi
 
     if [ "$android_version_major" -ge "7" ]; then
@@ -228,8 +239,8 @@ for branch in $BRANCH_NAME; do
         else
           logsubdir=
         fi
-        los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' vendor/cm/config/common.mk)
-        los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' vendor/cm/config/common.mk)
+        los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "vendor/$vendor/config/common.mk")
+        los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "vendor/$vendor/config/common.mk")
         DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver_major.$los_ver_minor-$builddate-$RELEASE_TYPE-$codename.log"
 
         if [ -f /root/userscripts/pre-build.sh ]; then
