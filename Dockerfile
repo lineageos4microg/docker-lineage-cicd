@@ -41,11 +41,6 @@ ENV DEVICE_LIST ''
 # Release type string
 ENV RELEASE_TYPE 'UNOFFICIAL'
 
-# OTA build.prop key that will be used inside Updater/CMUpdater
-# This should be set to 'cm.updater.uri. for LineageOS/Cyanogenmod <= 14.1 and
-# to 'lineage.updater.uri' for LineageOS >= 15.0
-ENV OTA_PROP 'cm.updater.uri'
-
 # OTA URL that will be used inside CMUpdater
 # Use this in combination with LineageOTA to make sure your device can auto-update itself from this buildbot
 ENV OTA_URL ''

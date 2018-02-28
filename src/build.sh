@@ -138,6 +138,10 @@ for branch in $BRANCH_NAME; do
       exit 1
     fi
 
+    los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "vendor/$vendor/config/common.mk")
+    los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "vendor/$vendor/config/common.mk")
+    los_ver="$los_ver_major.$los_ver_minor"
+
     # If needed, apply the microG's signature spoofing patch
     if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
       # Determine which patch should be applied to the current Android source tree
@@ -173,8 +177,14 @@ for branch in $BRANCH_NAME; do
 
     # Set a custom updater URI if a OTA URL is provided
     if ! [ -z "$OTA_URL" ]; then
+      if [ "$los_ver_major" -ge "15" ]; then
+        ota_prop="lineage.updater.uri"
+      else
+        ota_prop="cm.updater.uri"
+      fi
+
       echo ">> [$(date)] Adding OTA URL '$OTA_URL' to build.prop"
-      sed -i "1s;^;PRODUCT_PROPERTY_OVERRIDES += $OTA_PROP=$OTA_URL\n\n;" "vendor/$vendor/config/common.mk"
+      sed -i "1s;^;PRODUCT_PROPERTY_OVERRIDES += $ota_prop=$OTA_URL\n\n;" "vendor/$vendor/config/common.mk"
     fi
 
     # Add custom packages to be installed
@@ -240,9 +250,6 @@ for branch in $BRANCH_NAME; do
           logsubdir=
         fi
 
-        los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "vendor/$vendor/config/common.mk")
-        los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "vendor/$vendor/config/common.mk")
-        los_ver="$los_ver_major.$los_ver_minor"
         DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
         if [ -f /root/userscripts/pre-build.sh ]; then
