@@ -239,9 +239,11 @@ for branch in $BRANCH_NAME; do
         else
           logsubdir=
         fi
+
         los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "vendor/$vendor/config/common.mk")
         los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "vendor/$vendor/config/common.mk")
-        DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver_major.$los_ver_minor-$builddate-$RELEASE_TYPE-$codename.log"
+        los_ver="$los_ver_major.$los_ver_minor"
+        DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
         if [ -f /root/userscripts/pre-build.sh ]; then
           echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG" 2>&1
@@ -268,7 +270,7 @@ for branch in $BRANCH_NAME; do
                 echo ">> [$(date)] Delta generation for $codename failed" | tee -a "$DEBUG_LOG"
               fi
               if [ "$DELETE_OLD_DELTAS" -gt "0" ]; then
-                /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS "$DELTA_DIR" >> "$DEBUG_LOG" 2>&1
+                /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS -V $los_ver -N 1 "$DELTA_DIR" >> $DEBUG_LOG 2>&1
               fi
               cd "$TMP_DIR/merged"
             else
@@ -293,10 +295,10 @@ for branch in $BRANCH_NAME; do
 
         # Remove old zips and logs
         if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
-          /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS "$ZIP_DIR"
+          /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS -V $los_ver -N 1 "$ZIP_DIR"
         fi
         if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
-          /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS "$LOGS_DIR"
+          /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS -V $los_ver -N 1 "$LOGS_DIR"
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG" 2>&1
