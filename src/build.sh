@@ -19,6 +19,7 @@
 
 IFS=','
 shopt -s dotglob
+shopt -s extglob
 
 # cd to working directory
 cd "$SRC_DIR"
@@ -31,7 +32,7 @@ fi
 # If requested, clean the OUT dir in order to avoid clutter
 if [ "$CLEAN_OUTDIR" = true ]; then
   echo ">> [$(date)] Cleaning '$ZIP_DIR'"
-  rm "$ZIP_DIR/*"
+  rm "$ZIP_DIR/"*
 fi
 
 # Treat DEVICE_LIST as DEVICE_LIST_<first_branch>
@@ -44,32 +45,38 @@ fi
 
 # If needed, migrate from the old SRC_DIR structure
 if [ -d "$SRC_DIR/.repo" ]; then
-  echo ">> [$(date)] Removing old repository"
-  rm -rf "$SRC_DIR/*"
+  branch_dir=$(repo info -o | sed -ne 's/Manifest branch: refs\/heads\///p' | sed 's/[^[:alnum:]]/_/g')
+  branch_dir=${branch_dir^^}
+  echo ">> [$(date)] WARNING: old source dir detected, moving source from \"\$SRC_DIR\" to \"\$SRC_DIR/$branch_dir\""
+  if [ -d "$branch_dir" ] && [ -z "$(ls -A "$branch_dir")" ]; then
+    echo ">> [$(date)] ERROR: $branch_dir already exists and is not empty; aborting"
+  fi
+  mkdir -p "$branch_dir"
+  mv !("$branch_dir") "$branch_dir"
 fi
 
-mkdir -p "$TMP_DIR/device"
-mkdir -p "$TMP_DIR/workdir"
-mkdir -p "$TMP_DIR/merged"
+if [ "$LOCAL_MIRROR" = true ]; then
 
-cd "$MIRROR_DIR"
+  cd "$MIRROR_DIR"
 
-if [ ! -d .repo ]; then
-  echo ">> [$(date)] Initializing mirror repository"
-  yes | repo init -q -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux
+  if [ ! -d .repo ]; then
+    echo ">> [$(date)] Initializing mirror repository"
+    yes | repo init -q -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux
+  fi
+
+  # Copy local manifests to the appropriate folder in order take them into consideration
+  echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
+  mkdir -p .repo/local_manifests
+  rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_manifests/
+
+  rm -f .repo/local_manifests/proprietary.xml
+  if [ "$INCLUDE_PROPRIETARY" = true ]; then
+    wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/mirror/default.xml"
+  fi
+
+  echo ">> [$(date)] Syncing mirror repository"
+  repo sync -q --force-sync --no-clone-bundle
 fi
-
-# Copy local manifests to the appropriate folder in order take them into consideration
-echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
-mkdir -p .repo/local_manifests
-rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_manifests/
-
-if [ "$INCLUDE_PROPRIETARY" = true ]; then
-  wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/mirror/default.xml"
-fi
-
-echo ">> [$(date)] Syncing mirror repository"
-repo sync -q --force-sync --no-clone-bundle
 
 for branch in $BRANCH_NAME; do
   branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< $branch)
@@ -93,9 +100,11 @@ for branch in $BRANCH_NAME; do
       fi
     done
 
-    if [ ! -d .repo ]; then
-      echo ">> [$(date)] Initializing branch repository"
+    echo ">> [$(date)] (Re)initializing branch repository"
+    if [ "$LOCAL_MIRROR" = true ]; then
       yes | repo init -q -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch"
+    else
+      yes | repo init -q -u https://github.com/LineageOS/android.git -b "$branch"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
@@ -103,6 +112,7 @@ for branch in $BRANCH_NAME; do
     mkdir -p .repo/local_manifests
     rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_manifests/
 
+    rm -f .repo/local_manifests/proprietary.xml
     if [ "$INCLUDE_PROPRIETARY" = true ]; then
       if [[ $branch =~ .*cm\-13\.0.* ]]; then
         themuppets_branch=cm-13.0
@@ -114,6 +124,7 @@ for branch in $BRANCH_NAME; do
         themuppets_branch=lineage-15.1
         echo ">> [$(date)] Can't find a matching branch on github.com/TheMuppets, using $themuppets_branch"
       fi
+
       wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
     fi
 
@@ -225,17 +236,27 @@ for branch in $BRANCH_NAME; do
         currentdate=$(date +%Y%m%d)
         if [ "$builddate" != "$currentdate" ]; then
           # Sync the source code
-          echo ">> [$(date)] Syncing mirror repository"
           builddate=$currentdate
-          cd "$MIRROR_DIR"
-          repo sync -q --force-sync --no-clone-bundle
+
+          if [ "$LOCAL_MIRROR" = true ]; then
+            echo ">> [$(date)] Syncing mirror repository"
+            cd "$MIRROR_DIR"
+            repo sync -q --force-sync --no-clone-bundle
+          fi
+
           echo ">> [$(date)] Syncing branch repository"
           cd "$SRC_DIR/$branch_dir"
           repo sync -q -c --force-sync
         fi
 
-        mount -t overlay overlay -o lowerdir="$SRC_DIR/$branch_dir",upperdir="$TMP_DIR/device",workdir="$TMP_DIR/workdir" "$TMP_DIR/merged"
-        cd "$TMP_DIR/merged"
+        if [ "$BUILD_OVERLAY" = true ]; then
+          mkdir -p "$TMP_DIR/device" "$TMP_DIR/workdir" "$TMP_DIR/merged"
+          mount -t overlay overlay -o lowerdir="$SRC_DIR/$branch_dir",upperdir="$TMP_DIR/device",workdir="$TMP_DIR/workdir" "$TMP_DIR/merged"
+          source_dir="$TMP_DIR/merged"
+        else
+          source_dir="$SRC_DIR/$branch_dir"
+        fi
+        cd "$source_dir"
 
         if [ "$ZIP_SUBDIR" = true ]; then
           zipsubdir=$codename
@@ -279,12 +300,12 @@ for branch in $BRANCH_NAME; do
               if [ "$DELETE_OLD_DELTAS" -gt "0" ]; then
                 /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS -V $los_ver -N 1 "$DELTA_DIR" >> $DEBUG_LOG 2>&1
               fi
-              cd "$TMP_DIR/merged"
+              cd "$source_dir"
             else
-              # If the first build, copy the current full zip in $SRC_DIR/merged/delta_last/$codename/
+              # If the first build, copy the current full zip in $source_dir/delta_last/$codename/
               echo ">> [$(date)] No previous build for $codename; using current build as base for the next delta" | tee -a "$DEBUG_LOG"
               mkdir -p delta_last/$codename/ >> "$DEBUG_LOG" 2>&1
-              find out/target/product/$codename -name 'lineage-*.zip' -type f -maxdepth 1 -exec cp {} "$SRC_DIR/merged/delta_last/$codename/" \; >> "$DEBUG_LOG" 2>&1
+              find out/target/product/$codename -name 'lineage-*.zip' -type f -maxdepth 1 -exec cp {} "$source_dir/delta_last/$codename/" \; >> "$DEBUG_LOG" 2>&1
             fi
           fi
           # Move produced ZIP files to the main OUT directory
@@ -294,7 +315,7 @@ for branch in $BRANCH_NAME; do
             sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
           done
           find . -name 'lineage-*.zip*' -type f -maxdepth 1 -exec mv {} "$ZIP_DIR/$zipsubdir/" \; >> "$DEBUG_LOG" 2>&1
-          cd "$TMP_DIR/merged"
+          cd "$source_dir"
           build_successful=true
         else
           echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
@@ -313,28 +334,34 @@ for branch in $BRANCH_NAME; do
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
-        # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
-        cd "$TMP_DIR"
-        if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
-          "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" > /dev/null 2>&1 || true
+        if [ "$BUILD_OVERLAY" = true ]; then
+          # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
+          cd "$TMP_DIR"
+          if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
+            "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" > /dev/null 2>&1 || true
+          fi
+          lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill > /dev/null 2>&1
+
+          while [ ! -z "$(lsof | grep $TMP_DIR/merged)" ]; do
+            sleep 1
+          done
+
+          umount "$TMP_DIR/merged"
         fi
-        lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill > /dev/null 2>&1
 
-        while [ ! -z "$(lsof | grep $TMP_DIR/merged)" ]; do
-          sleep 1
-        done
-
-        umount "$TMP_DIR/merged"
-        echo ">> [$(date)] Cleaning source dir for device $codename"
-        rm -rf device/*
+        if [ "$CLEAN_AFTER_BUILD" = true ]; then
+          echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
+          if [ "$BUILD_OVERLAY" = true ]; then
+            cd "$TMP_DIR"
+            rm -rf "$TMP_DIR/"*
+          else
+            cd "$source_dir"
+            mka clean >> "$DEBUG_LOG" 2>&1
+          fi
+        fi
 
       fi
     done
-
-    # Clean the branch source directory if requested
-    if [ "$CLEAN_SRCDIR" = true ]; then
-      rm -rf "$SRC_DIR/$branch_dir"
-    fi
 
   fi
 done

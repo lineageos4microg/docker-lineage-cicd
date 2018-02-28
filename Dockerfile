@@ -53,8 +53,11 @@ ENV USER_MAIL 'lineageos-buildbot@docker.host'
 # Only some branches are supported
 ENV INCLUDE_PROPRIETARY true
 
-# If you want to start always fresh (re-create all the source code everytime) set this to 'true'
-ENV CLEAN_SRCDIR false
+# Mount an overlay filesystem over the source dir to do each build on a clean source
+ENV BUILD_OVERLAY false
+
+# Clone the full LineageOS mirror (> 200 GB)
+ENV LOCAL_MIRROR false
 
 # If you want to preserve old ZIPs set this to 'false'
 ENV CLEAN_OUTDIR false
@@ -63,6 +66,9 @@ ENV CLEAN_OUTDIR false
 # Use 'now' to start the build immediately
 # For example, '0 10 * * *' means 'Every day at 10:00 UTC'
 ENV CRONTAB_TIME 'now'
+
+# Clean artifacts output after each build
+ENV CLEAN_AFTER_BUILD true
 
 # Provide root capabilities builtin inside the ROM (see http://lineageos.org/Update-and-Build-Prep/)
 ENV WITH_SU false
