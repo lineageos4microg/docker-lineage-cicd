@@ -20,6 +20,7 @@
 IFS=','
 shopt -s dotglob
 shopt -s extglob
+repo_log="$LOGS_DIR/repo-$(date +%Y%m%d).log"
 
 # cd to working directory
 cd "$SRC_DIR"
@@ -60,8 +61,8 @@ if [ "$LOCAL_MIRROR" = true ]; then
   cd "$MIRROR_DIR"
 
   if [ ! -d .repo ]; then
-    echo ">> [$(date)] Initializing mirror repository"
-    yes | repo init -q -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux
+    echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
+    yes | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux >> "$repo_log" 2>&1
   fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
@@ -74,8 +75,8 @@ if [ "$LOCAL_MIRROR" = true ]; then
     wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/mirror/default.xml"
   fi
 
-  echo ">> [$(date)] Syncing mirror repository"
-  repo sync -q --force-sync --no-clone-bundle
+  echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
+  repo sync --force-sync --no-clone-bundle >> "$repo_log" 2>&1
 fi
 
 for branch in $BRANCH_NAME; do
@@ -100,11 +101,11 @@ for branch in $BRANCH_NAME; do
       fi
     done
 
-    echo ">> [$(date)] (Re)initializing branch repository"
+    echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
     if [ "$LOCAL_MIRROR" = true ]; then
-      yes | repo init -q -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch"
+      yes | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" >> "$repo_log" 2>&1
     else
-      yes | repo init -q -u https://github.com/LineageOS/android.git -b "$branch"
+      yes | repo init -u https://github.com/LineageOS/android.git -b "$branch" >> "$repo_log" 2>&1
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
@@ -128,9 +129,9 @@ for branch in $BRANCH_NAME; do
       wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
     fi
 
-    echo ">> [$(date)] Syncing branch repository"
+    echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     builddate=$(date +%Y%m%d)
-    repo sync -q -c --force-sync
+    repo sync -c --force-sync >> "$repo_log" 2>&1
 
     android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.OPM1 := //p' build/core/version_defaults.mk)
     if [ -z $android_version ]; then
@@ -239,14 +240,14 @@ for branch in $BRANCH_NAME; do
           builddate=$currentdate
 
           if [ "$LOCAL_MIRROR" = true ]; then
-            echo ">> [$(date)] Syncing mirror repository"
+            echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
             cd "$MIRROR_DIR"
-            repo sync -q --force-sync --no-clone-bundle
+            repo sync --force-sync --no-clone-bundle >> "$repo_log" 2>&1
           fi
 
-          echo ">> [$(date)] Syncing branch repository"
+          echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
           cd "$SRC_DIR/$branch_dir"
-          repo sync -q -c --force-sync
+          repo sync -c --force-sync >> "$repo_log" 2>&1
         fi
 
         if [ "$BUILD_OVERLAY" = true ]; then
