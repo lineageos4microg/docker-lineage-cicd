@@ -62,7 +62,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
 
   if [ ! -d .repo ]; then
     echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
-    yes | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux >> "$repo_log" 2>&1
+    yes | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux &>> "$repo_log"
   fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
@@ -76,7 +76,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
 
   echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-  repo sync --force-sync --no-clone-bundle >> "$repo_log" 2>&1
+  repo sync --force-sync --no-clone-bundle &>> "$repo_log"
 fi
 
 for branch in $BRANCH_NAME; do
@@ -103,9 +103,9 @@ for branch in $BRANCH_NAME; do
 
     echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
     if [ "$LOCAL_MIRROR" = true ]; then
-      yes | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" >> "$repo_log" 2>&1
+      yes | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
     else
-      yes | repo init -u https://github.com/LineageOS/android.git -b "$branch" >> "$repo_log" 2>&1
+      yes | repo init -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
@@ -131,7 +131,7 @@ for branch in $BRANCH_NAME; do
 
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     builddate=$(date +%Y%m%d)
-    repo sync -c --force-sync >> "$repo_log" 2>&1
+    repo sync -c --force-sync &>> "$repo_log"
 
     android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.OPM1 := //p' build/core/version_defaults.mk)
     if [ -z $android_version ]; then
@@ -220,7 +220,7 @@ for branch in $BRANCH_NAME; do
     fi
 
     echo ">> [$(date)] Using OpenJDK $jdk_version"
-    update-java-alternatives -s java-1.$jdk_version.0-openjdk-amd64 > /dev/null 2>&1
+    update-java-alternatives -s java-1.$jdk_version.0-openjdk-amd64 &> /dev/null
 
     # Prepare the environment
     echo ">> [$(date)] Preparing build environment"
@@ -242,12 +242,12 @@ for branch in $BRANCH_NAME; do
           if [ "$LOCAL_MIRROR" = true ]; then
             echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
             cd "$MIRROR_DIR"
-            repo sync --force-sync --no-clone-bundle >> "$repo_log" 2>&1
+            repo sync --force-sync --no-clone-bundle &>> "$repo_log"
           fi
 
           echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
           cd "$SRC_DIR/$branch_dir"
-          repo sync -c --force-sync >> "$repo_log" 2>&1
+          repo sync -c --force-sync &>> "$repo_log"
         fi
 
         if [ "$BUILD_OVERLAY" = true ]; then
@@ -275,17 +275,17 @@ for branch in $BRANCH_NAME; do
         DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
         if [ -f /root/userscripts/pre-build.sh ]; then
-          echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG" 2>&1
-          /root/userscripts/pre-build.sh $codename >> "$DEBUG_LOG" 2>&1
+          echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
+          /root/userscripts/pre-build.sh $codename &>> "$DEBUG_LOG"
         fi
 
         # Start the build
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
         build_successful=false
-        if brunch $codename >> "$DEBUG_LOG" 2>&1; then
+        if brunch $codename &>> "$DEBUG_LOG"; then
           currentdate=$(date +%Y%m%d)
           if [ "$builddate" != "$currentdate" ]; then
-            find out/target/product/$codename -name "lineage-*-$currentdate-*.zip*" -type f -maxdepth 1 -exec sh /root/fix_build_date.sh {} $currentdate $builddate \; >> "$DEBUG_LOG" 2>&1
+            find out/target/product/$codename -name "lineage-*-$currentdate-*.zip*" -type f -maxdepth 1 -exec sh /root/fix_build_date.sh {} $currentdate $builddate \; &>> "$DEBUG_LOG"
           fi
 
           if [ "$BUILD_DELTA" = true ]; then
@@ -293,20 +293,20 @@ for branch in $BRANCH_NAME; do
               # If not the first build, create delta files
               echo ">> [$(date)] Generating delta files for $codename" | tee -a "$DEBUG_LOG"
               cd /root/delta
-              if ./opendelta.sh $codename >> "$DEBUG_LOG" 2>&1; then
+              if ./opendelta.sh $codename &>> "$DEBUG_LOG"; then
                 echo ">> [$(date)] Delta generation for $codename completed" | tee -a "$DEBUG_LOG"
               else
                 echo ">> [$(date)] Delta generation for $codename failed" | tee -a "$DEBUG_LOG"
               fi
               if [ "$DELETE_OLD_DELTAS" -gt "0" ]; then
-                /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS -V $los_ver -N 1 "$DELTA_DIR" >> $DEBUG_LOG 2>&1
+                /usr/bin/python /root/clean_up.py -n $DELETE_OLD_DELTAS -V $los_ver -N 1 "$DELTA_DIR" &>> $DEBUG_LOG
               fi
               cd "$source_dir"
             else
               # If the first build, copy the current full zip in $source_dir/delta_last/$codename/
               echo ">> [$(date)] No previous build for $codename; using current build as base for the next delta" | tee -a "$DEBUG_LOG"
-              mkdir -p delta_last/$codename/ >> "$DEBUG_LOG" 2>&1
-              find out/target/product/$codename -name 'lineage-*.zip' -type f -maxdepth 1 -exec cp {} "$source_dir/delta_last/$codename/" \; >> "$DEBUG_LOG" 2>&1
+              mkdir -p delta_last/$codename/ &>> "$DEBUG_LOG"
+              find out/target/product/$codename -name 'lineage-*.zip' -type f -maxdepth 1 -exec cp {} "$source_dir/delta_last/$codename/" \; &>> "$DEBUG_LOG"
             fi
           fi
           # Move produced ZIP files to the main OUT directory
@@ -315,7 +315,7 @@ for branch in $BRANCH_NAME; do
           for build in lineage-*.zip; do
             sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
           done
-          find . -name 'lineage-*.zip*' -type f -maxdepth 1 -exec mv {} "$ZIP_DIR/$zipsubdir/" \; >> "$DEBUG_LOG" 2>&1
+          find . -name 'lineage-*.zip*' -type f -maxdepth 1 -exec mv {} "$ZIP_DIR/$zipsubdir/" \; &>> "$DEBUG_LOG"
           cd "$source_dir"
           build_successful=true
         else
@@ -330,8 +330,8 @@ for branch in $BRANCH_NAME; do
           /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS -V $los_ver -N 1 "$LOGS_DIR"
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
-          echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG" 2>&1
-          /root/userscripts/post-build.sh $codename $build_successful >> "$DEBUG_LOG" 2>&1
+          echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
+          /root/userscripts/post-build.sh $codename $build_successful &>> "$DEBUG_LOG"
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
@@ -339,9 +339,9 @@ for branch in $BRANCH_NAME; do
           # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
           cd "$TMP_DIR"
           if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
-            "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" > /dev/null 2>&1 || true
+            "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" &> /dev/null || true
           fi
-          lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill > /dev/null 2>&1
+          lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null
 
           while [ ! -z "$(lsof | grep $TMP_DIR/merged)" ]; do
             sleep 1
@@ -357,7 +357,7 @@ for branch in $BRANCH_NAME; do
             rm -rf "$TMP_DIR/"*
           else
             cd "$source_dir"
-            mka clean >> "$DEBUG_LOG" 2>&1
+            mka clean &>> "$DEBUG_LOG"
           fi
         fi
 
