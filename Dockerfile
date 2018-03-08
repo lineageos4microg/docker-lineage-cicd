@@ -79,8 +79,11 @@ ENV ANDROID_JACK_VM_ARGS "-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
 # Custom packages to be installed
 ENV CUSTOM_PACKAGES ''
 
-# Key path (from the root of the android source)
+# Sign the builds with the keys in $KEYS_DIR
 ENV SIGN_BUILDS false
+
+# When SIGN_BUILDS = true but no keys have been provided, generate a new set with this subject
+ENV KEYS_SUBJECT '/C=US/ST=California/L=Mountain View/O=Android/OU=Android/CN=Android/emailAddress=android@android.com'
 
 # Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
 ENV ZIP_SUBDIR true

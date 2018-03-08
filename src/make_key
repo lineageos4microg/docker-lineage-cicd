@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+# Copyright (C) 2009 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Generates a public/private key pair suitable for use in signing
+# android .apks and OTA update packages.
+
+if [ "$#" -lt 2 -o "$#" -gt 3 ]; then
+  cat <<EOF
+Usage: $0 <name> <subject> [<keytype>]
+
+Creates <name>.pk8 key and <name>.x509.pem cert.  Cert contains the
+given <subject>. A keytype of "rsa" or "ec" is accepted.
+EOF
+  exit 2
+fi
+
+if [[ -e $1.pk8 || -e $1.x509.pem ]]; then
+  echo "$1.pk8 and/or $1.x509.pem already exist; please delete them first"
+  echo "if you want to replace them."
+  exit 1
+fi
+
+# Use named pipes to connect get the raw RSA private key to the cert-
+# and .pk8-creating programs, to avoid having the private key ever
+# touch the disk.
+
+tmpdir=$(mktemp -d)
+trap 'rm -rf ${tmpdir}; echo; exit 1' EXIT INT QUIT
+
+one=${tmpdir}/one
+two=${tmpdir}/two
+mknod ${one} p
+mknod ${two} p
+chmod 0600 ${one} ${two}
+
+read -p "Enter password for '$1' (blank for none; password will be visible): " \
+  password
+
+if [ "${3}" = "rsa" -o "$#" -eq 2 ]; then
+  ( openssl genrsa -f4 2048 | tee ${one} > ${two} ) &
+  hash="-sha256"
+elif [ "${3}" = "ec" ]; then
+  ( openssl ecparam -name prime256v1 -genkey -noout | tee ${one} > ${two} ) &
+  hash="-sha256"
+else
+  echo "Only accepts RSA or EC keytypes."
+  exit 1
+fi
+
+openssl req -new -x509 ${hash} -key ${two} -out $1.x509.pem \
+  -days 10000 -subj "$2" &
+
+if [ "${password}" == "" ]; then
+  echo "creating ${1}.pk8 with no password"
+  openssl pkcs8 -in ${one} -topk8 -outform DER -out $1.pk8 -nocrypt
+else
+  echo "creating ${1}.pk8 with password [${password}]"
+  export password
+  openssl pkcs8 -in ${one} -topk8 -outform DER -out $1.pk8 \
+    -passout env:password
+  unset password
+fi
+
+wait
+wait
