@@ -376,6 +376,10 @@ if ! [ -z "$OPENDELTA_BUILDS_JSON" ]; then
   /usr/bin/python /root/opendelta_builds_json.py "$ZIP_DIR" -o "$ZIP_DIR/$OPENDELTA_BUILDS_JSON"
 fi
 
+if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
+  find "$LOGS_DIR" -maxdepth 1 -name repo-*.log | sort | head -n -$DELETE_OLD_LOGS | xargs rm
+fi
+
 if [ -f /root/userscripts/end.sh ]; then
   echo ">> [$(date)] Running end.sh"
   /root/userscripts/end.sh
