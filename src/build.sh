@@ -97,6 +97,7 @@ for branch in $BRANCH_NAME; do
       if [ -d "$path" ]; then
         cd "$path"
         git reset -q --hard
+        git clean -q -fd
         cd "$SRC_DIR/$branch_dir"
       fi
     done
@@ -178,6 +179,11 @@ for branch in $BRANCH_NAME; do
         fi
         git clean -q -f
         cd ../..
+
+        # Override device-specific settings for the location providers
+        sed -i "1s;^;PRODUCT_PACKAGE_OVERLAYS := vendor/$vendor/overlay/microg\n;" "vendor/$vendor/config/common.mk"
+        mkdir -p "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/"
+        cp /root/signature_spoofing_patches/frameworks_base_config.xml "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/config.xml"
       else
         echo ">> [$(date)] ERROR: can't find a suitable signature spoofing patch for the current Android version ($android_version)"
         exit 1
