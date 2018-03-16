@@ -26,7 +26,8 @@ from argparse import ArgumentParser
 
 ROM_NAME = "lineage"
 
-def clean_path(path, builds_to_keep, current_version, old_builds_to_keep):
+def clean_path(path, builds_to_keep, current_version, old_builds_to_keep,
+               current_codename):
     files = []
     scandir = path[:-1] if path[-1] == "/" else path
 
@@ -61,17 +62,18 @@ def clean_path(path, builds_to_keep, current_version, old_builds_to_keep):
         build_list.sort(key=lambda b: b[0])
         n_builds = len(build_list)
 
-        if current_version:
-            if current_version == build_hash[0]:
-                keep_num = builds_to_keep
+        if not current_codename or build_hash[1] == current_codename:
+            if current_version:
+                if current_version == build_hash[0]:
+                    keep_num = builds_to_keep
+                else:
+                    keep_num = old_builds_to_keep
             else:
-                keep_num = old_builds_to_keep
-        else:
-            keep_num = builds_to_keep
+                keep_num = builds_to_keep
 
-        if n_builds > keep_num:
-            for b in build_list[0:n_builds-keep_num]:
-                list(map(remove, b[1]))
+            if n_builds > keep_num:
+                for b in build_list[0:n_builds-keep_num]:
+                    list(map(remove, b[1]))
 
 
 def main():
@@ -87,9 +89,11 @@ def main():
     parser.add_argument('-N', metavar='N_BUILDS_OLD', type=int, nargs='?',
                         default=1, help='select the number of builds to keep '
                         'when not of the specified version')
+    parser.add_argument('-c', metavar='CODENAME', type=str, nargs='?',
+                        help='clean only CODENAME zips')
     args = parser.parse_args()
     for path in args.paths:
-        clean_path(path, args.n, args.V, args.N)
+        clean_path(path, args.n, args.V, args.N, args.c)
 
 
 if __name__ == "__main__":
