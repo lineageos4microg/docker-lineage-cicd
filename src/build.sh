@@ -38,7 +38,7 @@ fi
 
 # Treat DEVICE_LIST as DEVICE_LIST_<first_branch>
 first_branch=$(cut -d ',' -f 1 <<< "$BRANCH_NAME")
-if [ ! -z "$DEVICE_LIST" ]; then
+if [ -n "$DEVICE_LIST" ]; then
   device_list_first_branch="DEVICE_LIST_$(sed 's/[^[:alnum:]]/_/g' <<< $first_branch)"
   device_list_first_branch=${device_list_first_branch^^}
   read $device_list_first_branch <<< "$DEVICE_LIST,${!device_list_first_branch}"
@@ -84,7 +84,7 @@ for branch in $BRANCH_NAME; do
   branch_dir=${branch_dir^^}
   device_list_cur_branch="DEVICE_LIST_$branch_dir"
 
-  if [ ! -z "$branch" ] && [ ! -z "${!device_list_cur_branch}" ]; then
+  if [ -n "$branch" ] && [ -n "${!device_list_cur_branch}" ]; then
 
     mkdir -p "$SRC_DIR/$branch_dir"
     cd "$SRC_DIR/$branch_dir"
@@ -357,7 +357,7 @@ for branch in $BRANCH_NAME; do
           fi
           lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null
 
-          while [ ! -z "$(lsof | grep $TMP_DIR/merged)" ]; do
+          while [ -n "$(lsof | grep $TMP_DIR/merged)" ]; do
             sleep 1
           done
 
