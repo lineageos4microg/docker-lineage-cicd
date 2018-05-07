@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-IFS=','
-shopt -s dotglob
-shopt -s extglob
 repo_log="$LOGS_DIR/repo-$(date +%Y%m%d).log"
 
 # cd to working directory
@@ -33,7 +30,7 @@ fi
 # If requested, clean the OUT dir in order to avoid clutter
 if [ "$CLEAN_OUTDIR" = true ]; then
   echo ">> [$(date)] Cleaning '$ZIP_DIR'"
-  rm "$ZIP_DIR/"*
+  rm -rf "$ZIP_DIR/"*
 fi
 
 # Treat DEVICE_LIST as DEVICE_LIST_<first_branch>
@@ -53,7 +50,7 @@ if [ -d "$SRC_DIR/.repo" ]; then
     echo ">> [$(date)] ERROR: $branch_dir already exists and is not empty; aborting"
   fi
   mkdir -p "$branch_dir"
-  mv !("$branch_dir") "$branch_dir"
+  find . -maxdepth 1 ! -name "$branch_dir" ! -path . -exec mv {} "$branch_dir" \;
 fi
 
 if [ "$LOCAL_MIRROR" = true ]; then
@@ -79,18 +76,19 @@ if [ "$LOCAL_MIRROR" = true ]; then
   repo sync --force-sync --no-clone-bundle &>> "$repo_log"
 fi
 
-for branch in $BRANCH_NAME; do
+for branch in ${BRANCH_NAME//,/ }; do
   branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< $branch)
   branch_dir=${branch_dir^^}
   device_list_cur_branch="DEVICE_LIST_$branch_dir"
+  devices=${!device_list_cur_branch}
 
-  if [ -n "$branch" ] && [ -n "${!device_list_cur_branch}" ]; then
+  if [ -n "$branch" ] && [ -n "$devices" ]; then
 
     mkdir -p "$SRC_DIR/$branch_dir"
     cd "$SRC_DIR/$branch_dir"
 
     echo ">> [$(date)] Branch:  $branch"
-    echo ">> [$(date)] Devices: ${!device_list_cur_branch}"
+    echo ">> [$(date)] Devices: $devices"
 
     # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
     for path in "vendor/cm" "vendor/lineage" "frameworks/base"; do
@@ -246,7 +244,7 @@ for branch in $BRANCH_NAME; do
       /root/userscripts/before.sh
     fi
 
-    for codename in ${!device_list_cur_branch}; do
+    for codename in ${devices//,/ }; do
       if ! [ -z "$codename" ]; then
 
         currentdate=$(date +%Y%m%d)
@@ -377,7 +375,7 @@ for branch in $BRANCH_NAME; do
           echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
           if [ "$BUILD_OVERLAY" = true ]; then
             cd "$TMP_DIR"
-            rm -rf "$TMP_DIR/"*
+            rm -rf ./*
           else
             cd "$source_dir"
             mka clean &>> "$DEBUG_LOG"
