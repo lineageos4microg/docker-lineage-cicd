@@ -298,7 +298,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         if brunch $codename &>> "$DEBUG_LOG"; then
           currentdate=$(date +%Y%m%d)
           if [ "$builddate" != "$currentdate" ]; then
-            find out/target/product/$codename -name "lineage-*-$currentdate-*.zip*" -type f -maxdepth 1 -exec sh /root/fix_build_date.sh {} $currentdate $builddate \; &>> "$DEBUG_LOG"
+            find out/target/product/$codename -maxdepth 1 -name "lineage-*-$currentdate-*.zip*" -type f -exec sh /root/fix_build_date.sh {} $currentdate $builddate \; &>> "$DEBUG_LOG"
           fi
 
           if [ "$BUILD_DELTA" = true ]; then
@@ -319,7 +319,7 @@ for branch in ${BRANCH_NAME//,/ }; do
               # If the first build, copy the current full zip in $source_dir/delta_last/$codename/
               echo ">> [$(date)] No previous build for $codename; using current build as base for the next delta" | tee -a "$DEBUG_LOG"
               mkdir -p delta_last/$codename/ &>> "$DEBUG_LOG"
-              find out/target/product/$codename -name 'lineage-*.zip' -type f -maxdepth 1 -exec cp {} "$source_dir/delta_last/$codename/" \; &>> "$DEBUG_LOG"
+              find out/target/product/$codename -maxdepth 1 -name 'lineage-*.zip' -type f -exec cp {} "$source_dir/delta_last/$codename/" \; &>> "$DEBUG_LOG"
             fi
           fi
           # Move produced ZIP files to the main OUT directory
@@ -328,7 +328,7 @@ for branch in ${BRANCH_NAME//,/ }; do
           for build in lineage-*.zip; do
             sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
           done
-          find . -name 'lineage-*.zip*' -type f -maxdepth 1 -exec mv {} "$ZIP_DIR/$zipsubdir/" \; &>> "$DEBUG_LOG"
+          find . -maxdepth 1 -name 'lineage-*.zip*' -type f -exec mv {} "$ZIP_DIR/$zipsubdir/" \; &>> "$DEBUG_LOG"
           cd "$source_dir"
           build_successful=true
         else
