@@ -120,6 +120,8 @@ for branch in ${BRANCH_NAME//,/ }; do
         themuppets_branch=cm-14.1
       elif [[ $branch =~ .*lineage-15\.1.* ]]; then
         themuppets_branch=lineage-15.1
+      elif [[ $branch =~ .*lineage-16\.0.* ]]; then
+        themuppets_branch=lineage-16.0	  
       else
         themuppets_branch=lineage-15.1
         echo ">> [$(date)] Can't find a matching branch on github.com/TheMuppets, using $themuppets_branch"
@@ -167,6 +169,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         6.*  )    patch_name="android_frameworks_base-M.patch" ;;
         7.*  )    patch_name="android_frameworks_base-N.patch" ;;
         8.*  )    patch_name="android_frameworks_base-O.patch" ;;
+	9.*  )    patch_name="android_frameworks_base-P.pathc" ;;
       esac
 
       if ! [ -z $patch_name ]; then
