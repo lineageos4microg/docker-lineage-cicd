@@ -126,8 +126,12 @@ for branch in ${BRANCH_NAME//,/ }; do
         themuppets_branch=lineage-15.1
         echo ">> [$(date)] Can't find a matching branch on github.com/TheMuppets, using $themuppets_branch"
       fi
-
-      wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
+      #themuppets doesn't have 16.0/muppets.xml available yet, so we have a copy in src.
+      if [ $themuppets_branch != "lineage-16.0" ]; then
+	  wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
+      else
+	  cp /root/muppets16.xml .repo/local_manifests/proprietary.xml
+      fi
     fi
 
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
@@ -136,6 +140,8 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.OPM1 := //p' build/core/version_defaults.mk)
     if [ -z $android_version ]; then
+      android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.PPR1 := //p' build/core/version_defaults.mk) #This is a brittle solution
+    elif [ -z $android_version ]; then
       android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION := //p' build/core/version_defaults.mk)
     fi
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
@@ -169,7 +175,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         6.*  )    patch_name="android_frameworks_base-M.patch" ;;
         7.*  )    patch_name="android_frameworks_base-N.patch" ;;
         8.*  )    patch_name="android_frameworks_base-O.patch" ;;
-	9.*  )    patch_name="android_frameworks_base-P.pathc" ;;
+	9*  )    patch_name="android_frameworks_base-P.patch" ;; #not sure why 9 not 9.0 but here's a fix that will work until android 90
       esac
 
       if ! [ -z $patch_name ]; then
