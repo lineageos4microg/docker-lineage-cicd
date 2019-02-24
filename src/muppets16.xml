@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="TheMuppets/proprietary_vendor_asus" path="vendor/asus"/>
+  <project name="TheMuppets/proprietary_vendor_bq" path="vendor/bq"/>
+  <project name="TheMuppets/proprietary_vendor_essential" path="vendor/essential"/>
+  <project name="TheMuppets/proprietary_vendor_fairphone" path="vendor/fairphone"/>
+  <project name="TheMuppets/proprietary_vendor_google" path="vendor/google"/>
+  <project name="TheMuppets/proprietary_vendor_htc" path="vendor/htc"/>
+  <project name="TheMuppets/proprietary_vendor_huawei" path="vendor/huawei"/>
+  <project name="TheMuppets/proprietary_vendor_leeco" path="vendor/leeco"/>
+  <project name="TheMuppets/proprietary_vendor_lenovo" path="vendor/lenovo"/>
+  <project name="TheMuppets/proprietary_vendor_lge" path="vendor/lge"/>
+  <project name="TheMuppets/proprietary_vendor_motorola" path="vendor/motorola"/>
+  <project name="TheMuppets/proprietary_vendor_nextbit" path="vendor/nextbit"/>
+  <project name="TheMuppets/proprietary_vendor_oneplus" path="vendor/oneplus"/>
+  <project name="TheMuppets/proprietary_vendor_oppo" path="vendor/oppo"/>
+  <project name="TheMuppets/proprietary_vendor_samsung" path="vendor/samsung"/>
+  <project name="TheMuppets/proprietary_vendor_sony" path="vendor/sony"/>
+  <project name="TheMuppets/proprietary_vendor_wileyfox" path="vendor/wileyfox"/>
+  <project name="TheMuppets/proprietary_vendor_xiaomi" path="vendor/xiaomi"/>
+  <project name="TheMuppets/proprietary_vendor_yu" path="vendor/yu"/>
+  <project name="TheMuppets/proprietary_vendor_zuk" path="vendor/zuk"/>
+</manifest>
