@@ -126,12 +126,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         themuppets_branch=lineage-15.1
         echo ">> [$(date)] Can't find a matching branch on github.com/TheMuppets, using $themuppets_branch"
       fi
-      #themuppets doesn't have 16.0/muppets.xml available yet, so we have a copy in src.
-      if [ $themuppets_branch != "lineage-16.0" ]; then
-	  wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
-      else
-	  cp /root/muppets16.xml .repo/local_manifests/proprietary.xml
-      fi
+      wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
     fi
 
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
