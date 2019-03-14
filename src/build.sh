@@ -285,7 +285,11 @@ for branch in ${BRANCH_NAME//,/ }; do
           logsubdir=
         fi
 
-        DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
+        if [ "$SIGN_BUILDS" = true ]; then
+        DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-microG-$RELEASE_TYPE-$codename-signed.log"
+        else
+        DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-microG-$RELEASE_TYPE-$codename.log"
+        fi
 
         if [ -f /root/userscripts/pre-build.sh ]; then
           echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
