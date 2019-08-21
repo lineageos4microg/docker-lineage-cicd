@@ -146,6 +146,11 @@ for branch in ${BRANCH_NAME//,/ }; do
     fi
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 
+    if [ "$android_version_major" -lt "7" ]; then
+      echo ">> [$(date)] ERROR: $branch requires a JDK version too old (< 8); aborting"
+      exit 1
+    fi
+
     if [ "$android_version_major" -ge "8" ]; then
       vendor="lineage"
     else
@@ -233,18 +238,6 @@ for branch in ${BRANCH_NAME//,/ }; do
       ln -sf "$KEYS_DIR" user-keys
       sed -i "1s;^;PRODUCT_DEFAULT_DEV_CERTIFICATE := user-keys/releasekey\nPRODUCT_OTA_PUBLIC_KEYS := user-keys/releasekey\nPRODUCT_EXTRA_RECOVERY_KEYS := user-keys/releasekey\n\n;" "vendor/$vendor/config/common.mk"
     fi
-
-    if [ "$android_version_major" -ge "7" ]; then
-      jdk_version=8
-    elif [ "$android_version_major" -ge "5" ]; then
-      jdk_version=7
-    else
-      echo ">> [$(date)] ERROR: $branch requires a JDK version too old (< 7); aborting"
-      exit 1
-    fi
-
-    echo ">> [$(date)] Using OpenJDK $jdk_version"
-    update-java-alternatives -s java-1.$jdk_version.0-openjdk-amd64 &> /dev/null
 
     # Prepare the environment
     echo ">> [$(date)] Preparing build environment"
