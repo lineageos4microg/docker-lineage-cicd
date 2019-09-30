@@ -49,7 +49,7 @@ ENV OTA_URL ''
 ENV USER_NAME 'LineageOS Buildbot'
 ENV USER_MAIL 'lineageos-buildbot@docker.host'
 
-# Include proprietary files, downloaded automatically from github.com/TheMuppets/
+# Include proprietary files, downloaded automatically from github.com/TheMuppets/ and gitlab.com/the-muppets/
 # Only some branches are supported
 ENV INCLUDE_PROPRIETARY true
 
@@ -123,7 +123,7 @@ ENV OPENDELTA_BUILDS_JSON ''
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
 #  * before.sh, run after the syncing and patching, before starting the builds
-#  * pre-build.sh, run before the build of every device 
+#  * pre-build.sh, run before the build of every device
 #  * post-build.sh, run after the build of every device
 #  * end.sh, run at the very end
 # Each script will be run in $SRC_DIR and must be owned and writeable only by

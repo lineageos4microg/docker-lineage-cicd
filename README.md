@@ -89,7 +89,8 @@ three ways:
 
  * by [pulling them from a running LineageOS][blobs-pull]
  * by [extracting them from a LineageOS ZIP][blobs-extract]
- * by downloading them from [TheMuppets repos][blobs-themuppets] (unofficial)
+ * by downloading them from TheMuppets [GitHub][blobs-themuppets] and
+   [GitLab][blobs-the-muppets] repositories (unofficial)
 
 The third way is the easiest one and is enabled by default; if you're OK with
 that just move on, otherwise set `INCLUDE_PROPRIETARY (true)` to `false` and
@@ -306,6 +307,7 @@ docker run \
 [blobs-pull]: https://wiki.lineageos.org/devices/bacon/build#extract-proprietary-blobs
 [blobs-extract]: https://wiki.lineageos.org/extracting_blobs_from_zips.html
 [blobs-themuppets]: https://github.com/TheMuppets/manifests
+[blobs-the-muppets]: https://gitlab.com/the-muppets/manifest
 [lineageota]: https://github.com/julianxhokaxhiu/LineageOTA
 [los-extras]: https://download.lineageos.org/extras
 [dockerfile]: Dockerfile

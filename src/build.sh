@@ -70,6 +70,8 @@ if [ "$LOCAL_MIRROR" = true ]; then
   rm -f .repo/local_manifests/proprietary.xml
   if [ "$INCLUDE_PROPRIETARY" = true ]; then
     wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/mirror/default.xml"
+    /root/build_manifest.py --remote "https://gitlab.com" --remotename "gitlab_https" \
+      "https://gitlab.com/the-muppets/manifest/raw/mirror/default.xml" .repo/local_manifests/proprietary_gitlab.xml
   fi
 
   echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
@@ -127,6 +129,8 @@ for branch in ${BRANCH_NAME//,/ }; do
         echo ">> [$(date)] Can't find a matching branch on github.com/TheMuppets, using $themuppets_branch"
       fi
       wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
+      /root/build_manifest.py --remote "https://gitlab.com" --remotename "gitlab_https" \
+        "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
     fi
 
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
@@ -409,4 +413,3 @@ if [ -f /root/userscripts/end.sh ]; then
   echo ">> [$(date)] Running end.sh"
   /root/userscripts/end.sh
 fi
-
