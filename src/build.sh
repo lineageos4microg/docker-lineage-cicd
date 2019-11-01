@@ -169,6 +169,9 @@ for branch in ${BRANCH_NAME//,/ }; do
     # Set up our overlay
     mkdir -p "vendor/$vendor/overlay/microg/"
     sed -i "1s;^;PRODUCT_PACKAGE_OVERLAYS := vendor/$vendor/overlay/microg\n;" "vendor/$vendor/config/common.mk"
+    
+    # Override persist.vendor.overlay.izat.optin to sweep out configurations of Qualcomm Location in rro
+    sed -i "1s;^;PRODUCT_PROPERTY_OVERRIDES += persist.vendor.overlay.izat.optin=none\n;" "vendor/$vendor/config/common.mk"
 
     los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "vendor/$vendor/config/common.mk")
     los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "vendor/$vendor/config/common.mk")
