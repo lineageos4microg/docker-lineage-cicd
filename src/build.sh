@@ -124,6 +124,10 @@ for branch in ${BRANCH_NAME//,/ }; do
         themuppets_branch=lineage-15.1
       elif [[ $branch =~ .*lineage-16\.0.* ]]; then
         themuppets_branch=lineage-16.0
+      elif [[ $branch =~ .*lineage-17\.0.* ]]; then
+        themuppets_branch=lineage-17.0
+      elif [[ $branch =~ .*lineage-17\.1.* ]]; then
+        themuppets_branch=lineage-17.1
       else
         themuppets_branch=lineage-15.1
         echo ">> [$(date)] Can't find a matching branch on github.com/TheMuppets, using $themuppets_branch"
@@ -137,14 +141,18 @@ for branch in ${BRANCH_NAME//,/ }; do
     builddate=$(date +%Y%m%d)
     repo sync -c --force-sync &>> "$repo_log"
 
-    android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.OPM1 := //p' build/core/version_defaults.mk)
+
+    android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.QP1A := //p' build/core/version_defaults.mk)
     if [ -z $android_version ]; then
-      android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.PPR1 := //p' build/core/version_defaults.mk)
+      android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.OPM1 := //p' build/core/version_defaults.mk)
       if [ -z $android_version ]; then
-        android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION := //p' build/core/version_defaults.mk)
+        android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.PPR1 := //p' build/core/version_defaults.mk)
         if [ -z $android_version ]; then
-          echo ">> [$(date)] Can't detect the android version"
-          exit 1
+          android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION := //p' build/core/version_defaults.mk)
+          if [ -z $android_version ]; then
+            echo ">> [$(date)] Can't detect the android version"
+            exit 1
+          fi
         fi
       fi
     fi
@@ -185,6 +193,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         7.*  )    patch_name="android_frameworks_base-N.patch" ;;
         8.*  )    patch_name="android_frameworks_base-O.patch" ;;
 	9*  )    patch_name="android_frameworks_base-P.patch" ;; #not sure why 9 not 9.0 but here's a fix that will work until android 90
+	10*  )    patch_name="android_frameworks_base-Q.patch" ;;
       esac
 
       if ! [ -z $patch_name ]; then
