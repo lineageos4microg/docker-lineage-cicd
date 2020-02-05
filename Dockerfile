@@ -70,6 +70,9 @@ ENV CLEAN_OUTDIR false
 # For example, '0 10 * * *' means 'Every day at 10:00 UTC'
 ENV CRONTAB_TIME 'now'
 
+# Put the boot.img in the zips directory
+ENV BOOT_IMG false
+
 # Clean artifacts output after each build
 ENV CLEAN_AFTER_BUILD true
 
