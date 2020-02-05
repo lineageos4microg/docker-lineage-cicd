@@ -264,6 +264,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     if [ -f /root/userscripts/before.sh ]; then
       echo ">> [$(date)] Running before.sh"
+      breakfast $codename
       /root/userscripts/before.sh
     fi
 
