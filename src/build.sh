@@ -262,14 +262,14 @@ for branch in ${BRANCH_NAME//,/ }; do
     echo ">> [$(date)] Preparing build environment"
     source build/envsetup.sh > /dev/null
 
-    if [ -f /root/userscripts/before.sh ]; then
-      echo ">> [$(date)] Running before.sh"
-      breakfast $codename
-      /root/userscripts/before.sh
-    fi
-
     for codename in ${devices//,/ }; do
       if ! [ -z "$codename" ]; then
+
+        if [ -f /root/userscripts/before.sh ]; then
+            echo ">> [$(date)] Running before.sh"
+            breakfast $codename
+            /root/userscripts/before.sh
+        fi
 
         currentdate=$(date +%Y%m%d)
         if [ "$builddate" != "$currentdate" ]; then
