@@ -108,6 +108,9 @@ ENV LOGS_SUBDIR true
 # example.
 ENV SIGNATURE_SPOOFING "no"
 
+# Apply the microG unifiedNLP patch
+ENV SUPPORT_UNIFIEDNLP false
+
 # Generate delta files
 ENV BUILD_DELTA false
 
