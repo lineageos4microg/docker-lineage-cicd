@@ -25,6 +25,9 @@ ENV USER root
 # WARNING: disabling this may slow down a lot your builds!
 ENV USE_CCACHE 1
 
+# We need to specify the ccache binary since it is no longer packaged along with AOSP
+ENV CACHE_EXEC /usr/bin/ccache
+
 # ccache maximum size. It should be a number followed by an optional suffix: k,
 # M, G, T (decimal), Ki, Mi, Gi or Ti (binary). The default suffix is G. Use 0
 # for no limit.
@@ -66,6 +69,9 @@ ENV CLEAN_OUTDIR false
 # Use 'now' to start the build immediately
 # For example, '0 10 * * *' means 'Every day at 10:00 UTC'
 ENV CRONTAB_TIME 'now'
+
+# Put the boot.img in the zips directory
+ENV BOOT_IMG false
 
 # Clean artifacts output after each build
 ENV CLEAN_AFTER_BUILD true
