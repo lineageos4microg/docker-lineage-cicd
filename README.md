@@ -132,6 +132,8 @@ Other useful settings are:
     mirror of the LineageOS source (> 200 GB)
  * `CRONTAB_TIME (now)`: instead of building immediately and exit, build at the
     specified time (uses standard cron format)
+ * `BOOT_IMG (false)`: copy the build boot.img into the zips folder. This is useful
+    as you may need to flash it first if your device doesn't support custom recoveries
 
 The full list of settings, including the less interesting ones not mentioned in
 this guide, can be found in the [Dockerfile][dockerfile].
