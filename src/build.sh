@@ -218,6 +218,25 @@ for branch in ${BRANCH_NAME//,/ }; do
       fi
     fi
 
+    if [ "$SUPPORT_UNIFIEDNLP" = "true" ]; then
+      # Determine which patch should be applied to the current Android source tree
+      patch_name=""
+      case $android_version in
+	      10*  )    patch_name="android_frameworks_base-Q.patch" ;;
+      esac
+
+      if ! [ -z $patch_name ]; then
+        cd frameworks/base
+          echo ">> [$(date)] Applying location services patch"
+          patch --quiet -p1 -i "/root/location_services_patches/$patch_name"
+        git clean -q -f
+        cd ../..
+      else
+        echo ">> [$(date)] ERROR: can't find a unifiednlp support patch for the current Android version ($android_version)"
+        exit 1
+      fi
+    fi
+
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
     sed -i "/\$(filter .*\$(${vendor^^}_BUILDTYPE)/,+2d" "vendor/$vendor/config/common.mk"
 

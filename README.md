@@ -76,10 +76,20 @@ The signature spoofing patch can be optionally included with:
 If in doubt, use `restricted`: note that packages that requires the
 FAKE_SIGNATURE permission must be embedded in the build by adding them in
 
+### UnifiedNLP support
+
+If you enable signature spoofing and want to use unifiednlp from microg, the patche
+to support is can be enabled using:
+ * `UNIFIEDNLP_SUPPORT` (false): `true` to patch in unifiednlp support
+
+### Custom Packages
+
  * `CUSTOM_PACKAGES`
 
 Extra packages can be included in the tree by adding the corresponding manifest
 XML to the local_manifests volume.
+
+
 
 ### Proprietary files
 

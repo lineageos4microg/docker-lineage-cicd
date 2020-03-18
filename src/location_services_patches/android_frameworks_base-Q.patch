@@ -1,0 +1,16 @@
+diff --git a/services/core/java/com/android/server/ServiceWatcher.java b/services/core/java/com/android/server/ServiceWatcher.java
+index e3dc3b7a984..d72fc64dbcd 100644
+--- a/services/core/java/com/android/server/ServiceWatcher.java
++++ b/services/core/java/com/android/server/ServiceWatcher.java
+@@ -87,9 +87,8 @@ public class ServiceWatcher implements ServiceConnection {
+         ArrayList<HashSet<Signature>> signatureSets = new ArrayList<>(packageNames.length);
+         for (String packageName : packageNames) {
+             try {
+-                Signature[] signatures = pm.getPackageInfo(packageName,
+-                        PackageManager.MATCH_SYSTEM_ONLY
+-                                | PackageManager.GET_SIGNATURES).signatures;
++		Signature[] signatures = pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures;
++
+ 
+                 HashSet<Signature> set = new HashSet<>();
+                 Collections.addAll(set, signatures);

@@ -26,7 +26,7 @@ ENV USER root
 ENV USE_CCACHE 1
 
 # We need to specify the ccache binary since it is no longer packaged along with AOSP
-ENV CACHE_EXEC /usr/bin/ccache
+ENV CCACHE_EXEC /usr/bin/ccache
 
 # ccache maximum size. It should be a number followed by an optional suffix: k,
 # M, G, T (decimal), Ki, Mi, Gi or Ti (binary). The default suffix is G. Use 0
@@ -107,6 +107,9 @@ ENV LOGS_SUBDIR true
 # apps is a much secure option. See the README.md ("Custom mode") for an
 # example.
 ENV SIGNATURE_SPOOFING "no"
+
+# Apply the microG unifiedNLP patch
+ENV SUPPORT_UNIFIEDNLP false
 
 # Generate delta files
 ENV BUILD_DELTA false
