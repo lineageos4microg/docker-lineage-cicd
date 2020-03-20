@@ -133,6 +133,8 @@ Other useful settings are:
  * `WITH_SU (false)`: set to `true` to embed `su` in the build (note that, even
     when set to `false`, you can still enable root by flashing the
     [su installable ZIP][los-extras])
+    NOTE: in lineageos 17.1 the WITH_SU flag was dropped, as it did not functioning properly in Android 10
+    The suggested replacement is Magisk https://www.xda-developers.com/lineageos-dropping-superuser-addonsu-implementation-favor-magisk-manager/
  * `RELEASE_TYPE (UNOFFICIAL)`: change the release type of your builds
  * `BUILD_OVERLAY (false)`: normally each build is done on the source tree, then
     the tree is cleaned with `mka clean`. If you want to be sure that each build
