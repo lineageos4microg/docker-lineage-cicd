@@ -202,8 +202,6 @@ it ends with `.xml`) in the `/home/user/manifests` folder with this content:
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <remote  name="github"
-           fetch="https://github.com/" />
   <project path="packages/apps/GmsCore" name="NoGooLag/android_packages_apps_GmsCore" remote="github" revision="master" />
 </manifest>
 ```
@@ -214,8 +212,6 @@ When these patches are merged into the main repo, the following can be used inst
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <remote  name="github"
-           fetch="https://github.com/" />
   <project path="packages/apps/GmsCore" name="microg/android_packages_apps_GmsCore" remote="github" revision="master" />
 </manifest>
 ```
