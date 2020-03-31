@@ -173,6 +173,57 @@ When `BUILD_OVERLAY` is `true`
 When `LOCAL_MIRROR` is `true`:
 
  * `/srv/mirror`, for the LineageOS mirror
+ 
+ 
+## Including MicroG and other packages
+
+The microG and FDroid packages are not present in the LineageOS repositories,
+and must be provided through an XML in the `/home/user/manifests`.
+
+#### LineageOS < 17.1
+
+[This][prebuiltapks] repo contains some of the most common packages for these
+kind of builds for lineageOS < 17.1: to include it create an XML (the name is irrelevant, as long as
+it ends with `.xml`) in the `/home/user/manifests` folder with this content:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="lineageos4microg/android_prebuilts_prebuiltapks" path="prebuilts/prebuiltapks" remote="github" revision="master" />
+</manifest>
+```
+
+#### LineageOS 17.1
+Some of the packages in the prebuiltapks repo are not updated for Android 10/ LineageOS 17.1
+An example of this is the MicroG apk.
+Instead of getting prebuilts, we can build it ourselves. To have it built, create an XML (the name is irrelevant, as long as
+it ends with `.xml`) in the `/home/user/manifests` folder with this content:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote  name="github"
+           fetch="https://github.com/" />
+  <project path="packages/apps/GmsCore" name="NoGooLag/android_packages_apps_GmsCore" remote="github" revision="master" />
+</manifest>
+```
+
+NOTE: This specifies a fork of MicroG with patches to fix UnifiedNLP on LineageOS 17.1
+When these patches are merged into the main repo, the following can be used instead:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote  name="github"
+           fetch="https://github.com/" />
+  <project path="packages/apps/GmsCore" name="microg/android_packages_apps_GmsCore" remote="github" revision="master" />
+</manifest>
+```
+
+Then include `GmsCore` in the `CUSTOM_PACKAGES` environment variable like this: 
+```
+    -e "CUSTOM_PACKAGES=GmsCore" \
+```
 
 ## Examples
 
