@@ -175,7 +175,7 @@ When `LOCAL_MIRROR` is `true`:
  * `/srv/mirror`, for the LineageOS mirror
  
  
-## Including MicroG and other packages
+## Including MicroG and other package pre-builts
 
 The microG and FDroid packages are not present in the LineageOS repositories,
 and must be provided through an XML in the `/home/user/manifests`.
@@ -196,27 +196,16 @@ it ends with `.xml`) in the `/home/user/manifests` folder with this content:
 #### LineageOS 17.1
 Some of the packages in the prebuiltapks repo are not updated for Android 10/ LineageOS 17.1
 An example of this is the MicroG apk.
-Instead of getting prebuilts, we can build it ourselves. To have it built, create an XML (the name is irrelevant, as long as
-it ends with `.xml`) in the `/home/user/manifests` folder with this content:
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <project path="packages/apps/GmsCore" name="NoGooLag/android_packages_apps_GmsCore" remote="github" revision="master" />
+  <project name="omnirom/android_prebuilts_prebuiltapks" path="prebuilts/prebuiltapks" remote="github" revision="android-10" />
 </manifest>
 ```
 
-NOTE: This specifies a fork of MicroG with patches to fix UnifiedNLP on LineageOS 17.1
-When these patches are merged into the main repo, the following can be used instead:
 
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest>
-  <project path="packages/apps/GmsCore" name="microg/android_packages_apps_GmsCore" remote="github" revision="master" />
-</manifest>
-```
-
-Then include `GmsCore` in the `CUSTOM_PACKAGES` environment variable like this: 
+Then include `GmsCore` or any other pre-built app name in the `CUSTOM_PACKAGES` environment variable like this: 
 ```
     -e "CUSTOM_PACKAGES=GmsCore" \
 ```
