@@ -200,12 +200,12 @@ An example of this is the MicroG apk.
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <project name="omnirom/android_prebuilts_prebuiltapks" path="prebuilts/prebuiltapks" remote="github" revision="android-10" />
+  <project name="SolidHal/android_prebuilts_prebuiltapks" path="packages/apps/prebuilt" remote="github" revision="master" />
 </manifest>
 ```
 
 
-Then include `GmsCore` or any other pre-built app name in the `CUSTOM_PACKAGES` environment variable like this: 
+Then include `GmsCore` and/or any other pre-built app name in the `CUSTOM_PACKAGES` environment variable like this: 
 ```
     -e "CUSTOM_PACKAGES=GmsCore" \
 ```
