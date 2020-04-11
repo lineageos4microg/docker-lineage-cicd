@@ -20,9 +20,9 @@ import xml.etree.ElementTree as ET
 import argparse
 
 try:
-    from urllib.request import urlopen
+    from urllib.request import urlopen, Request
 except ImportError:
-    from urllib2 import urlopen
+    from urllib2 import urlopen, Request
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build an Android repo manifest')
@@ -33,7 +33,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    source_manifest = urlopen(args.url).read()
+    request = Request(args.url, headers={"User-Agent": "Mozilla/5.0"})
+    source_manifest = urlopen(request).read()
 
     xmlin = ET.fromstring(source_manifest)
     xmlout = ET.Element("manifest")
