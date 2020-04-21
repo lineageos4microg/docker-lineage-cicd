@@ -129,6 +129,9 @@ ENV DELETE_OLD_LOGS 0
 # Requires ZIP_SUBDIR.
 ENV OPENDELTA_BUILDS_JSON ''
 
+# set the java tool options max memory size
+ENV JAVA_TOOL_OPTIONS "-Xmx6g"
+
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
 #  * before.sh, run after the syncing and patching, before starting the builds
