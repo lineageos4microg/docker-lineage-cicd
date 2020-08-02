@@ -130,7 +130,8 @@ ENV DELETE_OLD_LOGS 0
 ENV OPENDELTA_BUILDS_JSON ''
 
 # set the java tool options max memory size
-ENV JAVA_TOOL_OPTIONS "-Xmx6g"
+# not sure yet if necessary or helpful
+# ENV JAVA_TOOL_OPTIONS "-Xmx6g"
 
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
@@ -182,6 +183,10 @@ RUN apt-get install -y bc bison bsdmainutils build-essential ccache cgpt cron \
       libncurses5-dev libsdl1.2-dev libssl-dev libwxgtk3.0-dev libxml2 \
       libxml2-utils lsof lzop maven openjdk-8-jdk pngcrush procps python rsync \
       schedtool squashfs-tools wget xdelta3 xsltproc yasm zip zlib1g-dev
+
+#required for opengapps pico, uncomment to use
+# RUN curl http://ftp.us.debian.org/debian/pool/main/g/git-lfs/git-lfs_2.7.1-1~bpo9+2_amd64.deb -o git-lfs.deb && dpkg -i git-lfs.deb
+# RUN git lfs install
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
 RUN chmod a+x /usr/local/bin/repo

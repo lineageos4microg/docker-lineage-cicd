@@ -194,20 +194,25 @@ it ends with `.xml`) in the `/home/user/manifests` folder with this content:
 ```
 
 #### LineageOS 17.1
-Some of the packages in the prebuiltapks repo are not updated for Android 10/ LineageOS 17.1
-An example of this is the MicroG apk.
+Some (most) of the packages in the prebuiltapks repo are not updated for Android 10/ LineageOS 17.1
+An example of this is the MicroG apk, and the fdroid extension.
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <project name="SolidHal/android_prebuilts_prebuiltapks" path="packages/apps/prebuilt" remote="github" revision="master" />
+  <remote name="fdroid" fetch="https://gitlab.com/fdroid/" />
+  <project path="packages/apps/F-DroidPrivilegedExtension"
+           name="privileged-extension.git" remote="fdroid"
+           revision="refs/tags/0.2.11" />
+           
+  <project path="packages/apps/GmsCore" name="microg/android_packages_apps_GmsCore" remote="github" revision="master" />
 </manifest>
 ```
 
 
 Then include `GmsCore` and/or any other pre-built app name in the `CUSTOM_PACKAGES` environment variable like this: 
 ```
-    -e "CUSTOM_PACKAGES=GmsCore" \
+    -e "CUSTOM_PACKAGES=GmsCore F-DroidPrivilegedExtension" \
 ```
 
 ## Examples
