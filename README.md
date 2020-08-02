@@ -205,14 +205,14 @@ An example of this is the MicroG apk, and the fdroid extension.
            name="privileged-extension.git" remote="fdroid"
            revision="refs/tags/0.2.11" />
            
-  <project path="packages/apps/GmsCore" name="microg/android_packages_apps_GmsCore" remote="github" revision="master" />
 </manifest>
 ```
+NOTE: due to https://github.com/microg/android_packages_apps_GmsCore/issues/1059 including microg in the build is unsupported at this time
+get the apks from github and install them manually, or add the microg fdroid repo to fdroid. 
 
-
-Then include `GmsCore` and/or any other pre-built app name in the `CUSTOM_PACKAGES` environment variable like this: 
+Then include any other pre-built app name in the `CUSTOM_PACKAGES` environment variable like this: 
 ```
-    -e "CUSTOM_PACKAGES=GmsCore F-DroidPrivilegedExtension" \
+    -e "CUSTOM_PACKAGES=F-DroidPrivilegedExtension" \
 ```
 
 ## Examples
