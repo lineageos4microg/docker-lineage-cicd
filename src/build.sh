@@ -85,6 +85,31 @@ for branch in ${BRANCH_NAME//,/ }; do
   devices=${!device_list_cur_branch}
 
   if [ -n "$branch" ] && [ -n "$devices" ]; then
+    vendor=lineage
+    case "$branch" in
+      cm-14.1*)
+        vendor="cm"
+        themuppets_branch="cm-14.1"
+        android_version="7.1.2"
+        patch_name="android_frameworks_base-N.patch"
+        ;;
+      lineage-15.1*)
+        themuppets_branch="lineage-15.1"
+        android_version="8.1"
+        patch_name="android_frameworks_base-O.patch"
+        ;;
+      lineage-16.0*)
+        themuppets_branch="lineage-16.0"
+        android_version="9"
+        patch_name="android_frameworks_base-P.patch"
+        ;;
+      *)
+        echo ">> [$(date)] Building branch $branch is not (yet) suppported"
+        exit 1
+        ;;
+      esac
+
+    android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 
     mkdir -p "$SRC_DIR/$branch_dir"
     cd "$SRC_DIR/$branch_dir"
@@ -116,18 +141,6 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     rm -f .repo/local_manifests/proprietary.xml
     if [ "$INCLUDE_PROPRIETARY" = true ]; then
-      if [[ $branch =~ .*cm\-13\.0.* ]]; then
-        themuppets_branch=cm-13.0
-      elif [[ $branch =~ .*cm-14\.1.* ]]; then
-        themuppets_branch=cm-14.1
-      elif [[ $branch =~ .*lineage-15\.1.* ]]; then
-        themuppets_branch=lineage-15.1
-      elif [[ $branch =~ .*lineage-16\.0.* ]]; then
-        themuppets_branch=lineage-16.0
-      else
-        themuppets_branch=lineage-15.1
-        echo ">> [$(date)] Can't find a matching branch on github.com/TheMuppets, using $themuppets_branch"
-      fi
       wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
       /root/build_manifest.py --remote "https://gitlab.com" --remotename "gitlab_https" \
         "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
@@ -136,30 +149,6 @@ for branch in ${BRANCH_NAME//,/ }; do
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     builddate=$(date +%Y%m%d)
     repo sync -c --force-sync &>> "$repo_log"
-
-    android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.OPM1 := //p' build/core/version_defaults.mk)
-    if [ -z $android_version ]; then
-      android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION\.PPR1 := //p' build/core/version_defaults.mk)
-      if [ -z $android_version ]; then
-        android_version=$(sed -n -e 's/^\s*PLATFORM_VERSION := //p' build/core/version_defaults.mk)
-        if [ -z $android_version ]; then
-          echo ">> [$(date)] Can't detect the android version"
-          exit 1
-        fi
-      fi
-    fi
-    android_version_major=$(cut -d '.' -f 1 <<< $android_version)
-
-    if [ "$android_version_major" -lt "7" ]; then
-      echo ">> [$(date)] ERROR: $branch requires a JDK version too old (< 8); aborting"
-      exit 1
-    fi
-
-    if [ "$android_version_major" -ge "8" ]; then
-      vendor="lineage"
-    else
-      vendor="cm"
-    fi
 
     if [ ! -d "vendor/$vendor" ]; then
       echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
@@ -177,36 +166,21 @@ for branch in ${BRANCH_NAME//,/ }; do
     # If needed, apply the microG's signature spoofing patch
     if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
       # Determine which patch should be applied to the current Android source tree
-      patch_name=""
-      case $android_version in
-        4.4* )    patch_name="android_frameworks_base-KK-LP.patch" ;;
-        5.*  )    patch_name="android_frameworks_base-KK-LP.patch" ;;
-        6.*  )    patch_name="android_frameworks_base-M.patch" ;;
-        7.*  )    patch_name="android_frameworks_base-N.patch" ;;
-        8.*  )    patch_name="android_frameworks_base-O.patch" ;;
-	9*  )    patch_name="android_frameworks_base-P.patch" ;; #not sure why 9 not 9.0 but here's a fix that will work until android 90
-      esac
-
-      if ! [ -z $patch_name ]; then
-        cd frameworks/base
-        if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-          echo ">> [$(date)] Applying the standard signature spoofing patch ($patch_name) to frameworks/base"
-          echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
-          patch --quiet -p1 -i "/root/signature_spoofing_patches/$patch_name"
-        else
-          echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $patch_name) to frameworks/base"
-          sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch --quiet -p1
-        fi
-        git clean -q -f
-        cd ../..
-
-        # Override device-specific settings for the location providers
-        mkdir -p "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/"
-        cp /root/signature_spoofing_patches/frameworks_base_config.xml "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/config.xml"
+      cd frameworks/base
+      if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+        echo ">> [$(date)] Applying the standard signature spoofing patch ($patch_name) to frameworks/base"
+        echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
+        patch --quiet -p1 -i "/root/signature_spoofing_patches/$patch_name"
       else
-        echo ">> [$(date)] ERROR: can't find a suitable signature spoofing patch for the current Android version ($android_version)"
-        exit 1
+        echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $patch_name) to frameworks/base"
+        sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch --quiet -p1
       fi
+      git clean -q -f
+      cd ../..
+
+      # Override device-specific settings for the location providers
+      mkdir -p "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/"
+      cp /root/signature_spoofing_patches/frameworks_base_config.xml "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/config.xml"
     fi
 
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
