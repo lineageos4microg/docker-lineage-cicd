@@ -10,7 +10,6 @@ ENV TMP_DIR /srv/tmp
 ENV CCACHE_DIR /srv/ccache
 ENV ZIP_DIR /srv/zips
 ENV LMANIFEST_DIR /srv/local_manifests
-ENV DELTA_DIR /srv/delta
 ENV KEYS_DIR /srv/keys
 ENV LOGS_DIR /srv/logs
 ENV USERSCRIPTS_DIR /srv/userscripts
@@ -102,23 +101,11 @@ ENV LOGS_SUBDIR true
 # example.
 ENV SIGNATURE_SPOOFING "no"
 
-# Generate delta files
-ENV BUILD_DELTA false
-
 # Delete old zips in $ZIP_DIR, keep only the N latest one (0 to disable)
 ENV DELETE_OLD_ZIPS 0
 
-# Delete old deltas in $DELTA_DIR, keep only the N latest one (0 to disable)
-ENV DELETE_OLD_DELTAS 0
-
 # Delete old logs in $LOGS_DIR, keep only the N latest one (0 to disable)
 ENV DELETE_OLD_LOGS 0
-
-# Create a JSON file that indexes the build zips at the end of the build process
-# (for the updates in OpenDelta). The file will be created in $ZIP_DIR with the
-# specified name; leave empty to skip it.
-# Requires ZIP_SUBDIR.
-ENV OPENDELTA_BUILDS_JSON ''
 
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
@@ -137,7 +124,6 @@ VOLUME $TMP_DIR
 VOLUME $CCACHE_DIR
 VOLUME $ZIP_DIR
 VOLUME $LMANIFEST_DIR
-VOLUME $DELTA_DIR
 VOLUME $KEYS_DIR
 VOLUME $LOGS_DIR
 VOLUME $USERSCRIPTS_DIR
@@ -154,7 +140,6 @@ RUN mkdir -p $TMP_DIR
 RUN mkdir -p $CCACHE_DIR
 RUN mkdir -p $ZIP_DIR
 RUN mkdir -p $LMANIFEST_DIR
-RUN mkdir -p $DELTA_DIR
 RUN mkdir -p $KEYS_DIR
 RUN mkdir -p $LOGS_DIR
 RUN mkdir -p $USERSCRIPTS_DIR
