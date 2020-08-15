@@ -29,6 +29,9 @@ ENV USE_CCACHE 1
 # for no limit.
 ENV CCACHE_SIZE 50G
 
+# We need to specify the ccache binary since it is no longer packaged along with AOSP
+ENV CCACHE_EXEC /usr/bin/ccache
+
 # Environment for the LineageOS branches name
 # See https://github.com/LineageOS/android_vendor_cm/branches for possible options
 ENV BRANCH_NAME 'lineage-16.0'
