@@ -162,11 +162,11 @@ When `LOCAL_MIRROR` is `true`:
 
 ## Examples
 
-### Build for bacon (lineage-16.0, officially supported), test keys, no patches
+### Build for bacon (lineage-17.1, officially supported), test keys, no patches
 
 ```
 docker run \
-    -e "BRANCH_NAME=lineage-16.0" \
+    -e "BRANCH_NAME=lineage-17.1" \
     -e "DEVICE_LIST=bacon" \
     -v "/home/user/lineage:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
