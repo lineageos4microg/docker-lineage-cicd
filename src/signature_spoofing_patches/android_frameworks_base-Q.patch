@@ -1,13 +1,13 @@
 diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
-index d79a23d5..6cf49ecd 100644
+index 7bcd7a048db..5f7fde41669 100644
 --- a/core/res/AndroidManifest.xml
 +++ b/core/res/AndroidManifest.xml
-@@ -2637,6 +2637,13 @@
+@@ -2655,6 +2655,13 @@
          android:description="@string/permdesc_getPackageSize"
          android:protectionLevel="normal" />
-
+ 
 +    <!-- @hide Allows an application to change the package signature as
-+        seen by applications -->
++         seen by applications -->
 +    <permission android:name="android.permission.FAKE_PACKAGE_SIGNATURE"
 +        android:protectionLevel="dangerous"
 +        android:label="@string/permlab_fakePackageSignature"
@@ -17,26 +17,26 @@ index d79a23d5..6cf49ecd 100644
           {@link android.content.pm.PackageManager#addPackageToPreferred}
           for details. -->
 diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
-index 0db2e140..4a42e50d 100644
+index a84d23b624b..89754ba11ef 100644
 --- a/core/res/res/values/config.xml
 +++ b/core/res/res/values/config.xml
-@@ -1856,6 +1856,8 @@
+@@ -1875,6 +1875,8 @@
      <string-array name="config_locationProviderPackageNames" translatable="false">
          <!-- The standard AOSP fused location provider -->
          <item>com.android.location.fused</item>
 +        <!-- The (faked) microg fused location provider (a free reimplementation) -->
 +        <item>com.google.android.gms</item>
      </string-array>
-
+ 
      <!-- This string array can be overriden to enable test location providers initially. -->
 diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
-index 152b131a..f8d87a37 100644
+index 7e975f68ec3..e997d3ca67d 100644
 --- a/core/res/res/values/strings.xml
 +++ b/core/res/res/values/strings.xml
-@@ -827,6 +827,11 @@
-
+@@ -830,6 +830,11 @@
+ 
      <!--  Permissions -->
-
+ 
 +    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
 +    <string name="permlab_fakePackageSignature">Spoof package signature</string>
 +    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
@@ -46,25 +46,25 @@ index 152b131a..f8d87a37 100644
      <string name="permlab_statusBar">disable or modify status bar</string>
      <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
 diff --git a/services/core/java/com/android/server/pm/PackageManagerService.java b/services/core/java/com/android/server/pm/PackageManagerService.java
-index 1b5a03b0..0f4f97ab 100644
+index d3b5fa30e8e..782f88b72c0 100644
 --- a/services/core/java/com/android/server/pm/PackageManagerService.java
 +++ b/services/core/java/com/android/server/pm/PackageManagerService.java
-@@ -4105,8 +4105,9 @@ public class PackageManagerService extends IPackageManager.Stub
-             final Set<String> permissions = ArrayUtils.isEmpty(p.requestedPermissions)
-                     ? Collections.emptySet() : permissionsState.getPermissions(userId);
-
+@@ -4191,8 +4191,9 @@ public class PackageManagerService extends IPackageManager.Stub
+                 });
+             }
+ 
 -            PackageInfo packageInfo = PackageParser.generatePackageInfo(p, gids, flags,
 -                    ps.firstInstallTime, ps.lastUpdateTime, permissions, state, userId);
 +            PackageInfo packageInfo = mayFakeSignature(p, PackageParser.generatePackageInfo(p, gids, flags,
-+                ps.firstInstallTime, ps.lastUpdateTime, permissions, state, userId),
-+                permissions);
-
++                    ps.firstInstallTime, ps.lastUpdateTime, permissions, state, userId),
++                    permissions);
+ 
              if (packageInfo == null) {
                  return null;
-@@ -4142,6 +4143,24 @@ public class PackageManagerService extends IPackageManager.Stub
+@@ -4228,6 +4229,24 @@ public class PackageManagerService extends IPackageManager.Stub
          }
      }
-
+ 
 +    private PackageInfo mayFakeSignature(PackageParser.Package p, PackageInfo pi,
 +            Set<String> permissions) {
 +        try {
@@ -79,7 +79,7 @@ index 1b5a03b0..0f4f97ab 100644
 +        } catch (Throwable t) {
 +            // We should never die because of any failures, this is system code!
 +            Log.w("PackageManagerService.FAKE_PACKAGE_SIGNATURE", t);
-+    }
++        }
 +        return pi;
 +    }
 +
