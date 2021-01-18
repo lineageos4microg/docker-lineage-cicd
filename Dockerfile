@@ -143,7 +143,6 @@ RUN mkdir -p $MIRROR_DIR $SRC_DIR $TMP_DIR $CCACHE_DIR $ZIP_DIR $LMANIFEST_DIR \
 # Install build dependencies
 ############################
 RUN apt-get -qq update && \
-      apt-get -qqy upgrade && \
       apt-get install -y bc bison bsdmainutils build-essential ccache cgpt clang \
       cron curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick \
       kmod lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool \
