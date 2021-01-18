@@ -149,7 +149,8 @@ RUN apt-get -qq update && \
       libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 \
       libxml2-utils lsof lzop maven openjdk-8-jdk pngcrush procps \
       python rsync schedtool squashfs-tools wget xdelta3 xsltproc yasm zip \
-      zlib1g-dev
+      zlib1g-dev \
+      && rm -rf /var/lib/apt/lists/*
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \
       chmod a+x /usr/local/bin/repo
