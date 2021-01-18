@@ -1,5 +1,5 @@
 FROM ubuntu:20.04
-MAINTAINER Nicola Corna <nicola@corna.info>
+LABEL maintainer="Nicola Corna <nicola@corna.info>"
 
 # Environment variables
 #######################
