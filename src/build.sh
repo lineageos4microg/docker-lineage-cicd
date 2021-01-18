@@ -86,6 +86,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
   if [ -n "$branch" ] && [ -n "$devices" ]; then
     vendor=lineage
+    permissioncontroller_patch=""
     case "$branch" in
       cm-14.1*)
         vendor="cm"
@@ -108,6 +109,12 @@ for branch in ${BRANCH_NAME//,/ }; do
         android_version="10"
         patch_name="android_frameworks_base-Q.patch"
         ;;
+      lineage-18.1*)
+        themuppets_branch="lineage-18.1"
+        android_version="11"
+        patch_name="android_frameworks_base-R.patch"
+        permissioncontroller_patch="packages_apps_PermissionController-R.patch"
+        ;;
       *)
         echo ">> [$(date)] Building branch $branch is not (yet) suppported"
         exit 1
@@ -123,7 +130,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     echo ">> [$(date)] Devices: $devices"
 
     # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
-    for path in "vendor/cm" "vendor/lineage" "frameworks/base"; do
+    for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController"; do
       if [ -d "$path" ]; then
         cd "$path"
         git reset -q --hard
@@ -182,6 +189,18 @@ for branch in ${BRANCH_NAME//,/ }; do
       fi
       git clean -q -f
       cd ../..
+
+      if ! [ -z "$permissioncontroller_patch" ]; then
+        cd packages/apps/PermissionController
+        echo ">> [$(date)] Applying the PermissionController patch ($permissioncontroller_patch) to packages/apps/PermissionController"
+        patch --quiet -p1 -i "/root/signature_spoofing_patches/$permissioncontroller_patch"
+        if [ $? -ne 0 ]; then
+          echo ">> [$(date)] ERROR: failed to apply $permissioncontroller_patch"
+          exit 1
+        fi
+        git clean -q -f
+        cd ../../..
+      fi
 
       # Override device-specific settings for the location providers
       mkdir -p "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/"
