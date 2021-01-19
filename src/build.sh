@@ -182,7 +182,7 @@ for branch in ${BRANCH_NAME//,/ }; do
       if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
         echo ">> [$(date)] Applying the standard signature spoofing patch ($patch_name) to frameworks/base"
         echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
-        patch --quiet -p1 -i "/root/signature_spoofing_patches/$patch_name"
+        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$patch_name"
       else
         echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $patch_name) to frameworks/base"
         sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch --quiet -p1
@@ -193,7 +193,7 @@ for branch in ${BRANCH_NAME//,/ }; do
       if ! [ -z "$permissioncontroller_patch" ]; then
         cd packages/apps/PermissionController
         echo ">> [$(date)] Applying the PermissionController patch ($permissioncontroller_patch) to packages/apps/PermissionController"
-        patch --quiet -p1 -i "/root/signature_spoofing_patches/$permissioncontroller_patch"
+        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$permissioncontroller_patch"
         if [ $? -ne 0 ]; then
           echo ">> [$(date)] ERROR: failed to apply $permissioncontroller_patch"
           exit 1
