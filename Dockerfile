@@ -131,10 +131,6 @@ VOLUME $KEYS_DIR
 VOLUME $LOGS_DIR
 VOLUME $USERSCRIPTS_DIR
 
-# Copy required files
-#####################
-COPY src/ /root/
-
 # Create missing directories
 ############################
 RUN mkdir -p $MIRROR_DIR $SRC_DIR $TMP_DIR $CCACHE_DIR $ZIP_DIR $LMANIFEST_DIR \
@@ -154,6 +150,10 @@ RUN apt-get -qq update && \
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \
       chmod a+x /usr/local/bin/repo
+
+# Copy required files
+#####################
+COPY src/ /root/
 
 # Set the work directory
 ########################
