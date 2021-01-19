@@ -1,6 +1,6 @@
 # docker-lineage-cicd
 
-Docker microservice for LineageOS Continuous Integration and Continous Deployment
+Docker microservice for LineageOS Continuous Integration and Continuous Deployment
 
 ## Why Docker?
 
