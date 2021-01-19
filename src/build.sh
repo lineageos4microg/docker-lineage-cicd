@@ -301,8 +301,13 @@ for branch in ${BRANCH_NAME//,/ }; do
             sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
           done
           find . -maxdepth 1 -name 'lineage-*.zip*' -type f -exec mv {} "$ZIP_DIR/$zipsubdir/" \; &>> "$DEBUG_LOG"
-          recovery_name=lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-recovery.img
-          find . -maxdepth 1 -name 'boot.img' -type f -exec cp {} "$ZIP_DIR/$zipsubdir/${recovery_name}" \; &>> "$DEBUG_LOG"
+          recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-recovery.img"
+          for image in recovery boot; do
+            if [ -f "$image.img" ]; then
+              cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name"
+              break
+            fi
+          done &>> "$DEBUG_LOG"
           cd "$source_dir"
           build_successful=true
         else
