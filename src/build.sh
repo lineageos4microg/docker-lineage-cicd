@@ -187,6 +187,10 @@ for branch in ${BRANCH_NAME//,/ }; do
         echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $patch_name) to frameworks/base"
         sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch --quiet -p1
       fi
+      if [ $? -ne 0 ]; then
+        echo ">> [$(date)] ERROR: failed to apply $patch_name"
+        exit 1
+      fi
       git clean -q -f
       cd ../..
 
