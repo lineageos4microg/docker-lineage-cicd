@@ -1,5 +1,5 @@
 FROM ubuntu:20.04
-MAINTAINER Nicola Corna <nicola@corna.info>
+LABEL maintainer="Nicola Corna <nicola@corna.info>"
 
 # Environment variables
 #######################
@@ -131,37 +131,29 @@ VOLUME $KEYS_DIR
 VOLUME $LOGS_DIR
 VOLUME $USERSCRIPTS_DIR
 
-# Copy required files
-#####################
-COPY src/ /root/
-
 # Create missing directories
 ############################
-RUN mkdir -p $MIRROR_DIR
-RUN mkdir -p $SRC_DIR
-RUN mkdir -p $TMP_DIR
-RUN mkdir -p $CCACHE_DIR
-RUN mkdir -p $ZIP_DIR
-RUN mkdir -p $LMANIFEST_DIR
-RUN mkdir -p $KEYS_DIR
-RUN mkdir -p $LOGS_DIR
-RUN mkdir -p $USERSCRIPTS_DIR
+RUN mkdir -p $MIRROR_DIR $SRC_DIR $TMP_DIR $CCACHE_DIR $ZIP_DIR $LMANIFEST_DIR \
+      $KEYS_DIR $LOGS_DIR $USERSCRIPTS_DIR
 
 # Install build dependencies
 ############################
-RUN apt-get -qq update
-RUN apt-get -qqy upgrade
-
-RUN apt-get install -y bc bison bsdmainutils build-essential ccache cgpt clang \
+RUN apt-get -qq update && \
+      apt-get install -y bc bison bsdmainutils build-essential ccache cgpt clang \
       cron curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick \
       kmod lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool \
       libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 \
       libxml2-utils lsof lzop maven openjdk-8-jdk pngcrush procps \
       python rsync schedtool squashfs-tools wget xdelta3 xsltproc yasm zip \
-      zlib1g-dev
+      zlib1g-dev \
+      && rm -rf /var/lib/apt/lists/*
 
-RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
-RUN chmod a+x /usr/local/bin/repo
+RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \
+      chmod a+x /usr/local/bin/repo
+
+# Copy required files
+#####################
+COPY src/ /root/
 
 # Set the work directory
 ########################
