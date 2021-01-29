@@ -132,6 +132,7 @@ Other useful settings are:
     mirror of the LineageOS source (> 200 GB)
  * `CRONTAB_TIME (now)`: instead of building immediately and exit, build at the
     specified time (uses standard cron format)
+ * `ZIP_SUBDIR (true)`: Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
 
 The full list of settings, including the less interesting ones not mentioned in
 this guide, can be found in the [Dockerfile][dockerfile].
