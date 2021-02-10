@@ -132,6 +132,8 @@ Other useful settings are:
     mirror of the LineageOS source (> 200 GB)
  * `CRONTAB_TIME (now)`: instead of building immediately and exit, build at the
     specified time (uses standard cron format)
+ * `REPO_SYNC (true)`: change this to `false` if you want to skip syncing repo
+    and build the ROM as is.
 
 The full list of settings, including the less interesting ones not mentioned in
 this guide, can be found in the [Dockerfile][dockerfile].
