@@ -162,12 +162,12 @@ When `LOCAL_MIRROR` is `true`:
 
 ## Examples
 
-### Build for bacon (lineage-16.0, officially supported), test keys, no patches
+### Build for river (lineage-18.1, officially supported), test keys, no patches
 
 ```
 docker run \
-    -e "BRANCH_NAME=lineage-16.0" \
-    -e "DEVICE_LIST=bacon" \
+    -e "BRANCH_NAME=lineage-18.1" \
+    -e "DEVICE_LIST=river" \
     -v "/home/user/lineage:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
     -v "/home/user/logs:/srv/logs" \
@@ -175,12 +175,12 @@ docker run \
     lineageos4microg/docker-lineage-cicd
 ```
 
-### Build for angler (lineage-15.1, officially supported), custom keys, restricted signature spoofing with integrated microG and FDroid
+### Build for bacon (lineage-17.1, officially supported), custom keys, restricted signature spoofing with integrated microG and FDroid
 
 ```
 docker run \
-    -e "BRANCH_NAME=lineage-15.1" \
-    -e "DEVICE_LIST=angler" \
+    -e "BRANCH_NAME=lineage-17.1" \
+    -e "DEVICE_LIST=bacon" \
     -e "SIGN_BUILDS=true" \
     -e "SIGNATURE_SPOOFING=restricted" \
     -e "CUSTOM_PACKAGES=GmsCore GsfProxy FakeStore MozillaNlpBackend NominatimNlpBackend com.google.android.maps.jar FDroid FDroidPrivilegedExtension " \
@@ -210,13 +210,13 @@ it ends with `.xml`) in the `/home/user/manifests` folder with this content:
 </manifest>
 ```
 
-### Build for four devices on lineage-15.1 and lineage-16.0 (officially supported), custom keys, restricted signature spoofing with integrated microG and FDroid, custom OTA server
+### Build for four devices on lineage-17.1 and lineage-18.1 (officially supported), custom keys, restricted signature spoofing with integrated microG and FDroid, custom OTA server
 
 ```
 docker run \
-    -e "BRANCH_NAME=lineage-15.1,lineage-16.0" \
-    -e "DEVICE_LIST_LINEAGE_15_1=angler,oneplus2" \
-    -e "DEVICE_LIST_LINEAGE_16_0=bacon,dumpling" \
+    -e "BRANCH_NAME=lineage-17.1,lineage-18.1" \
+    -e "DEVICE_LIST_LINEAGE_17_1=bacon,oneplus2" \
+    -e "DEVICE_LIST_LINEAGE_18_1=river,lake" \
     -e "SIGN_BUILDS=true" \
     -e "SIGNATURE_SPOOFING=restricted" \
     -e "CUSTOM_PACKAGES=GmsCore GsfProxy FakeStore MozillaNlpBackend NominatimNlpBackend com.google.android.maps.jar FDroid FDroidPrivilegedExtension " \
