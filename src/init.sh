@@ -18,10 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Copy the user scripts
-mkdir -p /root/userscripts
-cp -r $USERSCRIPTS_DIR/. /root/userscripts
-find /root/userscripts ! -type d ! -user root -exec echo ">> [$(date)] {} is not owned by root, removing" \; -exec rm {} \;
-find /root/userscripts ! -type d -perm /g=w,o=w -exec echo ">> [$(date)] {} is writable by non-root users, removing" \; -exec rm {} \;
+mkdir -p "$PREFIX"/root/userscripts
+cp -r $USERSCRIPTS_DIR/. "$PREFIX"/root/userscripts
+find "$PREFIX"/root/userscripts ! -type d ! -user root -exec echo ">> [$(date)] {} is not owned by root, removing" \; -exec rm {} \;
+find "$PREFIX"/root/userscripts ! -type d -perm /g=w,o=w -exec echo ">> [$(date)] {} is writable by non-root users, removing" \; -exec rm {} \;
 
 # Initialize CCache if it will be used
 if [ "$USE_CCACHE" = 1 ]; then
@@ -37,7 +37,7 @@ if [ "$SIGN_BUILDS" = true ]; then
     echo ">> [$(date)] SIGN_BUILDS = true but empty \$KEYS_DIR, generating new keys"
     for c in releasekey platform shared media networkstack; do
       echo ">> [$(date)]  Generating $c..."
-      /root/make_key "$KEYS_DIR/$c" "$KEYS_SUBJECT" <<< '' &> /dev/null
+      "$PREFIX"/root/make_key "$KEYS_DIR/$c" "$KEYS_SUBJECT" <<< '' &> /dev/null
     done
   else
     for c in releasekey platform shared media networkstack; do
@@ -58,13 +58,13 @@ if [ "$SIGN_BUILDS" = true ]; then
 fi
 
 if [ "$CRONTAB_TIME" = "now" ]; then
-  /root/build.sh
+  "$PREFIX"/root/build.sh
 else
   # Initialize the cronjob
   cronFile=/tmp/buildcron
   printf "SHELL=/bin/bash\n" > $cronFile
   printenv -0 | sed -e 's/=\x0/=""\n/g'  | sed -e 's/\x0/\n/g' | sed -e "s/_=/PRINTENV=/g" >> $cronFile
-  printf "\n$CRONTAB_TIME /usr/bin/flock -n /var/lock/build.lock /root/build.sh >> /var/log/docker.log 2>&1\n" >> $cronFile
+  printf "\n$CRONTAB_TIME /usr/bin/flock -n /var/lock/build.lock $PREFIX/root/build.sh >> /var/log/docker.log 2>&1\n" >> $cronFile
   crontab $cronFile
   rm $cronFile
 
