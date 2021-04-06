@@ -160,6 +160,17 @@ When `LOCAL_MIRROR` is `true`:
 
  * `/srv/mirror`, for the LineageOS mirror
 
+## Build without Docker (experimental)
+
+We also provide some limited effort to build without Docker in a subdirectory.
+The main advantage is that root is not required.
+
+To do so, please execute the following steps:
+
+1. Install all necessary dependencies. Take a look at the [Dockerfile][dockerfile]
+   to get a list (especially the RUN commands with apt-get).
+2. Execute `run.py` with your specific environment. See `run.py -h` for help.
+
 ## Examples
 
 ### Build for river (lineage-18.1, officially supported), test keys, no patches
