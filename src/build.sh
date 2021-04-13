@@ -194,7 +194,7 @@ for branch in ${BRANCH_NAME//,/ }; do
       git clean -q -f
       cd ../..
 
-      if ! [ -z "$permissioncontroller_patch" ]; then
+      if [ -n "$permissioncontroller_patch" ]; then
         cd packages/apps/PermissionController || exit
         echo ">> [$(date)] Applying the PermissionController patch ($permissioncontroller_patch) to packages/apps/PermissionController"
         patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$permissioncontroller_patch"
@@ -216,7 +216,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     # Set a custom updater URI if a OTA URL is provided
     echo ">> [$(date)] Adding OTA URL overlay (for custom URL $OTA_URL)"
-    if ! [ -z "$OTA_URL" ]; then
+    if [ -n "$OTA_URL" ]; then
       updater_url_overlay_dir="vendor/$vendor/overlay/microg/packages/apps/Updater/res/values/"
       mkdir -p "$updater_url_overlay_dir"
 
@@ -233,7 +233,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     fi
 
     # Add custom packages to be installed
-    if ! [ -z "$CUSTOM_PACKAGES" ]; then
+    if [ -n "$CUSTOM_PACKAGES" ]; then
       echo ">> [$(date)] Adding custom packages ($CUSTOM_PACKAGES)"
       sed -i "1s;^;PRODUCT_PACKAGES += $CUSTOM_PACKAGES\n\n;" "vendor/$vendor/config/common.mk"
     fi
@@ -261,7 +261,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     fi
 
     for codename in ${devices//,/ }; do
-      if ! [ -z "$codename" ]; then
+      if [ -n "$codename" ]; then
 
         currentdate=$(date +%Y%m%d)
         if [ "$builddate" != "$currentdate" ]; then
