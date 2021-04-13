@@ -391,7 +391,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 done
 
 if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
-  find "$LOGS_DIR" -maxdepth 1 -name repo-*.log | sort | head -n -"$DELETE_OLD_LOGS" | xargs -r rm
+  find "$LOGS_DIR" -maxdepth 1 -name 'repo-*.log' | sort | head -n -"$DELETE_OLD_LOGS" | xargs -r rm
 fi
 
 if [ -f /root/userscripts/end.sh ]; then
