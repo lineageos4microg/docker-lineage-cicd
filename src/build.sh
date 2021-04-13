@@ -36,9 +36,9 @@ fi
 # Treat DEVICE_LIST as DEVICE_LIST_<first_branch>
 first_branch=$(cut -d ',' -f 1 <<< "$BRANCH_NAME")
 if [ -n "$DEVICE_LIST" ]; then
-  device_list_first_branch="DEVICE_LIST_$(sed 's/[^[:alnum:]]/_/g' <<< $first_branch)"
+  device_list_first_branch="DEVICE_LIST_$(sed 's/[^[:alnum:]]/_/g' <<< "$first_branch")"
   device_list_first_branch=${device_list_first_branch^^}
-  read $device_list_first_branch <<< "$DEVICE_LIST,${!device_list_first_branch}"
+  read "$device_list_first_branch" <<< "$DEVICE_LIST,${!device_list_first_branch}"
 fi
 
 # If needed, migrate from the old SRC_DIR structure
@@ -79,7 +79,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
 fi
 
 for branch in ${BRANCH_NAME//,/ }; do
-  branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< $branch)
+  branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< "$branch")
   branch_dir=${branch_dir^^}
   device_list_cur_branch="DEVICE_LIST_$branch_dir"
   devices=${!device_list_cur_branch}
@@ -305,21 +305,21 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         if [ -f /root/userscripts/pre-build.sh ]; then
           echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/pre-build.sh $codename &>> "$DEBUG_LOG"
+          /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG"
         fi
 
         # Start the build
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
         build_successful=false
-        if brunch $codename &>> "$DEBUG_LOG"; then
+        if brunch "$codename" &>> "$DEBUG_LOG"; then
           currentdate=$(date +%Y%m%d)
           if [ "$builddate" != "$currentdate" ]; then
-            find out/target/product/$codename -maxdepth 1 -name "lineage-*-$currentdate-*.zip*" -type f -exec sh /root/fix_build_date.sh {} $currentdate $builddate \; &>> "$DEBUG_LOG"
+            find out/target/product/"$codename" -maxdepth 1 -name "lineage-*-$currentdate-*.zip*" -type f -exec sh /root/fix_build_date.sh {} "$currentdate" "$builddate" \; &>> "$DEBUG_LOG"
           fi
 
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
-          cd out/target/product/$codename || exit
+          cd out/target/product/"$codename" || exit
           for build in lineage-*.zip; do
             sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
           done
@@ -340,21 +340,21 @@ for branch in ${BRANCH_NAME//,/ }; do
         # Remove old zips and logs
         if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
           if [ "$ZIP_SUBDIR" = true ]; then
-            /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS -V $los_ver -N 1 "$ZIP_DIR/$zipsubdir"
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$los_ver" -N 1 "$ZIP_DIR/$zipsubdir"
           else
-            /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS -V $los_ver -N 1 -c $codename "$ZIP_DIR"
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$los_ver" -N 1 -c "$codename" "$ZIP_DIR"
           fi
         fi
         if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
           if [ "$LOGS_SUBDIR" = true ]; then
-            /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS -V $los_ver -N 1 "$LOGS_DIR/$logsubdir"
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 "$LOGS_DIR/$logsubdir"
           else
-            /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS -V $los_ver -N 1 -c $codename "$LOGS_DIR"
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 -c "$codename" "$LOGS_DIR"
           fi
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/post-build.sh $codename $build_successful &>> "$DEBUG_LOG"
+          /root/userscripts/post-build.sh "$codename" $build_successful &>> "$DEBUG_LOG"
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
@@ -366,7 +366,7 @@ for branch in ${BRANCH_NAME//,/ }; do
           fi
           lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null
 
-          while [ -n "$(lsof | grep $TMP_DIR/merged)" ]; do
+          while [ -n "$(lsof | grep "$TMP_DIR"/merged)" ]; do
             sleep 1
           done
 
@@ -391,7 +391,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 done
 
 if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
-  find "$LOGS_DIR" -maxdepth 1 -name repo-*.log | sort | head -n -$DELETE_OLD_LOGS | xargs -r rm
+  find "$LOGS_DIR" -maxdepth 1 -name repo-*.log | sort | head -n -"$DELETE_OLD_LOGS" | xargs -r rm
 fi
 
 if [ -f /root/userscripts/end.sh ]; then
