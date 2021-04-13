@@ -20,7 +20,7 @@
 repo_log="$LOGS_DIR/repo-$(date +%Y%m%d).log"
 
 # cd to working directory
-cd "$SRC_DIR"
+cd "$SRC_DIR" || exit
 
 if [ -f /root/userscripts/begin.sh ]; then
   echo ">> [$(date)] Running begin.sh"
@@ -55,7 +55,7 @@ fi
 
 if [ "$LOCAL_MIRROR" = true ]; then
 
-  cd "$MIRROR_DIR"
+  cd "$MIRROR_DIR" || exit
 
   if [ ! -d .repo ]; then
     echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
@@ -124,7 +124,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 
     mkdir -p "$SRC_DIR/$branch_dir"
-    cd "$SRC_DIR/$branch_dir"
+    cd "$SRC_DIR/$branch_dir" || exit
 
     echo ">> [$(date)] Branch:  $branch"
     echo ">> [$(date)] Devices: $devices"
@@ -132,10 +132,10 @@ for branch in ${BRANCH_NAME//,/ }; do
     # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
     for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController"; do
       if [ -d "$path" ]; then
-        cd "$path"
+        cd "$path" || exit
         git reset -q --hard
         git clean -q -fd
-        cd "$SRC_DIR/$branch_dir"
+        cd "$SRC_DIR/$branch_dir" || exit
       fi
     done
 
@@ -178,7 +178,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     # If needed, apply the microG's signature spoofing patch
     if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
       # Determine which patch should be applied to the current Android source tree
-      cd frameworks/base
+      cd frameworks/base || exit
       if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
         echo ">> [$(date)] Applying the standard signature spoofing patch ($patch_name) to frameworks/base"
         echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
@@ -195,7 +195,7 @@ for branch in ${BRANCH_NAME//,/ }; do
       cd ../..
 
       if ! [ -z "$permissioncontroller_patch" ]; then
-        cd packages/apps/PermissionController
+        cd packages/apps/PermissionController || exit
         echo ">> [$(date)] Applying the PermissionController patch ($permissioncontroller_patch) to packages/apps/PermissionController"
         patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$permissioncontroller_patch"
         if [ $? -ne 0 ]; then
@@ -270,12 +270,12 @@ for branch in ${BRANCH_NAME//,/ }; do
 
           if [ "$LOCAL_MIRROR" = true ]; then
             echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-            cd "$MIRROR_DIR"
+            cd "$MIRROR_DIR" || exit
             repo sync --force-sync --no-clone-bundle &>> "$repo_log"
           fi
 
           echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-          cd "$SRC_DIR/$branch_dir"
+          cd "$SRC_DIR/$branch_dir" || exit
           repo sync -c --force-sync &>> "$repo_log"
         fi
 
@@ -286,7 +286,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         else
           source_dir="$SRC_DIR/$branch_dir"
         fi
-        cd "$source_dir"
+        cd "$source_dir" || exit
 
         if [ "$ZIP_SUBDIR" = true ]; then
           zipsubdir=$codename
@@ -319,7 +319,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
-          cd out/target/product/$codename
+          cd out/target/product/$codename || exit
           for build in lineage-*.zip; do
             sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
           done
@@ -331,7 +331,7 @@ for branch in ${BRANCH_NAME//,/ }; do
               break
             fi
           done &>> "$DEBUG_LOG"
-          cd "$source_dir"
+          cd "$source_dir" || exit
           build_successful=true
         else
           echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
@@ -360,7 +360,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         if [ "$BUILD_OVERLAY" = true ]; then
           # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
-          cd "$TMP_DIR"
+          cd "$TMP_DIR" || exit
           if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
             "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" &> /dev/null || true
           fi
@@ -376,10 +376,10 @@ for branch in ${BRANCH_NAME//,/ }; do
         if [ "$CLEAN_AFTER_BUILD" = true ]; then
           echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
           if [ "$BUILD_OVERLAY" = true ]; then
-            cd "$TMP_DIR"
+            cd "$TMP_DIR" || exit
             rm -rf ./*
           else
-            cd "$source_dir"
+            cd "$source_dir" || exit
             mka clean &>> "$DEBUG_LOG"
           fi
         fi
