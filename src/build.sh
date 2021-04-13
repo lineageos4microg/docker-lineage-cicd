@@ -30,7 +30,7 @@ fi
 # If requested, clean the OUT dir in order to avoid clutter
 if [ "$CLEAN_OUTDIR" = true ]; then
   echo ">> [$(date)] Cleaning '$ZIP_DIR'"
-  rm -rf "$ZIP_DIR/"*
+  rm -rf "${ZIP_DIR:?}/"*
 fi
 
 # Treat DEVICE_LIST as DEVICE_LIST_<first_branch>
