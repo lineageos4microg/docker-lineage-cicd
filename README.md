@@ -132,6 +132,8 @@ Other useful settings are:
     mirror of the LineageOS source (> 200 GB)
  * `CRONTAB_TIME (now)`: instead of building immediately and exit, build at the
     specified time (uses standard cron format)
+ * `REPO_SYNC (true)`: change this to `false` if you want to skip syncing repo
+    and build from the current state of the source tree.
 
 The full list of settings, including the less interesting ones not mentioned in
 this guide, can be found in the [Dockerfile][dockerfile].
@@ -291,6 +293,21 @@ docker run \
     lineageos4microg/docker-lineage-cicd
 ```
 
+### Build for deb (officially supported), restricted signature spoofing without syncing repo
+
+```
+docker run \
+    -e "BRANCH_NAME=cm-14.1" \
+    -e "DEVICE_LIST=deb" \
+    -e "REPO_SYNC=false" \
+    -e "SIGNATURE_SPOOFING=restricted" \
+    -e "CUSTOM_PACKAGES=GmsCore GsfProxy FakeStore MozillaNlpBackend NominatimNlpBackend com.google.android.maps.jar FDroid FDroidPrivilegedExtension " \
+    -v "/home/user/lineage:/srv/src" \
+    -v "/home/user/zips:/srv/zips" \
+    -v "/home/user/logs:/srv/logs" \
+    -v "/home/user/cache:/srv/ccache" \
+    lineageos4microg/docker-lineage-cicd
+```
 
 [docker-ubuntu]: https://docs.docker.com/install/linux/docker-ce/ubuntu/
 [docker-debian]: https://docs.docker.com/install/linux/docker-ce/debian/

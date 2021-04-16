@@ -74,8 +74,10 @@ if [ "$LOCAL_MIRROR" = true ]; then
       "https://gitlab.com/the-muppets/manifest/raw/mirror/default.xml" .repo/local_manifests/proprietary_gitlab.xml
   fi
 
-  echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-  repo sync --force-sync --no-clone-bundle &>> "$repo_log"
+  if [ "$REPO_SYNC" = true ]; then
+    echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
+    repo sync --force-sync --no-clone-bundle &>> "$repo_log"
+  fi
 fi
 
 for branch in ${BRANCH_NAME//,/ }; do
@@ -129,21 +131,23 @@ for branch in ${BRANCH_NAME//,/ }; do
     echo ">> [$(date)] Branch:  $branch"
     echo ">> [$(date)] Devices: $devices"
 
-    # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
-    for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController"; do
-      if [ -d "$path" ]; then
-        cd "$path"
-        git reset -q --hard
-        git clean -q -fd
-        cd "$SRC_DIR/$branch_dir"
-      fi
-    done
+    if [ "$REPO_SYNC" = true ]; then
+      # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
+      for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController"; do
+        if [ -d "$path" ]; then
+          cd "$path"
+          git reset -q --hard
+          git clean -q -fd
+          cd "$SRC_DIR/$branch_dir"
+        fi
+      done
 
-    echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
-    if [ "$LOCAL_MIRROR" = true ]; then
-      yes | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
-    else
-      yes | repo init -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
+      echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
+      if [ "$LOCAL_MIRROR" = true ]; then
+        yes | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
+      else
+        yes | repo init -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
+      fi
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
@@ -158,9 +162,11 @@ for branch in ${BRANCH_NAME//,/ }; do
         "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
     fi
 
-    echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     builddate=$(date +%Y%m%d)
-    repo sync -c --force-sync &>> "$repo_log"
+    if [ "$REPO_SYNC" = true ]; then
+      echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
+      repo sync -c --force-sync &>> "$repo_log"
+    fi
 
     if [ ! -d "vendor/$vendor" ]; then
       echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
@@ -191,7 +197,9 @@ for branch in ${BRANCH_NAME//,/ }; do
         echo ">> [$(date)] ERROR: failed to apply $patch_name"
         exit 1
       fi
-      git clean -q -f
+      if [ "$REPO_SYNC" = true ]; then
+        git clean -q -f
+      fi
       cd ../..
 
       if ! [ -z "$permissioncontroller_patch" ]; then
@@ -202,7 +210,9 @@ for branch in ${BRANCH_NAME//,/ }; do
           echo ">> [$(date)] ERROR: failed to apply $permissioncontroller_patch"
           exit 1
         fi
-        git clean -q -f
+        if [ "$REPO_SYNC" = true ]; then
+          git clean -q -f
+        fi
         cd ../../..
       fi
 
@@ -268,15 +278,17 @@ for branch in ${BRANCH_NAME//,/ }; do
           # Sync the source code
           builddate=$currentdate
 
-          if [ "$LOCAL_MIRROR" = true ]; then
-            echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-            cd "$MIRROR_DIR"
-            repo sync --force-sync --no-clone-bundle &>> "$repo_log"
-          fi
+          if [ "$REPO_SYNC" = true ]; then
+	    if [ "$LOCAL_MIRROR" = true ]; then
+              echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
+              cd "$MIRROR_DIR"
+              repo sync --force-sync --no-clone-bundle &>> "$repo_log"
+            fi
 
-          echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-          cd "$SRC_DIR/$branch_dir"
-          repo sync -c --force-sync &>> "$repo_log"
+            echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
+            cd "$SRC_DIR/$branch_dir"
+            repo sync -c --force-sync &>> "$repo_log"
+          fi
         fi
 
         if [ "$BUILD_OVERLAY" = true ]; then
