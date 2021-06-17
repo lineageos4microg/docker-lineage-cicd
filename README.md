@@ -96,12 +96,22 @@ The third way is the easiest one and is enabled by default; if you're OK with
 that just move on, otherwise set `INCLUDE_PROPRIETARY (true)` to `false` and
 manually provide the blobs (not explained in this guide).
 
-### OTA
+### Over the Air updates
 
-If you have a server and you want to enable [OTA updates][lineageota] you have
-to provide the URL of your server during the build process with:
+To enable OTA for you builds, you need to run a server that speaks the protocol
+understood by the [LineageOS updater app][updater] and provide the URL to this
+server as `OTA_URL` variable for the build.
 
- * `OTA_URL`
+One implementation is [LineageOTA][lineageota], which is also available as Docker
+image. Follow these steps to prepare your builds for OTA:
+
+* Run the Docker image `julianxhokaxhiu/lineageota`
+  * Port 80 exposed to the internet (might want to add an HTTPS reverse proxy)
+  * The `/srv/zips` directory/volume of the CICD image mounted at
+    `/var/www/html/builds/full` (can be read-only)
+* Set environment variables when building
+  * `ZIP_SUBDIR` to `false`
+  * `OTA_URL` to the address of the OTA server, with `/api` appended
 
 If you don't setup a OTA server you won't be able to update the device from the
 updater app (but you can still update it manually with the recovery of course).
@@ -132,6 +142,7 @@ Other useful settings are:
     mirror of the LineageOS source (> 200 GB)
  * `CRONTAB_TIME (now)`: instead of building immediately and exit, build at the
     specified time (uses standard cron format)
+ * `ZIP_SUBDIR (true)`: Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
 
 The full list of settings, including the less interesting ones not mentioned in
 this guide, can be found in the [Dockerfile][dockerfile].
@@ -309,6 +320,7 @@ docker run \
 [blobs-themuppets]: https://github.com/TheMuppets/manifests
 [blobs-the-muppets]: https://gitlab.com/the-muppets/manifest
 [lineageota]: https://github.com/julianxhokaxhiu/LineageOTA
+[updater]: https://github.com/LineageOS/android_packages_apps_Updater
 [los-extras]: https://download.lineageos.org/extras
 [dockerfile]: Dockerfile
 [prebuiltapks]: https://github.com/lineageos4microg/android_prebuilts_prebuiltapks
