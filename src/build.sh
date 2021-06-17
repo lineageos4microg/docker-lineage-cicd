@@ -20,7 +20,7 @@
 repo_log="$LOGS_DIR/repo-$(date +%Y%m%d).log"
 
 # cd to working directory
-cd "$SRC_DIR"
+cd "$SRC_DIR" || exit
 
 if [ -f /root/userscripts/begin.sh ]; then
   echo ">> [$(date)] Running begin.sh"
@@ -30,15 +30,15 @@ fi
 # If requested, clean the OUT dir in order to avoid clutter
 if [ "$CLEAN_OUTDIR" = true ]; then
   echo ">> [$(date)] Cleaning '$ZIP_DIR'"
-  rm -rf "$ZIP_DIR/"*
+  rm -rf "${ZIP_DIR:?}/"*
 fi
 
 # Treat DEVICE_LIST as DEVICE_LIST_<first_branch>
 first_branch=$(cut -d ',' -f 1 <<< "$BRANCH_NAME")
 if [ -n "$DEVICE_LIST" ]; then
-  device_list_first_branch="DEVICE_LIST_$(sed 's/[^[:alnum:]]/_/g' <<< $first_branch)"
+  device_list_first_branch="DEVICE_LIST_$(sed 's/[^[:alnum:]]/_/g' <<< "$first_branch")"
   device_list_first_branch=${device_list_first_branch^^}
-  read $device_list_first_branch <<< "$DEVICE_LIST,${!device_list_first_branch}"
+  read "$device_list_first_branch" <<< "$DEVICE_LIST,${!device_list_first_branch}"
 fi
 
 # If needed, migrate from the old SRC_DIR structure
@@ -55,7 +55,7 @@ fi
 
 if [ "$LOCAL_MIRROR" = true ]; then
 
-  cd "$MIRROR_DIR"
+  cd "$MIRROR_DIR" || exit
 
   if [ ! -d .repo ]; then
     echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
@@ -79,7 +79,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
 fi
 
 for branch in ${BRANCH_NAME//,/ }; do
-  branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< $branch)
+  branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< "$branch")
   branch_dir=${branch_dir^^}
   device_list_cur_branch="DEVICE_LIST_$branch_dir"
   devices=${!device_list_cur_branch}
@@ -124,7 +124,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 
     mkdir -p "$SRC_DIR/$branch_dir"
-    cd "$SRC_DIR/$branch_dir"
+    cd "$SRC_DIR/$branch_dir" || exit
 
     echo ">> [$(date)] Branch:  $branch"
     echo ">> [$(date)] Devices: $devices"
@@ -132,10 +132,10 @@ for branch in ${BRANCH_NAME//,/ }; do
     # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
     for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController"; do
       if [ -d "$path" ]; then
-        cd "$path"
+        cd "$path" || exit
         git reset -q --hard
         git clean -q -fd
-        cd "$SRC_DIR/$branch_dir"
+        cd "$SRC_DIR/$branch_dir" || exit
       fi
     done
 
@@ -178,7 +178,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     # If needed, apply the microG's signature spoofing patch
     if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
       # Determine which patch should be applied to the current Android source tree
-      cd frameworks/base
+      cd frameworks/base || exit
       if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
         echo ">> [$(date)] Applying the standard signature spoofing patch ($patch_name) to frameworks/base"
         echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
@@ -194,8 +194,8 @@ for branch in ${BRANCH_NAME//,/ }; do
       git clean -q -f
       cd ../..
 
-      if ! [ -z "$permissioncontroller_patch" ]; then
-        cd packages/apps/PermissionController
+      if [ -n "$permissioncontroller_patch" ]; then
+        cd packages/apps/PermissionController || exit
         echo ">> [$(date)] Applying the PermissionController patch ($permissioncontroller_patch) to packages/apps/PermissionController"
         patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$permissioncontroller_patch"
         if [ $? -ne 0 ]; then
@@ -216,14 +216,14 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     # Set a custom updater URI if a OTA URL is provided
     echo ">> [$(date)] Adding OTA URL overlay (for custom URL $OTA_URL)"
-    if ! [ -z "$OTA_URL" ]; then
+    if [ -n "$OTA_URL" ]; then
       updater_url_overlay_dir="vendor/$vendor/overlay/microg/packages/apps/Updater/res/values/"
       mkdir -p "$updater_url_overlay_dir"
 
-      if [ -n "$(grep updater_server_url packages/apps/Updater/res/values/strings.xml)" ]; then
+      if grep -q updater_server_url packages/apps/Updater/res/values/strings.xml; then
         # "New" updater configuration: full URL (with placeholders {device}, {type} and {incr})
         sed "s|{name}|updater_server_url|g; s|{url}|$OTA_URL/v1/{device}/{type}/{incr}|g" /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
-      elif [ -n "$(grep conf_update_server_url_def packages/apps/Updater/res/values/strings.xml)" ]; then
+      elif grep -q conf_update_server_url_def packages/apps/Updater/res/values/strings.xml; then
         # "Old" updater configuration: just the URL
         sed "s|{name}|conf_update_server_url_def|g; s|{url}|$OTA_URL|g" /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
       else
@@ -233,7 +233,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     fi
 
     # Add custom packages to be installed
-    if ! [ -z "$CUSTOM_PACKAGES" ]; then
+    if [ -n "$CUSTOM_PACKAGES" ]; then
       echo ">> [$(date)] Adding custom packages ($CUSTOM_PACKAGES)"
       sed -i "1s;^;PRODUCT_PACKAGES += $CUSTOM_PACKAGES\n\n;" "vendor/$vendor/config/common.mk"
     fi
@@ -261,7 +261,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     fi
 
     for codename in ${devices//,/ }; do
-      if ! [ -z "$codename" ]; then
+      if [ -n "$codename" ]; then
 
         currentdate=$(date +%Y%m%d)
         if [ "$builddate" != "$currentdate" ]; then
@@ -270,12 +270,12 @@ for branch in ${BRANCH_NAME//,/ }; do
 
           if [ "$LOCAL_MIRROR" = true ]; then
             echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-            cd "$MIRROR_DIR"
+            cd "$MIRROR_DIR" || exit
             repo sync --force-sync --no-clone-bundle &>> "$repo_log"
           fi
 
           echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-          cd "$SRC_DIR/$branch_dir"
+          cd "$SRC_DIR/$branch_dir" || exit
           repo sync -c --force-sync &>> "$repo_log"
         fi
 
@@ -286,7 +286,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         else
           source_dir="$SRC_DIR/$branch_dir"
         fi
-        cd "$source_dir"
+        cd "$source_dir" || exit
 
         if [ "$ZIP_SUBDIR" = true ]; then
           zipsubdir=$codename
@@ -305,21 +305,21 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         if [ -f /root/userscripts/pre-build.sh ]; then
           echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/pre-build.sh $codename &>> "$DEBUG_LOG"
+          /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG"
         fi
 
         # Start the build
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
         build_successful=false
-        if brunch $codename &>> "$DEBUG_LOG"; then
+        if brunch "$codename" &>> "$DEBUG_LOG"; then
           currentdate=$(date +%Y%m%d)
           if [ "$builddate" != "$currentdate" ]; then
-            find out/target/product/$codename -maxdepth 1 -name "lineage-*-$currentdate-*.zip*" -type f -exec sh /root/fix_build_date.sh {} $currentdate $builddate \; &>> "$DEBUG_LOG"
+            find out/target/product/"$codename" -maxdepth 1 -name "lineage-*-$currentdate-*.zip*" -type f -exec sh /root/fix_build_date.sh {} "$currentdate" "$builddate" \; &>> "$DEBUG_LOG"
           fi
 
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
-          cd out/target/product/$codename
+          cd out/target/product/"$codename" || exit
           for build in lineage-*.zip; do
             sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
@@ -332,7 +332,7 @@ for branch in ${BRANCH_NAME//,/ }; do
               break
             fi
           done &>> "$DEBUG_LOG"
-          cd "$source_dir"
+          cd "$source_dir" || exit
           build_successful=true
         else
           echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
@@ -341,33 +341,33 @@ for branch in ${BRANCH_NAME//,/ }; do
         # Remove old zips and logs
         if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
           if [ "$ZIP_SUBDIR" = true ]; then
-            /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS -V $los_ver -N 1 "$ZIP_DIR/$zipsubdir"
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$los_ver" -N 1 "$ZIP_DIR/$zipsubdir"
           else
-            /usr/bin/python /root/clean_up.py -n $DELETE_OLD_ZIPS -V $los_ver -N 1 -c $codename "$ZIP_DIR"
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$los_ver" -N 1 -c "$codename" "$ZIP_DIR"
           fi
         fi
         if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
           if [ "$LOGS_SUBDIR" = true ]; then
-            /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS -V $los_ver -N 1 "$LOGS_DIR/$logsubdir"
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 "$LOGS_DIR/$logsubdir"
           else
-            /usr/bin/python /root/clean_up.py -n $DELETE_OLD_LOGS -V $los_ver -N 1 -c $codename "$LOGS_DIR"
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 -c "$codename" "$LOGS_DIR"
           fi
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/post-build.sh $codename $build_successful &>> "$DEBUG_LOG"
+          /root/userscripts/post-build.sh "$codename" $build_successful &>> "$DEBUG_LOG"
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
         if [ "$BUILD_OVERLAY" = true ]; then
           # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
-          cd "$TMP_DIR"
+          cd "$TMP_DIR" || exit
           if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
             "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" &> /dev/null || true
           fi
           lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null
 
-          while [ -n "$(lsof | grep $TMP_DIR/merged)" ]; do
+          while lsof | grep -q "$TMP_DIR"/merged; do
             sleep 1
           done
 
@@ -377,10 +377,10 @@ for branch in ${BRANCH_NAME//,/ }; do
         if [ "$CLEAN_AFTER_BUILD" = true ]; then
           echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
           if [ "$BUILD_OVERLAY" = true ]; then
-            cd "$TMP_DIR"
+            cd "$TMP_DIR" || exit
             rm -rf ./*
           else
-            cd "$source_dir"
+            cd "$source_dir" || exit
             mka clean &>> "$DEBUG_LOG"
           fi
         fi
@@ -392,7 +392,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 done
 
 if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
-  find "$LOGS_DIR" -maxdepth 1 -name repo-*.log | sort | head -n -$DELETE_OLD_LOGS | xargs -r rm
+  find "$LOGS_DIR" -maxdepth 1 -name 'repo-*.log' | sort | head -n -"$DELETE_OLD_LOGS" | xargs -r rm
 fi
 
 if [ -f /root/userscripts/end.sh ]; then
