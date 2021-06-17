@@ -185,7 +185,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$patch_name"
       else
         echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $patch_name) to frameworks/base"
-        sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch --quiet -p1
+        sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch --quiet --force -p1
       fi
       if [ $? -ne 0 ]; then
         echo ">> [$(date)] ERROR: failed to apply $patch_name"
@@ -194,7 +194,7 @@ for branch in ${BRANCH_NAME//,/ }; do
       git clean -q -f
       cd ../..
 
-      if [ -n "$permissioncontroller_patch" ]; then
+      if [ -n "$permissioncontroller_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
         cd packages/apps/PermissionController || exit
         echo ">> [$(date)] Applying the PermissionController patch ($permissioncontroller_patch) to packages/apps/PermissionController"
         patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$permissioncontroller_patch"
