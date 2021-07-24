@@ -58,4 +58,4 @@ if __name__ == "__main__":
 
     xmlstr = minidom.parseString(ET.tostring(xmlout)).toprettyxml(indent="  ", encoding="UTF-8")
     with open(args.out, "w") as f:
-        f.write(xmlstr)
+        f.write(xmlstr.decode('utf-8'))
