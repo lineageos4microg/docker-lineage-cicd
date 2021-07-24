@@ -151,8 +151,6 @@ RUN apt-get -qq update && \
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \
       chmod a+x /usr/local/bin/repo
 
-RUN sed -i 's/, TLSv1, TLSv1.1,/,/' /etc/java-8-openjdk/security/java.security
-
 # Copy required files
 #####################
 COPY src/ /root/

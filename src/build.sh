@@ -89,12 +89,16 @@ for branch in ${BRANCH_NAME//,/ }; do
     permissioncontroller_patch=""
     case "$branch" in
       cm-14.1*)
+        sed -i 's/, TLSv1, TLSv1.1,/,/' "/etc/java-8-openjdk/security/java.security"
+        echo ">> [$(date)] Re-enabling support for TLSv1 and TLSv1.1 in OpenJDK 8 config"
         vendor="cm"
         themuppets_branch="cm-14.1"
         android_version="7.1.2"
         patch_name="android_frameworks_base-N.patch"
         ;;
       lineage-15.1*)
+        sed -i 's/, TLSv1, TLSv1.1,/,/' "/etc/java-8-openjdk/security/java.security"
+        echo ">> [$(date)] Re-enabling support for TLSv1 and TLSv1.1 in OpenJDK 8 config"
         themuppets_branch="lineage-15.1"
         android_version="8.1"
         patch_name="android_frameworks_base-O.patch"
