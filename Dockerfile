@@ -151,6 +151,11 @@ RUN apt-get -qq update && \
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \
       chmod a+x /usr/local/bin/repo
 
+# Re-enable TLSv1 and TLSv1.1 in OpenJDK 8 config
+#(for cm-14.1/lineage-15.1, might be removed later)
+###################################################
+RUN echo "jdk.tls.disabledAlgorithms=SSLv3, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL, include jdk.disabled.namedCurves" | tee -a /etc/java-8-openjdk/security/java.security
+
 # Copy required files
 #####################
 COPY src/ /root/
