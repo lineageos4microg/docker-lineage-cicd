@@ -95,7 +95,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         patch_name="android_frameworks_base-N.patch"
         ;;
       lineage-15.1*)
-       themuppets_branch="lineage-15.1"
+        themuppets_branch="lineage-15.1"
         android_version="8.1"
         patch_name="android_frameworks_base-O.patch"
         ;;
