@@ -36,9 +36,9 @@ fi
 # Treat DEVICE_LIST as DEVICE_LIST_<first_branch>
 first_branch=$(cut -d ',' -f 1 <<< "$BRANCH_NAME")
 if [ -n "$DEVICE_LIST" ]; then
-  device_list_first_branch="DEVICE_LIST_$(sed 's/[^[:alnum:]]/_/g' <<< "$first_branch")"
+  device_list_first_branch="DEVICE_LIST_${first_branch//[^[:alnum:]]/_}"
   device_list_first_branch=${device_list_first_branch^^}
-  read "$device_list_first_branch" <<< "$DEVICE_LIST,${!device_list_first_branch}"
+  read -r "${device_list_first_branch?}" <<< "$DEVICE_LIST,${!device_list_first_branch}"
 fi
 
 # If needed, migrate from the old SRC_DIR structure
@@ -79,7 +79,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
 fi
 
 for branch in ${BRANCH_NAME//,/ }; do
-  branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< "$branch")
+  branch_dir=${branch//[^[:alnum:]]/_}
   branch_dir=${branch_dir^^}
   device_list_cur_branch="DEVICE_LIST_$branch_dir"
   devices=${!device_list_cur_branch}
@@ -253,6 +253,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     # Prepare the environment
     echo ">> [$(date)] Preparing build environment"
+    # shellcheck source=/dev/null
     source build/envsetup.sh > /dev/null
 
     if [ -f /root/userscripts/before.sh ]; then
@@ -280,8 +281,12 @@ for branch in ${BRANCH_NAME//,/ }; do
         fi
 
         if [ "$BUILD_OVERLAY" = true ]; then
-          mkdir -p "$TMP_DIR/device" "$TMP_DIR/workdir" "$TMP_DIR/merged"
-          mount -t overlay overlay -o lowerdir="$SRC_DIR/$branch_dir",upperdir="$TMP_DIR/device",workdir="$TMP_DIR/workdir" "$TMP_DIR/merged"
+          lowerdir=$SRC_DIR/$branch_dir
+          upperdir=$TMP_DIR/device
+          workdir=$TMP_DIR/workdir
+          merged=$TMP_DIR/merged
+          mkdir -p "$upperdir" "$workdir" "$merged"
+          mount -t overlay overlay -o lowerdir="$lowerdir",upperdir="$upperdir",workdir="$workdir" "$merged"
           source_dir="$TMP_DIR/merged"
         else
           source_dir="$SRC_DIR/$branch_dir"
