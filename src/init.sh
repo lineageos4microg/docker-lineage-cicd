@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+set -eEuo pipefail
+
 # Copy the user scripts
 mkdir -p /root/userscripts
 cp -r "$USERSCRIPTS_DIR"/. /root/userscripts
@@ -52,7 +54,7 @@ if [ "$SIGN_BUILDS" = true ]; then
 
   for c in cyngn{-priv,}-app testkey; do
     for e in pk8 x509.pem; do
-      ln -s releasekey.$e "$KEYS_DIR/$c.$e" 2> /dev/null
+      ln -sf releasekey.$e "$KEYS_DIR/$c.$e" 2> /dev/null
     done
   done
 fi

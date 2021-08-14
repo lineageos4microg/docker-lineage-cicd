@@ -17,6 +17,8 @@
 # Generates a public/private key pair suitable for use in signing
 # android .apks and OTA update packages.
 
+set -eEuo pipefail
+
 if [[ "$#" -lt 2 || "$#" -gt 3 ]]; then
   cat <<EOF
 Usage: $0 <name> <subject> [<keytype>]
@@ -38,7 +40,7 @@ fi
 # touch the disk.
 
 tmpdir=$(mktemp -d)
-trap 'rm -rf ${tmpdir}; echo; exit 1' EXIT INT QUIT
+trap 'rm -rf ${tmpdir}' EXIT
 
 one=${tmpdir}/one
 two=${tmpdir}/two
@@ -49,7 +51,7 @@ chmod 0600 "${one}" "${two}"
 read -rp "Enter password for '$1' (blank for none; password will be visible): " \
   password
 
-if [[ "${3}" = "rsa" || "$#" -eq 2 ]]; then
+if [[ "$#" -eq 2 || "${3}" = "rsa" ]]; then
   ( openssl genrsa -f4 2048 | tee "${one}" > "${two}" ) &
   hash="-sha256"
 elif [ "${3}" = "ec" ]; then
