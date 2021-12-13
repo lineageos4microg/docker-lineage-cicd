@@ -208,7 +208,7 @@ When `LOCAL_MIRROR` is `true`:
 
 ### Build for river (lineage-18.1, officially supported), test keys, no patches
 
-```
+```sh
 docker run \
     -e "BRANCH_NAME=lineage-18.1" \
     -e "DEVICE_LIST=river" \
@@ -281,7 +281,7 @@ Then, with the help of lineage.dependencies from the
 [common tree][a6000-common-tree-deps] we create an XML
 `/home/user/manifests/a6000.xml` with this content:
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <project name="dev-harsh1998/android_device_lenovo_a6000" path="device/lenovo/a6000" remote="github" />
