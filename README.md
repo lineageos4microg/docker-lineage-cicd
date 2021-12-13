@@ -52,6 +52,42 @@ to the LineageOS official builds, just signed with the test keys.
 When multiple branches are selected, use `DEVICE_LIST_<BRANCH_NAME>` to specify
 the list of devices for each specific branch (see [the examples](#examples)).
 
+### GMS / microG
+
+To include microG (or possibly the actual Google Mobile Services) in your build,
+LineageOS expects certain Makefiles in `vendor/partner_gms` and variable
+`WITH_GMS` set to `true`.
+
+[This][android_vendor_partner_gms] repo contains the common packages included for
+official lineageos4microg builds. To include it in your build, create an XML
+(the name is irrelevant, as long as it ends with `.xml`) in the
+`/home/user/manifests` folder with this content:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <project path="vendor/partner_gms" name="lineageos4microg/android_vendor_partner_gms" remote="github" revision="master" />
+</manifest>
+```
+
+### Additional custom apps
+
+If you wish to add other apps to your ROM, you can include a repository with
+source code or prebuilt APKs. For prebuilt apks, see the [android_vendor_partner_gms][android_vendor_partner_gms]
+repository for examples on how the `Android.mk` file should look like. 
+
+Include the repo with another manifest file like this:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="your-github-user/your-repo" path="prebuilts/my-custom-apps" remote="github" revision="master" />
+</manifest>
+```
+
+And when starting the build, set the `CUSTOM_PACKAGES` variable to a list of app names
+(defined by `LOCAL_MODULE` in `Android.mk`) separated by spaces.
+
 ### Signature spoofing
 
 There are two options for the [signature spoofing patch][signature-spoofing]
@@ -74,12 +110,9 @@ The signature spoofing patch can be optionally included with:
     the restricted one, `no` for none of them
 
 If in doubt, use `restricted`: note that packages that requires the
-FAKE_SIGNATURE permission must be embedded in the build by adding them in
+FAKE_SIGNATURE permission must be included in the build as system apps
+(e.g. as part of GMS or `CUSTOM_PACKAGES`)
 
- * `CUSTOM_PACKAGES`
-
-Extra packages can be included in the tree by adding the corresponding manifest
-XML to the local_manifests volume.
 
 ### Proprietary files
 
@@ -188,13 +221,13 @@ docker run \
 
 ### Build for bacon (lineage-17.1, officially supported), custom keys, restricted signature spoofing with integrated microG and FDroid
 
-```
+```sh
 docker run \
     -e "BRANCH_NAME=lineage-17.1" \
     -e "DEVICE_LIST=bacon" \
     -e "SIGN_BUILDS=true" \
     -e "SIGNATURE_SPOOFING=restricted" \
-    -e "CUSTOM_PACKAGES=GmsCore GsfProxy FakeStore MozillaNlpBackend NominatimNlpBackend com.google.android.maps.jar FDroid FDroidPrivilegedExtension " \
+    -e "WITH_GMS=true" \
     -v "/home/user/lineage:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
     -v "/home/user/logs:/srv/logs" \
@@ -209,28 +242,19 @@ new set will be generated before starting the build (and will be used for every
 subsequent build).
 
 The microG and FDroid packages are not present in the LineageOS repositories,
-and must be provided through an XML in the `/home/user/manifests`.
-[This][prebuiltapks] repo contains some of the most common packages for these
-kind of builds: to include it create an XML (the name is irrelevant, as long as
-it ends with `.xml`) in the `/home/user/manifests` folder with this content:
+and must be provided e.g. through [android_vendor_partner_gms][android_vendor_partner_gms].
 
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest>
-  <project name="lineageos4microg/android_prebuilts_prebuiltapks" path="prebuilts/prebuiltapks" remote="github" revision="master" />
-</manifest>
-```
 
 ### Build for four devices on lineage-17.1 and lineage-18.1 (officially supported), custom keys, restricted signature spoofing with integrated microG and FDroid, custom OTA server
 
-```
+```sh
 docker run \
     -e "BRANCH_NAME=lineage-17.1,lineage-18.1" \
     -e "DEVICE_LIST_LINEAGE_17_1=bacon,oneplus2" \
     -e "DEVICE_LIST_LINEAGE_18_1=river,lake" \
     -e "SIGN_BUILDS=true" \
     -e "SIGNATURE_SPOOFING=restricted" \
-    -e "CUSTOM_PACKAGES=GmsCore GsfProxy FakeStore MozillaNlpBackend NominatimNlpBackend com.google.android.maps.jar FDroid FDroidPrivilegedExtension " \
+    -e "WITH_GMS=true" \
     -e "OTA_URL=https://api.myserver.com/" \
     -v "/home/user/lineage:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
@@ -268,13 +292,13 @@ Then, with the help of lineage.dependencies from the
 </manifest>
 ```
 
-We also want to include our custom packages so, like before, create an XML (for
-example `/home/user/manifests/custom_packages.xml`) with this content:
+We also want to include microG so, like before, create an XML (for
+example `/home/user/manifests/microg.xml`) with this content:
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <project name="lineageos4microg/android_prebuilts_prebuiltapks" path="prebuilts/prebuiltapks" remote="github" revision="master" />
+    <project path="vendor/partner_gms" name="lineageos4microg/android_vendor_partner_gms" remote="github" revision="master" />
 </manifest>
 ```
 
@@ -285,13 +309,13 @@ don't have to include the TheMuppets repo).
 
 Now we can just run the build like it was officially supported:
 
-```
+```sh
 docker run \
     -e "BRANCH_NAME=lineage-15.1" \
     -e "DEVICE_LIST=a6000" \
     -e "SIGN_BUILDS=true" \
     -e "SIGNATURE_SPOOFING=restricted" \
-    -e "CUSTOM_PACKAGES=GmsCore GsfProxy FakeStore MozillaNlpBackend NominatimNlpBackend com.google.android.maps.jar FDroid FDroidPrivilegedExtension " \
+    -e "WITH_GMS=true" \
     -e "INCLUDE_PROPRIETARY=false" \
     -v "/home/user/lineage:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
@@ -323,7 +347,7 @@ docker run \
 [updater]: https://github.com/LineageOS/android_packages_apps_Updater
 [los-extras]: https://download.lineageos.org/extras
 [dockerfile]: Dockerfile
-[prebuiltapks]: https://github.com/lineageos4microg/android_prebuilts_prebuiltapks
+[android_vendor_partner_gms]: https://github.com/lineageos4microg/android_vendor_partner_gms
 [a6000-xda]: https://forum.xda-developers.com/lenovo-a6000/development/rom-lineageos-15-1-t3733747
 [a6000-device-tree-deps]: https://github.com/dev-harsh1998/android_device_lenovo_a6000/blob/lineage-15.1/lineage.dependencies
 [a6000-common-tree-deps]: https://github.com/dev-harsh1998/android_device_lenovo_msm8916-common/blob/lineage-15.1/lineage.dependencies
