@@ -167,6 +167,7 @@ Other useful settings are:
     when set to `false`, you can still enable root by flashing the
     [su installable ZIP][los-extras])
  * `RELEASE_TYPE (UNOFFICIAL)`: change the release type of your builds
+ * `BUILD_TYPE (userdebug)`: change the build type of your builds (user|userdebug|eng)
  * `BUILD_OVERLAY (false)`: normally each build is done on the source tree, then
     the tree is cleaned with `mka clean`. If you want to be sure that each build
     is isolated from the others, set `BUILD_OVERLAY` to `true` (longer build
