@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+set -eEuo pipefail
+
 # Copy the user scripts
 mkdir -p /root/userscripts
 cp -r "$USERSCRIPTS_DIR"/. /root/userscripts
@@ -52,7 +54,7 @@ if [ "$SIGN_BUILDS" = true ]; then
 
   for c in cyngn{-priv,}-app testkey; do
     for e in pk8 x509.pem; do
-      ln -s releasekey.$e "$KEYS_DIR/$c.$e" 2> /dev/null
+      ln -sf releasekey.$e "$KEYS_DIR/$c.$e" 2> /dev/null
     done
   done
 fi
@@ -64,7 +66,7 @@ else
   cronFile=/tmp/buildcron
   printf "SHELL=/bin/bash\n" > $cronFile
   printenv -0 | sed -e 's/=\x0/=""\n/g'  | sed -e 's/\x0/\n/g' | sed -e "s/_=/PRINTENV=/g" >> $cronFile
-  printf "\n$CRONTAB_TIME /usr/bin/flock -n /var/lock/build.lock /root/build.sh >> /var/log/docker.log 2>&1\n" >> $cronFile
+  printf '\n%s /usr/bin/flock -n /var/lock/build.lock /root/build.sh >> /var/log/docker.log 2>&1\n' "$CRONTAB_TIME" >> $cronFile
   crontab $cronFile
   rm $cronFile
 
