@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+set -eEuo pipefail
+
 repo_log="$LOGS_DIR/repo-$(date +%Y%m%d).log"
 
 # cd to working directory
-cd "$SRC_DIR" || exit
+cd "$SRC_DIR"
 
 if [ -f /root/userscripts/begin.sh ]; then
   echo ">> [$(date)] Running begin.sh"
@@ -36,9 +38,9 @@ fi
 # Treat DEVICE_LIST as DEVICE_LIST_<first_branch>
 first_branch=$(cut -d ',' -f 1 <<< "$BRANCH_NAME")
 if [ -n "$DEVICE_LIST" ]; then
-  device_list_first_branch="DEVICE_LIST_$(sed 's/[^[:alnum:]]/_/g' <<< "$first_branch")"
+  device_list_first_branch="DEVICE_LIST_${first_branch//[^[:alnum:]]/_}"
   device_list_first_branch=${device_list_first_branch^^}
-  read "$device_list_first_branch" <<< "$DEVICE_LIST,${!device_list_first_branch}"
+  read -r "${device_list_first_branch?}" <<< "$DEVICE_LIST,${!device_list_first_branch:-}"
 fi
 
 # If needed, migrate from the old SRC_DIR structure
@@ -55,11 +57,11 @@ fi
 
 if [ "$LOCAL_MIRROR" = true ]; then
 
-  cd "$MIRROR_DIR" || exit
+  cd "$MIRROR_DIR"
 
   if [ ! -d .repo ]; then
     echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
-    yes | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux &>> "$repo_log"
+    ( yes||: ) | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux &>> "$repo_log"
   fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
@@ -79,7 +81,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
 fi
 
 for branch in ${BRANCH_NAME//,/ }; do
-  branch_dir=$(sed 's/[^[:alnum:]]/_/g' <<< "$branch")
+  branch_dir=${branch//[^[:alnum:]]/_}
   branch_dir=${branch_dir^^}
   device_list_cur_branch="DEVICE_LIST_$branch_dir"
   devices=${!device_list_cur_branch}
@@ -124,7 +126,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 
     mkdir -p "$SRC_DIR/$branch_dir"
-    cd "$SRC_DIR/$branch_dir" || exit
+    cd "$SRC_DIR/$branch_dir"
 
     echo ">> [$(date)] Branch:  $branch"
     echo ">> [$(date)] Devices: $devices"
@@ -132,18 +134,18 @@ for branch in ${BRANCH_NAME//,/ }; do
     # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
     for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController"; do
       if [ -d "$path" ]; then
-        cd "$path" || exit
+        cd "$path"
         git reset -q --hard
         git clean -q -fd
-        cd "$SRC_DIR/$branch_dir" || exit
+        cd "$SRC_DIR/$branch_dir"
       fi
     done
 
     echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
     if [ "$LOCAL_MIRROR" = true ]; then
-      yes | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
+      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" &>> "$repo_log"
     else
-      yes | repo init -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
+      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" &>> "$repo_log"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
@@ -178,7 +180,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     # If needed, apply the microG's signature spoofing patch
     if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
       # Determine which patch should be applied to the current Android source tree
-      cd frameworks/base || exit
+      cd frameworks/base
       if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
         echo ">> [$(date)] Applying the standard signature spoofing patch ($patch_name) to frameworks/base"
         echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
@@ -187,21 +189,13 @@ for branch in ${BRANCH_NAME//,/ }; do
         echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $patch_name) to frameworks/base"
         sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch --quiet --force -p1
       fi
-      if [ $? -ne 0 ]; then
-        echo ">> [$(date)] ERROR: failed to apply $patch_name"
-        exit 1
-      fi
       git clean -q -f
       cd ../..
 
       if [ -n "$permissioncontroller_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-        cd packages/apps/PermissionController || exit
+        cd packages/apps/PermissionController
         echo ">> [$(date)] Applying the PermissionController patch ($permissioncontroller_patch) to packages/apps/PermissionController"
         patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$permissioncontroller_patch"
-        if [ $? -ne 0 ]; then
-          echo ">> [$(date)] ERROR: failed to apply $permissioncontroller_patch"
-          exit 1
-        fi
         git clean -q -f
         cd ../../..
       fi
@@ -253,7 +247,10 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     # Prepare the environment
     echo ">> [$(date)] Preparing build environment"
+    set +eu
+    # shellcheck source=/dev/null
     source build/envsetup.sh > /dev/null
+    set -eu
 
     if [ -f /root/userscripts/before.sh ]; then
       echo ">> [$(date)] Running before.sh"
@@ -270,23 +267,27 @@ for branch in ${BRANCH_NAME//,/ }; do
 
           if [ "$LOCAL_MIRROR" = true ]; then
             echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-            cd "$MIRROR_DIR" || exit
+            cd "$MIRROR_DIR"
             repo sync --force-sync --no-clone-bundle &>> "$repo_log"
           fi
 
           echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-          cd "$SRC_DIR/$branch_dir" || exit
+          cd "$SRC_DIR/$branch_dir"
           repo sync -c --force-sync &>> "$repo_log"
         fi
 
         if [ "$BUILD_OVERLAY" = true ]; then
-          mkdir -p "$TMP_DIR/device" "$TMP_DIR/workdir" "$TMP_DIR/merged"
-          mount -t overlay overlay -o lowerdir="$SRC_DIR/$branch_dir",upperdir="$TMP_DIR/device",workdir="$TMP_DIR/workdir" "$TMP_DIR/merged"
+          lowerdir=$SRC_DIR/$branch_dir
+          upperdir=$TMP_DIR/device
+          workdir=$TMP_DIR/workdir
+          merged=$TMP_DIR/merged
+          mkdir -p "$upperdir" "$workdir" "$merged"
+          mount -t overlay overlay -o lowerdir="$lowerdir",upperdir="$upperdir",workdir="$workdir" "$merged"
           source_dir="$TMP_DIR/merged"
         else
           source_dir="$SRC_DIR/$branch_dir"
         fi
-        cd "$source_dir" || exit
+        cd "$source_dir"
 
         if [ "$ZIP_SUBDIR" = true ]; then
           zipsubdir=$codename
@@ -311,7 +312,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         # Start the build
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
         build_successful=false
-        if brunch "$codename" &>> "$DEBUG_LOG"; then
+        if ( set +eu ; brunch "$codename" ) &>> "$DEBUG_LOG"; then
           currentdate=$(date +%Y%m%d)
           if [ "$builddate" != "$currentdate" ]; then
             find out/target/product/"$codename" -maxdepth 1 -name "lineage-*-$currentdate-*.zip*" -type f -exec sh /root/fix_build_date.sh {} "$currentdate" "$builddate" \; &>> "$DEBUG_LOG"
@@ -319,7 +320,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
-          cd out/target/product/"$codename" || exit
+          cd out/target/product/"$codename"
           for build in lineage-*.zip; do
             sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
@@ -332,7 +333,7 @@ for branch in ${BRANCH_NAME//,/ }; do
               break
             fi
           done &>> "$DEBUG_LOG"
-          cd "$source_dir" || exit
+          cd "$source_dir"
           build_successful=true
         else
           echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
@@ -361,7 +362,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         if [ "$BUILD_OVERLAY" = true ]; then
           # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
-          cd "$TMP_DIR" || exit
+          cd "$TMP_DIR"
           if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
             "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" &> /dev/null || true
           fi
@@ -377,10 +378,10 @@ for branch in ${BRANCH_NAME//,/ }; do
         if [ "$CLEAN_AFTER_BUILD" = true ]; then
           echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
           if [ "$BUILD_OVERLAY" = true ]; then
-            cd "$TMP_DIR" || exit
+            cd "$TMP_DIR"
             rm -rf ./*
           else
-            cd "$source_dir" || exit
+            cd "$source_dir"
             mka clean &>> "$DEBUG_LOG"
           fi
         fi
