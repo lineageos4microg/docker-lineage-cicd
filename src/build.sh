@@ -305,7 +305,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
         set +eu
-        breakfast "$codename" &>> "$DEBUG_LOG"
+        breakfast "$codename" "$BUILD_TYPE" &>> "$DEBUG_LOG"
         set -eu
 
         if [ -f /root/userscripts/pre-build.sh ]; then
