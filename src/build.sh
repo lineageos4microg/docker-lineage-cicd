@@ -316,7 +316,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         # Start the build
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
         build_successful=false
-        if mka bacon &>> "$DEBUG_LOG"; then
+        if (set +e ; mka bacon) &>> "$DEBUG_LOG"; then
           currentdate=$(date +%Y%m%d)
           if [ "$builddate" != "$currentdate" ]; then
             find out/target/product/"$codename" -maxdepth 1 -name "lineage-*-$currentdate-*.zip*" -type f -exec sh /root/fix_build_date.sh {} "$currentdate" "$builddate" \; &>> "$DEBUG_LOG"
