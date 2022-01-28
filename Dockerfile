@@ -110,6 +110,9 @@ ENV DELETE_OLD_ZIPS 0
 # Delete old logs in $LOGS_DIR, keep only the N latest one (0 to disable)
 ENV DELETE_OLD_LOGS 0
 
+# build type of your builds (user|userdebug|eng)
+ENV BUILD_TYPE "userdebug"
+
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
 #  * before.sh, run after the syncing and patching, before starting the builds
