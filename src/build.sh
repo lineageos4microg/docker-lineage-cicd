@@ -305,7 +305,6 @@ for branch in ${BRANCH_NAME//,/ }; do
         DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
         set +eu
-        # shellcheck source=/dev/null
         breakfast "$codename" &>> "$DEBUG_LOG"
         set -eu
 
@@ -317,11 +316,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         # Start the build
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
         build_successful=false
-        set +eu
-        # shellcheck source=/dev/null
         if mka bacon &>> "$DEBUG_LOG"; then
-          set -eu
-
           currentdate=$(date +%Y%m%d)
           if [ "$builddate" != "$currentdate" ]; then
             find out/target/product/"$codename" -maxdepth 1 -name "lineage-*-$currentdate-*.zip*" -type f -exec sh /root/fix_build_date.sh {} "$currentdate" "$builddate" \; &>> "$DEBUG_LOG"
@@ -345,7 +340,6 @@ for branch in ${BRANCH_NAME//,/ }; do
           cd "$source_dir"
           build_successful=true
         else
-          set -eu
           echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
         fi
 
