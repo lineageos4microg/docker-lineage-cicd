@@ -386,7 +386,7 @@ for branch in ${BRANCH_NAME//,/ }; do
             rm -rf ./*
           else
             cd "$source_dir"
-            mka clean &>> "$DEBUG_LOG"
+            (set +eu ; mka clean) &>> "$DEBUG_LOG"
           fi
         fi
 
