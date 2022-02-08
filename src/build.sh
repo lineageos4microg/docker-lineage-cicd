@@ -370,7 +370,7 @@ for branch in ${BRANCH_NAME//,/ }; do
           if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
             "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" &> /dev/null || true
           fi
-          lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null
+          lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null || true
 
           while lsof | grep -q "$TMP_DIR"/merged; do
             sleep 1
