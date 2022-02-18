@@ -88,34 +88,41 @@ for branch in ${BRANCH_NAME//,/ }; do
 
   if [ -n "$branch" ] && [ -n "$devices" ]; then
     vendor=lineage
-    permissioncontroller_patch=""
+    apps_permissioncontroller_patch=""
+    modules_permission_patch=""
     case "$branch" in
       cm-14.1*)
         vendor="cm"
         themuppets_branch="cm-14.1"
         android_version="7.1.2"
-        patch_name="android_frameworks_base-N.patch"
+        frameworks_base_patch="android_frameworks_base-N.patch"
         ;;
       lineage-15.1*)
         themuppets_branch="lineage-15.1"
         android_version="8.1"
-        patch_name="android_frameworks_base-O.patch"
+        frameworks_base_patch="android_frameworks_base-O.patch"
         ;;
       lineage-16.0*)
         themuppets_branch="lineage-16.0"
         android_version="9"
-        patch_name="android_frameworks_base-P.patch"
+        frameworks_base_patch="android_frameworks_base-P.patch"
         ;;
       lineage-17.1*)
         themuppets_branch="lineage-17.1"
         android_version="10"
-        patch_name="android_frameworks_base-Q.patch"
+        frameworks_base_patch="android_frameworks_base-Q.patch"
         ;;
       lineage-18.1*)
         themuppets_branch="lineage-18.1"
         android_version="11"
-        patch_name="android_frameworks_base-R.patch"
-        permissioncontroller_patch="packages_apps_PermissionController-R.patch"
+        frameworks_base_patch="android_frameworks_base-R.patch"
+        apps_permissioncontroller_patch="packages_apps_PermissionController-R.patch"
+        ;;
+      lineage-19.0*)
+        themuppets_branch="lineage-19.0"
+        android_version="12"
+        frameworks_base_patch="android_frameworks_base-S.patch"
+        modules_permission_patch="packages_modules_Permission-S.patch"
         ;;
       *)
         echo ">> [$(date)] Building branch $branch is not (yet) suppported"
@@ -182,20 +189,28 @@ for branch in ${BRANCH_NAME//,/ }; do
       # Determine which patch should be applied to the current Android source tree
       cd frameworks/base
       if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-        echo ">> [$(date)] Applying the standard signature spoofing patch ($patch_name) to frameworks/base"
+        echo ">> [$(date)] Applying the standard signature spoofing patch ($frameworks_base_patch) to frameworks/base"
         echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
-        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$patch_name"
+        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$frameworks_base_patch"
       else
-        echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $patch_name) to frameworks/base"
-        sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$patch_name" | patch --quiet --force -p1
+        echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $frameworks_base_patch) to frameworks/base"
+        sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$frameworks_base_patch" | patch --quiet --force -p1
       fi
       git clean -q -f
       cd ../..
 
-      if [ -n "$permissioncontroller_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+      if [ -n "$apps_permissioncontroller_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
         cd packages/apps/PermissionController
-        echo ">> [$(date)] Applying the PermissionController patch ($permissioncontroller_patch) to packages/apps/PermissionController"
-        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$permissioncontroller_patch"
+        echo ">> [$(date)] Applying the apps/PermissionController patch ($apps_permissioncontroller_patch) to packages/apps/PermissionController"
+        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$apps_permissioncontroller_patch"
+        git clean -q -f
+        cd ../../..
+      fi
+      
+      if [ -n "$modules_permission_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+        cd packages/modules/Permission
+        echo ">> [$(date)] Applying the modules/Permission patch ($modules_permission_patch) to packages/modules/Permission"
+        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$modules_permission_patch"
         git clean -q -f
         cd ../../..
       fi
