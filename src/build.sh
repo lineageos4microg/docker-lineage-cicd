@@ -139,7 +139,8 @@ for branch in ${BRANCH_NAME//,/ }; do
     echo ">> [$(date)] Devices: $devices"
 
     # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
-    for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController"; do
+    # TODO: maybe reset everything using https://source.android.com/setup/develop/repo#forall
+    for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController" "packages/modules/Permission"; do
       if [ -d "$path" ]; then
         cd "$path"
         git reset -q --hard
