@@ -1,3 +1,5 @@
+diff --git a/core/api/current.txt b/core/api/current.txt
+index 1de47b548a5c..7074b33c30d9 100644
 --- a/core/api/current.txt
 +++ b/core/api/current.txt
 @@ -82,6 +82,7 @@ package android {
@@ -79,43 +81,41 @@ index b58638cc3ade..8cf98fa56bf6 100644
      <string name="permlab_statusBar">disable or modify status bar</string>
      <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
 diff --git a/services/core/java/com/android/server/pm/PackageManagerService.java b/services/core/java/com/android/server/pm/PackageManagerService.java
-index f69922f64787..2de27f41bbc4 100644
+index f69922f64787..2bbd9c2c765d 100644
 --- a/services/core/java/com/android/server/pm/PackageManagerService.java
 +++ b/services/core/java/com/android/server/pm/PackageManagerService.java
-@@ -3357,8 +3357,9 @@ public class PackageManagerService extends IPackageManager.Stub
-                         || ArrayUtils.isEmpty(p.getRequestedPermissions())) ? Collections.emptySet()
-                         : mPermissionManager.getGrantedPermissions(ps.name, userId);
+@@ -3325,6 +3325,25 @@ public class PackageManagerService extends IPackageManager.Stub
+             return result;
+         }
  
--                PackageInfo packageInfo = PackageInfoUtils.generate(p, gids, flags,
--                        ps.firstInstallTime, ps.lastUpdateTime, permissions, state, userId, ps);
-+                PackageInfo packageInfo = mayFakeSignature(p, PackageInfoUtils.generate(p, gids, flags,
-+                        ps.firstInstallTime, ps.lastUpdateTime, permissions, state, userId, ps),
-+                        permissions);
++        private static PackageInfo applyFakeSignature(AndroidPackage p, PackageInfo pi,
++                Set<String> permissions) {
++            try {
++                if (permissions.contains("android.permission.FAKE_PACKAGE_SIGNATURE")
++                        && p.getTargetSdkVersion() > Build.VERSION_CODES.LOLLIPOP_MR1
++                        && p.getMetaData() != null) {
++                    String sig = p.getMetaData().getString("fake-signature");
++                    if (sig != null) {
++                        pi.signatures = new Signature[] {new Signature(sig)};
++                    }
++                }
++            } catch (Throwable t) {
++                // We should never die because of any failures, this is system code!
++                Log.w("PackageManagerService.FAKE_PACKAGE_SIGNATURE", t);
++            }
++            return pi;
++        }
++
++
+         public final PackageInfo generatePackageInfo(PackageSetting ps, int flags, int userId) {
+             if (!mUserManager.exists(userId)) return null;
+             if (ps == null) {
+@@ -3360,6 +3379,8 @@ public class PackageManagerService extends IPackageManager.Stub
+                 PackageInfo packageInfo = PackageInfoUtils.generate(p, gids, flags,
+                         ps.firstInstallTime, ps.lastUpdateTime, permissions, state, userId, ps);
  
++                packageInfo = applyFakeSignature(p, packageInfo, permissions);
++
                  if (packageInfo == null) {
                      return null;
-@@ -8882,6 +8883,24 @@ public class PackageManagerService extends IPackageManager.Stub
-         return mComputer.generatePackageInfo(ps, flags, userId);
-     }
- 
-+    private PackageInfo mayFakeSignature(AndroidPackage p, PackageInfo pi,
-+            Set<String> permissions) {
-+        try {
-+            if (permissions.contains("android.permission.FAKE_PACKAGE_SIGNATURE")
-+                    && p.getTargetSdkVersion() > Build.VERSION_CODES.LOLLIPOP_MR1
-+                    && p.getMetaData() != null) {
-+                String sig = p.getMetaData().getString("fake-signature");
-+                if (sig != null) {
-+                    pi.signatures = new Signature[] {new Signature(sig)};
-+                }
-+            }
-+        } catch (Throwable t) {
-+            // We should never die because of any failures, this is system code!
-+            Log.w("PackageManagerService.FAKE_PACKAGE_SIGNATURE", t);
-+        }
-+        return pi;
-+    }
-+
-     @Override
-     public void checkPackageStartable(String packageName, int userId) {
-         final int callingUid = Binder.getCallingUid();
+                 }
