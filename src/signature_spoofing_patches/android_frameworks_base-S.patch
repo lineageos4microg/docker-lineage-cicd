@@ -81,22 +81,30 @@ index b58638cc3ade..8cf98fa56bf6 100644
      <string name="permlab_statusBar">disable or modify status bar</string>
      <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
 diff --git a/services/core/java/com/android/server/pm/PackageManagerService.java b/services/core/java/com/android/server/pm/PackageManagerService.java
-index f69922f64787..2bbd9c2c765d 100644
+index f69922f64787..9517e4032646 100644
 --- a/services/core/java/com/android/server/pm/PackageManagerService.java
 +++ b/services/core/java/com/android/server/pm/PackageManagerService.java
-@@ -3325,6 +3325,25 @@ public class PackageManagerService extends IPackageManager.Stub
+@@ -3325,6 +3325,33 @@ public class PackageManagerService extends IPackageManager.Stub
              return result;
          }
  
++        @Nullable
++        private String getRequestedFakeSignature(AndroidPackage p) {
++            Bundle metaData = p.getMetaData();
++            if (metaData != null) {
++                return metaData.getString("fake-signature");
++            }
++            return null;
++        }
++
 +        private static PackageInfo applyFakeSignature(AndroidPackage p, PackageInfo pi,
 +                Set<String> permissions) {
 +            try {
 +                if (permissions.contains("android.permission.FAKE_PACKAGE_SIGNATURE")
-+                        && p.getTargetSdkVersion() > Build.VERSION_CODES.LOLLIPOP_MR1
-+                        && p.getMetaData() != null) {
-+                    String sig = p.getMetaData().getString("fake-signature");
++                        && p.getTargetSdkVersion() > Build.VERSION_CODES.LOLLIPOP_MR1) {
++                    String sig = getRequestedFakeSignature(p);
 +                    if (sig != null) {
-+                        pi.signatures = new Signature[] {new Signature(sig)};
++                        pi.signatures = new Signature[] { new Signature(sig) };
 +                    }
 +                }
 +            } catch (Throwable t) {
@@ -110,7 +118,19 @@ index f69922f64787..2bbd9c2c765d 100644
          public final PackageInfo generatePackageInfo(PackageSetting ps, int flags, int userId) {
              if (!mUserManager.exists(userId)) return null;
              if (ps == null) {
-@@ -3360,6 +3379,8 @@ public class PackageManagerService extends IPackageManager.Stub
+@@ -3353,13 +3380,17 @@ public class PackageManagerService extends IPackageManager.Stub
+                 final int[] gids = (flags & PackageManager.GET_GIDS) == 0 ? EMPTY_INT_ARRAY
+                         : mPermissionManager.getGidsForUid(UserHandle.getUid(userId, ps.appId));
+                 // Compute granted permissions only if package has requested permissions
+-                final Set<String> permissions = ((flags & PackageManager.GET_PERMISSIONS) == 0
+-                        || ArrayUtils.isEmpty(p.getRequestedPermissions())) ? Collections.emptySet()
+-                        : mPermissionManager.getGrantedPermissions(ps.name, userId);
++                boolean computePermissions = !ArrayUtils.isEmpty(p.getRequestedPermissions()) &&
++                    ((flags & PackageManager.GET_PERMISSIONS) == 0 || getRequestedFakeSignature(p) != null);
++                final Set<String> permissions = computePermissions ?
++                            mPermissionManager.getGrantedPermissions(ps.name, userId)
++                            : Collections.emptySet();
+ 
                  PackageInfo packageInfo = PackageInfoUtils.generate(p, gids, flags,
                          ps.firstInstallTime, ps.lastUpdateTime, permissions, state, userId, ps);
  
