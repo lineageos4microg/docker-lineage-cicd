@@ -89,7 +89,7 @@ index f69922f64787..9517e4032646 100644
          }
  
 +        @Nullable
-+        private String getRequestedFakeSignature(AndroidPackage p) {
++        private static String getRequestedFakeSignature(AndroidPackage p) {
 +            Bundle metaData = p.getMetaData();
 +            if (metaData != null) {
 +                return metaData.getString("fake-signature");
