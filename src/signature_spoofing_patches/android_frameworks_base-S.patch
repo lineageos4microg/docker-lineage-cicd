@@ -126,7 +126,7 @@ index f69922f64787..9517e4032646 100644
 -                        || ArrayUtils.isEmpty(p.getRequestedPermissions())) ? Collections.emptySet()
 -                        : mPermissionManager.getGrantedPermissions(ps.name, userId);
 +                boolean computePermissions = !ArrayUtils.isEmpty(p.getRequestedPermissions()) &&
-+                    ((flags & PackageManager.GET_PERMISSIONS) == 0 || getRequestedFakeSignature(p) != null);
++                    ((flags & PackageManager.GET_PERMISSIONS) != 0 || getRequestedFakeSignature(p) != null);
 +                final Set<String> permissions = computePermissions ?
 +                            mPermissionManager.getGrantedPermissions(ps.name, userId)
 +                            : Collections.emptySet();
