@@ -260,22 +260,6 @@ for branch in ${BRANCH_NAME//,/ }; do
     for codename in ${devices//,/ }; do
       if [ -n "$codename" ]; then
 
-        currentdate=$(date +%Y%m%d)
-        if [ "$builddate" != "$currentdate" ]; then
-          # Sync the source code
-          builddate=$currentdate
-
-          if [ "$LOCAL_MIRROR" = true ]; then
-            echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-            cd "$MIRROR_DIR"
-            repo sync --force-sync --no-clone-bundle &>> "$repo_log"
-          fi
-
-          echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-          cd "$SRC_DIR/$branch_dir"
-          repo sync -c --force-sync &>> "$repo_log"
-        fi
-
         if [ "$BUILD_OVERLAY" = true ]; then
           lowerdir=$SRC_DIR/$branch_dir
           upperdir=$TMP_DIR/device
@@ -317,10 +301,6 @@ for branch in ${BRANCH_NAME//,/ }; do
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
         build_successful=false
         if (set +eu ; mka bacon) &>> "$DEBUG_LOG"; then
-          currentdate=$(date +%Y%m%d)
-          if [ "$builddate" != "$currentdate" ]; then
-            find out/target/product/"$codename" -maxdepth 1 -name "lineage-*-$currentdate-*.zip*" -type f -exec sh /root/fix_build_date.sh {} "$currentdate" "$builddate" \; &>> "$DEBUG_LOG"
-          fi
 
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
