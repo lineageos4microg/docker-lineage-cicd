@@ -55,6 +55,18 @@ if [ -d "$SRC_DIR/.repo" ]; then
   find . -maxdepth 1 ! -name "$branch_dir" ! -path . -exec mv {} "$branch_dir" \;
 fi
 
+
+jobs_arg=()
+if [ -n "$PARALLEL_JOBS" ]; then
+  if [[ "$PARALLEL_JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    jobs_arg+=( "-j$PARALLEL_JOBS" )
+  else
+    echo "PARALLEL_JOBS is not a positive number: $PARALLEL_JOBS"
+    exit 1
+  fi
+fi
+
+
 if [ "$LOCAL_MIRROR" = true ]; then
 
   cd "$MIRROR_DIR"
@@ -77,7 +89,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
 
   echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-  repo sync --force-sync --no-clone-bundle &>> "$repo_log"
+  repo sync "${jobs_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
 fi
 
 for branch in ${BRANCH_NAME//,/ }; do
@@ -162,7 +174,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     builddate=$(date +%Y%m%d)
-    repo sync -c --force-sync &>> "$repo_log"
+    repo sync "${jobs_arg[@]}" -c --force-sync &>> "$repo_log"
 
     if [ ! -d "vendor/$vendor" ]; then
       echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
@@ -300,7 +312,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         # Start the build
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
         build_successful=false
-        if (set +eu ; mka bacon) &>> "$DEBUG_LOG"; then
+        if (set +eu ; mka "${jobs_arg[@]}" bacon) &>> "$DEBUG_LOG"; then
 
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
@@ -366,7 +378,7 @@ for branch in ${BRANCH_NAME//,/ }; do
             rm -rf ./*
           else
             cd "$source_dir"
-            (set +eu ; mka clean) &>> "$DEBUG_LOG"
+            (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
           fi
         fi
 
