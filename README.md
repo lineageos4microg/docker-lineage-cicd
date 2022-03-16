@@ -177,6 +177,9 @@ Other useful settings are:
  * `CRONTAB_TIME (now)`: instead of building immediately and exit, build at the
     specified time (uses standard cron format)
  * `ZIP_SUBDIR (true)`: Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
+ * `PARALLEL_JOBS`: Limit the number of parallel jobs to run (`-j` for `repo sync` and `mka`).
+   By default, the build system should match the number of parallel jobs to the number of cpu
+   cores on your machine. Reducing this number can help keeping it responsive for other tasks.   
 
 The full list of settings, including the less interesting ones not mentioned in
 this guide, can be found in the [Dockerfile][dockerfile].
