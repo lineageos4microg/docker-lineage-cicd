@@ -193,8 +193,12 @@ for branch in ${BRANCH_NAME//,/ }; do
     mkdir -p "vendor/$vendor/overlay/microg/"
     sed -i "1s;^;PRODUCT_PACKAGE_OVERLAYS := vendor/$vendor/overlay/microg\n;" "vendor/$vendor/config/common.mk"
 
-    los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "vendor/$vendor/config/common.mk")
-    los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "vendor/$vendor/config/common.mk")
+    makefile_containing_version="vendor/$vendor/config/common.mk"
+    if [ -f "vendor/$vendor/config/version.mk" ]; then
+      makefile_containing_version="vendor/$vendor/config/version.mk"
+    fi
+    los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "$makefile_containing_version")
+    los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
     los_ver="$los_ver_major.$los_ver_minor"
 
     # If needed, apply the microG's signature spoofing patch
