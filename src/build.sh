@@ -57,7 +57,7 @@ fi
 
 
 jobs_arg=()
-if [ -n "$PARALLEL_JOBS" ]; then
+if [ -n "${PARALLEL_JOBS-}" ]; then
   if [[ "$PARALLEL_JOBS" =~ ^[1-9][0-9]*$ ]]; then
     jobs_arg+=( "-j$PARALLEL_JOBS" )
   else
