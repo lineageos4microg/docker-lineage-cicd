@@ -238,7 +238,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     fi
 
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
-    sed -i "/\$(filter .*\$(${vendor^^}_BUILDTYPE)/,+2d" "vendor/$vendor/config/common.mk"
+    sed -i "/\$(filter .*\$(${vendor^^}_BUILDTYPE)/,+2d" "$makefile_containing_version"
 
     # Set a custom updater URI if a OTA URL is provided
     echo ">> [$(date)] Adding OTA URL overlay (for custom URL $OTA_URL)"
