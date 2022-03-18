@@ -322,7 +322,12 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         set +eu
         breakfast "$codename" "$BUILD_TYPE" &>> "$DEBUG_LOG"
+        breakfast_returncode=$?
         set -eu
+        if [ $breakfast_returncode -ne 0 ]; then
+            echo ">> [$(date)] breakfast failed for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+            continue
+        fi
 
         if [ -f /root/userscripts/pre-build.sh ]; then
           echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
