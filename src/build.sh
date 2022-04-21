@@ -26,7 +26,7 @@ cd "$SRC_DIR"
 
 if [ -f /root/userscripts/begin.sh ]; then
   echo ">> [$(date)] Running begin.sh"
-  /root/userscripts/begin.sh
+  /root/userscripts/begin.sh || echo ">> [$(date)] Warning: begin.sh failed!"
 fi
 
 # If requested, clean the OUT dir in order to avoid clutter
@@ -266,7 +266,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     if [ -f /root/userscripts/before.sh ]; then
       echo ">> [$(date)] Running before.sh"
-      /root/userscripts/before.sh
+      /root/userscripts/before.sh || echo ">> [$(date)] Warning: before.sh failed!"
     fi
 
     for codename in ${devices//,/ }; do
@@ -306,7 +306,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         if [ -f /root/userscripts/pre-build.sh ]; then
           echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG"
+          /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: pre-build.sh failed!"
         fi
 
         # Start the build
@@ -352,7 +352,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/post-build.sh "$codename" $build_successful &>> "$DEBUG_LOG"
+          /root/userscripts/post-build.sh "$codename" $build_successful &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
@@ -394,5 +394,5 @@ fi
 
 if [ -f /root/userscripts/end.sh ]; then
   echo ">> [$(date)] Running end.sh"
-  /root/userscripts/end.sh
+  /root/userscripts/end.sh || echo ">> [$(date)] Warning: end.sh failed!"
 fi
