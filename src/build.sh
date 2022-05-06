@@ -345,8 +345,8 @@ for branch in ${BRANCH_NAME//,/ }; do
           for build in lineage-*.zip; do
             sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
+            mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
           done
-          find . -maxdepth 1 -name 'lineage-*.zip*' -type f -exec mv {} "$ZIP_DIR/$zipsubdir/" \; &>> "$DEBUG_LOG"
           recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-recovery.img"
           for image in recovery boot; do
             if [ -f "$image.img" ]; then
