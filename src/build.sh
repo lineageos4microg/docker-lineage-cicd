@@ -401,7 +401,7 @@ for branch in ${BRANCH_NAME//,/ }; do
           echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
           if [ "$BUILD_OVERLAY" = true ]; then
             cd "$TMP_DIR"
-            rm -rf ./*
+            rm -rf ./* || true
           else
             cd "$source_dir"
             (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
