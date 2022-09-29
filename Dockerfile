@@ -173,4 +173,4 @@ RUN ln -sf /proc/1/fd/1 /var/log/docker.log
 
 # Set the entry point to init.sh
 ################################
-ENTRYPOINT /root/init.sh
+ENTRYPOINT ["python", "/root/init.py"]
