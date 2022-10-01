@@ -136,6 +136,12 @@ for branch in ${BRANCH_NAME//,/ }; do
         frameworks_base_patch="android_frameworks_base-S.patch"
         modules_permission_patch="packages_modules_Permission-S.patch"
         ;;
+      lineage-20*)
+        themuppets_branch="lineage-20"
+        android_version="13"
+        frameworks_base_patch="android_frameworks_base-Android13.patch"
+        modules_permission_patch="packages_modules_Permission-Android13.patch"
+        ;;
       *)
         echo ">> [$(date)] Building branch $branch is not (yet) suppported"
         exit 1
