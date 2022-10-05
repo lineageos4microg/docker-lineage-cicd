@@ -10,7 +10,7 @@ import tempfile
 def getvar(var: str, check: bool = True) -> str:
     val = os.getenv(var)
     if check and val == "" or val is None:
-        raise ValueError('Environment variable "%s" has an invalid value.', var)
+        raise ValueError('Environment variable "%s" has an invalid value.' % var)
     return val
 
 
@@ -26,8 +26,7 @@ def print_with_date(msg: str) -> None:
 def main() -> None:
     # Copy the user scripts
     root_scripts = "/root/user_scripts"
-    user_scripts = getvar("user_scripts_DIR")
-    os.makedirs(root_scripts)
+    user_scripts = getvar("USERSCRIPTS_DIR")
     shutil.copytree(user_scripts, root_scripts)
 
     # Delete non-root files
@@ -70,14 +69,14 @@ def main() -> None:
 
     sign_builds = bool(getvar("SIGN_BUILDS", False))
     if sign_builds:
-        key_dir = getvar("key_dir")
+        key_dir = getvar("KEYS_DIR")
         key_names = ["releasekey", "platform", "shared", "media", "networkstack"]
         key_exts = [".pk8", ".x509.pem"]
 
         # Generate keys if directory empty
         if len(os.listdir(key_dir)) == 0:
             print_with_date(
-                "SIGN_BUILDS = true but empty $key_dir, generating new keys"
+                "SIGN_BUILDS = true but empty $KEYS_DIR, generating new keys"
             )
             keys_subj = getvar("KEYS_SUBJECT")
             for k in key_names:
@@ -87,6 +86,7 @@ def main() -> None:
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                     check=True,
+                    input="\n".encode(),
                 )
 
         # Check that all expected key files exist
