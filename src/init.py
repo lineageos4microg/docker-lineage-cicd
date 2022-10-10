@@ -7,9 +7,9 @@ import subprocess
 import tempfile
 
 
-def getvar(var: str, check: bool = True) -> str:
+def getvar(var: str) -> str:
     val = os.getenv(var)
-    if check and val == "" or val is None:
+    if val == "" or val is None:
         raise ValueError('Environment variable "%s" has an invalid value.' % var)
     return val
 
@@ -54,7 +54,7 @@ def main() -> None:
         os.remove(f)
 
     # Initialize CCache if it will be used
-    use_ccache = getvar("USE_CCACHE", False) == "1"
+    use_ccache = getvar("USE_CCACHE") == "1"
     if use_ccache:
         size = getvar("CCACHE_SIZE")
         subprocess.run(["ccache", "-M", size], check=True, stderr=subprocess.STDOUT)
@@ -67,7 +67,7 @@ def main() -> None:
         ["git", "config", "--global", "user.email", getvar("USER_MAIL")], check=True
     )
 
-    sign_builds = bool(getvar("SIGN_BUILDS", False))
+    sign_builds = getvar("SIGN_BUILDS").lower() == "true"
     if sign_builds:
         key_dir = getvar("KEYS_DIR")
         key_names = ["releasekey", "platform", "shared", "media", "networkstack"]
