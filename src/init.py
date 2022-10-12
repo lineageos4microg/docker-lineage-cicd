@@ -1,10 +1,14 @@
-import datetime
 import glob
 import os
 import pathlib
 import shutil
 import subprocess
-import tempfile
+from itertools import product
+from build import build
+from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.triggers.cron import CronTrigger
+import logging
+import sys
 
 
 def getvar(var: str) -> str:
@@ -14,16 +18,17 @@ def getvar(var: str) -> str:
     return val
 
 
-def prepend_date(msg: str) -> str:
-    date = datetime.datetime.now().astimezone().strftime("%c %Z")
-    return "[%s] %s" % (date, msg)
+def make_key(key_path: str, key_subj: str) -> None:
+    subprocess.run(
+        ["/root/make_key", key_path, key_subj],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True,
+        input="\n".encode(),
+    )
 
 
-def print_with_date(msg: str) -> None:
-    print(prepend_date(msg))
-
-
-def main() -> None:
+def init() -> None:
     # Copy the user scripts
     root_scripts = "/root/user_scripts"
     user_scripts = getvar("USERSCRIPTS_DIR")
@@ -38,7 +43,7 @@ def main() -> None:
         # Check if not owned by root
         f = pathlib.Path(filename)
         if f.owner != "root":
-            print_with_date("File not owned by root. Removing %s", filename)
+            logging.warning("File not owned by root. Removing %s", filename)
             to_delete.append(filename)
             continue
 
@@ -47,7 +52,7 @@ def main() -> None:
         group_write = perm[-2] > "4"
         other_write = perm[-1] > "4"
         if group_write or other_write:
-            print_with_date("File writable by non root users. Removing %s", filename)
+            logging.warning("File writable by non root users. Removing %s", filename)
             to_delete.append(filename)
 
     for f in to_delete:
@@ -72,63 +77,52 @@ def main() -> None:
         key_dir = getvar("KEYS_DIR")
         key_names = ["releasekey", "platform", "shared", "media", "networkstack"]
         key_exts = [".pk8", ".x509.pem"]
+        key_aliases = ["cyngn-priv-app", "cyngn-app", "testkey"]
 
         # Generate keys if directory empty
         if len(os.listdir(key_dir)) == 0:
-            print_with_date(
-                "SIGN_BUILDS = true but empty $KEYS_DIR, generating new keys"
-            )
-            keys_subj = getvar("KEYS_SUBJECT")
+            logging.info("SIGN_BUILDS = true but empty $KEYS_DIR, generating new keys")
+            key_subj = getvar("KEYS_SUBJECT")
             for k in key_names:
-                print_with_date("Generating %s..." % k)
-                subprocess.run(
-                    ["/root/make_key", os.path.join(key_dir, k), keys_subj],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    check=True,
-                    input="\n".encode(),
-                )
+                logging.info("Generating %s..." % k)
+                make_key(os.path.join(key_dir, k), key_subj)
 
         # Check that all expected key files exist
-        for k in key_names:
-            for e in key_exts:
-                path = os.path.join(key_dir, k + e)
-                if not os.path.exists(path):
-                    raise AssertionError(
-                        prepend_date('Expected key file "%s" does not exist' % path)
-                    )
+        for k, e in product(key_names, key_exts):
+            path = os.path.join(key_dir, k + e)
+            if not os.path.exists(path):
+                raise AssertionError('Expected key file "%s" does not exist' % path)
 
-        for alias in ["cyngn-priv-app", "cyngn-app", "testkey"]:
-            for e in key_exts:
-                subprocess.run(
-                    [
-                        "ln",
-                        "-sf",
-                        os.path.join(key_dir, "releasekey" + e),
-                        os.path.join(key_dir, alias + e),
-                    ],
-                    check=True,
-                )
+        # Create releasekey aliases
+        for a, e in product(key_aliases, key_exts):
+            src = os.path.join(key_dir, "releasekey" + e)
+            dst = os.path.join(key_dir, a + e)
+            os.symlink(src, dst)
 
     cron_time = getvar("CRONTAB_TIME")
     if cron_time == "now":
-        subprocess.run(["/root/build.sh"], check=True)
+        build()
     else:
-        # Initialize the cronjob
-        cron_lines = []
-        cron_lines.append("SHELL=/bin/bash\n")
-        for k, v in os.environ:
-            if k == "_" or v == "":
-                continue
-            cron_lines.append("%s=%s\n", k, v)
-        cron_lines.append(
-            "\n%s /usr/bin/flock -n /var/lock/build.lock /root/build.sh >> /var/log/docker.log 2>&1\n"
-            % cron_time,
+        scheduler = BlockingScheduler()
+        scheduler.add_job(
+            func=build,
+            trigger=CronTrigger.from_crontab(cron_time),
+            misfire_grace_time=None,  # Allow job to run as long as it needs
+            coalesce=True,
+            max_instances=1,  # Allow only one concurrent instance
         )
-        with tempfile.NamedTemporaryFile() as fp:
-            fp.writelines(cron_lines)
-            subprocess.run("crontab", fp.name, check=True)
+
+        # Run forever
+        scheduler.start()
 
 
 if __name__ == "__main__":
-    main()
+
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.INFO,
+        format="[%(asctime)s] %(levelname)s %(message)s",
+        datefmt="%c %Z",
+    )
+
+    init()
