@@ -147,7 +147,7 @@ RUN apt-get -qq update && \
       kmod lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool \
       libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 \
       libxml2-utils lsof lzop maven openjdk-8-jdk pngcrush procps python3 python3-apscheduler \
-      python-is-python3  rsync schedtool squashfs-tools wget xdelta3 xsltproc yasm zip \
+      python3-pytest python-is-python3  rsync schedtool squashfs-tools wget xdelta3 xsltproc yasm zip \
       zlib1g-dev \
       && rm -rf /var/lib/apt/lists/*
 
