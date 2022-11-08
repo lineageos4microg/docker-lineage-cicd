@@ -7,13 +7,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Build docker container
+        run: docker build -t microgdev .
 
-    - name: Build docker container
-      run: docker build -t microgdev .
-    
-    - name: Run tests
-      run: docker run --entrypoint pytest-3 microgdev /root
+      - name: Run tests
+        run: docker run --entrypoint pytest-3 microgdev /root
