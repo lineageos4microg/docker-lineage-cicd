@@ -18,4 +18,4 @@ def test_key_gen(monkeypatch):
     key_exts = [".pk8", ".x509.pem"]
     for k, e in product(key_names, key_exts):
         path = Path("/srv/keys").joinpath(k).with_suffix(e)
-        assert path.exists(path)
+        assert path.exists()
