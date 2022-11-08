@@ -1,8 +1,7 @@
-import glob
-import os
-import pathlib
+from os import getenv
 import shutil
 import subprocess
+from pathlib import Path
 from itertools import product
 from build import build
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -12,7 +11,7 @@ import sys
 
 
 def getvar(var: str) -> str:
-    val = os.getenv(var)
+    val = getenv(var)
     if val == "" or val is None:
         raise ValueError('Environment variable "%s" has an invalid value.' % var)
     return val
@@ -36,27 +35,26 @@ def init() -> None:
 
     # Delete non-root files
     to_delete = []
-    for filename in glob.iglob(os.path.join(root_scripts, "**/**"), recursive=True):
-        if os.path.isdir(filename):
+    for path in Path(root_scripts).rglob("*"):
+        if path.isdir(path):
             continue
 
         # Check if not owned by root
-        f = pathlib.Path(filename)
-        if f.owner != "root":
-            logging.warning("File not owned by root. Removing %s", filename)
-            to_delete.append(filename)
+        if path.owner != "root":
+            logging.warning("File not owned by root. Removing %s", path)
+            to_delete.append(path)
             continue
 
         # Check if non-root can write (group or other)
-        perm = oct(os.stat(filename).st_mode)
+        perm = oct(path.stat().st_mode)
         group_write = perm[-2] > "4"
         other_write = perm[-1] > "4"
         if group_write or other_write:
-            logging.warning("File writable by non root users. Removing %s", filename)
-            to_delete.append(filename)
+            logging.warning("File writable by non root users. Removing %s", path)
+            to_delete.append(path)
 
     for f in to_delete:
-        os.remove(f)
+        f.unlink()
 
     # Initialize CCache if it will be used
     use_ccache = getvar("USE_CCACHE") == "1"
@@ -74,30 +72,30 @@ def init() -> None:
 
     sign_builds = getvar("SIGN_BUILDS").lower() == "true"
     if sign_builds:
-        key_dir = getvar("KEYS_DIR")
+        key_dir = Path(getvar("KEYS_DIR"))
         key_names = ["releasekey", "platform", "shared", "media", "networkstack"]
         key_exts = [".pk8", ".x509.pem"]
         key_aliases = ["cyngn-priv-app", "cyngn-app", "testkey"]
 
         # Generate keys if directory empty
-        if len(os.listdir(key_dir)) == 0:
+        if not list(key_dir.glob("*")):
             logging.info("SIGN_BUILDS = true but empty $KEYS_DIR, generating new keys")
             key_subj = getvar("KEYS_SUBJECT")
             for k in key_names:
                 logging.info("Generating %s..." % k)
-                make_key(os.path.join(key_dir, k), key_subj)
+                make_key(str(key_dir.joinpath(k)), key_subj)
 
         # Check that all expected key files exist
         for k, e in product(key_names, key_exts):
-            path = os.path.join(key_dir, k + e)
-            if not os.path.exists(path):
+            path = key_dir.joinpath(k).with_suffix(e)
+            if not path.exists():
                 raise AssertionError('Expected key file "%s" does not exist' % path)
 
         # Create releasekey aliases
         for a, e in product(key_aliases, key_exts):
-            src = os.path.join(key_dir, "releasekey" + e)
-            dst = os.path.join(key_dir, a + e)
-            os.symlink(src, dst)
+            src = key_dir.joinpath("releasekey").with_suffix(e)
+            dst = key_dir.joinpath(a).with_suffix(e)
+            dst.symlink_to(src)
 
     cron_time = getvar("CRONTAB_TIME")
     if cron_time == "now":

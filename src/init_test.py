@@ -1,7 +1,7 @@
 import build
 import init
-import os
 from itertools import product
+from pathlib import Path
 
 
 def test_key_gen(monkeypatch):
@@ -17,5 +17,5 @@ def test_key_gen(monkeypatch):
     key_names = ["releasekey", "platform", "shared", "media", "networkstack"]
     key_exts = [".pk8", ".x509.pem"]
     for k, e in product(key_names, key_exts):
-        path = os.path.join("/srv/keys", k + e)
-        assert os.path.exists(path)
+        path = Path("/srv/keys").joinpath(k).with_suffix(e)
+        assert path.exists(path)
