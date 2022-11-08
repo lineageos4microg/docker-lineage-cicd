@@ -3,7 +3,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from itertools import product
-from build import build
+import build
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 import logging
@@ -99,11 +99,11 @@ def init() -> None:
 
     cron_time = getvar("CRONTAB_TIME")
     if cron_time == "now":
-        build()
+        build.build()
     else:
         scheduler = BlockingScheduler()
         scheduler.add_job(
-            func=build,
+            func=build.build,
             trigger=CronTrigger.from_crontab(cron_time),
             misfire_grace_time=None,  # Allow job to run as long as it needs
             coalesce=True,
