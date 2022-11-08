@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build docker container
-        run: docker build -t microgdev .
+        run: docker build -t docker-lineage-cicd-temp .
 
       - name: Run tests
-        run: docker run --entrypoint pytest-3 microgdev /root
+        run: docker run --entrypoint pytest-3 docker-lineage-cicd-temp /root
