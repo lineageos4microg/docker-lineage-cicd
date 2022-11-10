@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  pytest:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
