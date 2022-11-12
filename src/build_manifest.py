@@ -53,6 +53,9 @@ if __name__ == "__main__":
 
             if args.remote:
                 attributes["remote"] = args.remotename
+            
+            if "revision" in child.attrib:
+                attributes["revision"] = child.attrib["revision"]
 
             ET.SubElement(xmlout, 'project', attrib=attributes)
 
