@@ -42,13 +42,21 @@ if [ "$SIGN_BUILDS" = true ]; then
       /root/make_key "$KEYS_DIR/$c" "$KEYS_SUBJECT" <<< '' &> /dev/null
     done
   else
-    for c in releasekey platform shared media networkstack sdk_sandbox bluetooth; do
+    for c in releasekey platform shared media networkstack; do
       for e in pk8 x509.pem; do
         if [ ! -f "$KEYS_DIR/$c.$e" ]; then
           echo ">> [$(date)] SIGN_BUILDS = true and not empty \$KEYS_DIR, but \"\$KEYS_DIR/$c.$e\" is missing"
           exit 1
         fi
       done
+    done
+    
+    # those keys are only required starting with android-20, so people who have built earlier might not yet have them
+    for c in sdk_sandbox bluetooth; do
+      if [ ! -f "$KEYS_DIR/$c.pk8" ]; then
+        echo ">> [$(date)]  Generating $c..."
+        /root/make_key "$KEYS_DIR/$c" "$KEYS_SUBJECT" <<< '' &> /dev/null
+      fi
     done
   fi
 
