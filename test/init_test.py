@@ -1,7 +1,10 @@
-import build
-import init
+import sys
 from itertools import product
 from pathlib import Path
+
+sys.path.append("/root")
+import build
+import init
 
 
 def test_key_gen(monkeypatch):

@@ -162,6 +162,7 @@ RUN echo "jdk.tls.disabledAlgorithms=SSLv3, RC4, DES, MD5withRSA, DH keySize < 1
 # Copy required files
 #####################
 COPY src/ /root/
+COPY test/ /test/
 
 # Set the work directory
 ########################
