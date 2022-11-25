@@ -57,7 +57,7 @@ def init() -> None:
         f.unlink()
 
     # Initialize CCache if it will be used
-    use_ccache = getvar("USE_CCACHE") == "1"
+    use_ccache = getvar("USE_CCACHE").lower() in ['1', 'true']
     if use_ccache:
         size = getvar("CCACHE_SIZE")
         subprocess.run(["ccache", "-M", size], check=True, stderr=subprocess.STDOUT)
