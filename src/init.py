@@ -28,7 +28,7 @@ def make_key(key_path: str, key_subj: str) -> None:
 
 
 class Init:
-    def __init__(self):
+    def __init__(self) -> None:
         self.root_scripts = "/root/user_scripts"
         self.user_scripts = getvar("USERSCRIPTS_DIR")
         self.use_ccache = getvar("USE_CCACHE").lower() in ["1", "true"]
@@ -65,18 +65,18 @@ class Init:
             datefmt="%c %Z",
         )
 
-    def generate_key(self, key_name: str):
+    def generate_key(self, key_name: str) -> None:
         logging.info("Generating %s..." % key_name)
         make_key(str(self.key_dir.joinpath(key_name)), self.key_subj)
 
-    def do(self):
+    def do(self) -> None:
         # Copy the user scripts
         shutil.copytree(self.user_scripts, self.root_scripts)
 
         # Delete non-root files
         to_delete = []
         for path in Path(self.root_scripts).rglob("*"):
-            if path.isdir(path):
+            if path.is_dir():
                 continue
 
             # Check if not owned by root
