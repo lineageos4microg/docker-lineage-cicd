@@ -80,15 +80,16 @@ class Init:
                 continue
 
             # Check if not owned by root
-            if path.owner != "root":
+            if path.owner() != "root":
                 logging.warning("File not owned by root. Removing %s", path)
                 to_delete.append(path)
                 continue
 
             # Check if non-root can write (group or other)
             perm = oct(path.stat().st_mode)
-            group_write = perm[-2] > "4"
-            other_write = perm[-1] > "4"
+            modes_with_write = ["2", "3", "6", "7"]
+            group_write = perm[-2] in modes_with_write
+            other_write = perm[-1] in modes_with_write
             if group_write or other_write:
                 logging.warning("File writable by non root users. Removing %s", path)
                 to_delete.append(path)
@@ -134,7 +135,16 @@ class Init:
             for a, e in product(self.key_aliases, self.key_exts):
                 src = self.key_dir.joinpath("releasekey").with_suffix(e)
                 dst = self.key_dir.joinpath(a).with_suffix(e)
-                dst.symlink_to(src)
+                if dst.exists():
+                    if dst.resolve() != src.resolve():
+                        logging.warning(
+                            "File %s being replaced by symlink pointing to %s"
+                            % (str(dst), str(src))
+                        )
+                        dst.unlink()
+                        dst.symlink_to(src)
+                else:
+                    dst.symlink_to(src)
 
         if self.cron_time == "now":
             build.build()
