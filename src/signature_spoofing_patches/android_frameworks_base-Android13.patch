@@ -67,7 +67,7 @@ diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
 diff --git a/services/core/java/com/android/server/pm/ComputerEngine.java b/services/core/java/com/android/server/pm/ComputerEngine.java
 --- a/services/core/java/com/android/server/pm/ComputerEngine.java
 +++ b/services/core/java/com/android/server/pm/ComputerEngine.java
-@@ -1591,6 +1591,29 @@ public class ComputerEngine implements Computer {
+@@ -1603,6 +1603,29 @@ public class ComputerEngine implements Computer {
          return result;
      }
  
@@ -97,7 +97,7 @@ diff --git a/services/core/java/com/android/server/pm/ComputerEngine.java b/serv
      public final PackageInfo generatePackageInfo(PackageStateInternal ps,
              @PackageManager.PackageInfoFlagsBits long flags, int userId) {
          if (!mUserManager.exists(userId)) return null;
-@@ -1620,13 +1643,15 @@ public class ComputerEngine implements Computer {
+@@ -1632,13 +1655,15 @@ public class ComputerEngine implements Computer {
              final int[] gids = (flags & PackageManager.GET_GIDS) == 0 ? EMPTY_INT_ARRAY
                      : mPermissionManager.getGidsForUid(UserHandle.getUid(userId, ps.getAppId()));
              // Compute granted permissions only if package has requested permissions
