@@ -354,9 +354,9 @@ for branch in ${BRANCH_NAME//,/ }; do
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
           done
-          recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-recovery.img"
           for image in recovery boot; do
             if [ -f "$image.img" ]; then
+              recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
               cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name"
               break
             fi
