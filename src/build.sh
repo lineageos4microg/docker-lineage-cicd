@@ -357,7 +357,9 @@ for branch in ${BRANCH_NAME//,/ }; do
           for image in recovery boot; do
             if [ -f "$image.img" ]; then
               recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
-              cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name"
+              cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
+              (cd "$ZIP_DIR/$zipsubdir" && exec sha256sum "$recovery_name" > "$recovery_name.sha256sum")
+              (cd "$ZIP_DIR/$zipsubdir" && exec md5sum "$recovery_name" > "$recovery_name.md5sum")
               break
             fi
           done &>> "$DEBUG_LOG"
