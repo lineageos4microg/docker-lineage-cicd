@@ -348,19 +348,23 @@ for branch in ${BRANCH_NAME//,/ }; do
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
           cd out/target/product/"$codename"
+          files_to_hash=()
           for build in lineage-*.zip; do
-            sha256sum "$build" > "$ZIP_DIR/$zipsubdir/$build.sha256sum"
-            md5sum "$build" > "$ZIP_DIR/$zipsubdir/$build.md5sum"
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
+            files_to_hash+=( "$build" )
           done
           for image in recovery boot; do
             if [ -f "$image.img" ]; then
               recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
-              cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name"
-              break
+              cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
+              files_to_hash+=( "$recovery_name" )
             fi
-          done &>> "$DEBUG_LOG"
+          done
+          cd "$ZIP_DIR/$zipsubdir"
+          for f in "${files_to_hash[@]}"; do
+            sha256sum "$f" > "$ZIP_DIR/$zipsubdir/$f.sha256sum"
+          done
           cd "$source_dir"
           build_successful=true
         else
