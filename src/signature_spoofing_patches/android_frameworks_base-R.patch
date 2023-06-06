@@ -1,3 +1,5 @@
+diff --git a/api/current.txt b/api/current.txt
+index 952ccdad992c..6bd7ffe6dcb8 100644
 --- a/api/current.txt
 +++ b/api/current.txt
 @@ -77,6 +77,7 @@ package android {
@@ -8,7 +10,7 @@
      field public static final String EXPAND_STATUS_BAR = "android.permission.EXPAND_STATUS_BAR";
      field public static final String FACTORY_TEST = "android.permission.FACTORY_TEST";
      field public static final String FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE";
-@@ -182,6 +182,7 @@ package android {
+@@ -182,6 +183,7 @@ package android {
      field public static final String CALL_LOG = "android.permission-group.CALL_LOG";
      field public static final String CAMERA = "android.permission-group.CAMERA";
      field public static final String CONTACTS = "android.permission-group.CONTACTS";
@@ -16,9 +18,11 @@
      field public static final String LOCATION = "android.permission-group.LOCATION";
      field public static final String MICROPHONE = "android.permission-group.MICROPHONE";
      field public static final String PHONE = "android.permission-group.PHONE";
+diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
+index 9bb5aecdac8f..7bb76cd79c47 100644
 --- a/core/res/AndroidManifest.xml
 +++ b/core/res/AndroidManifest.xml
-@@ -2841,6 +2841,21 @@
+@@ -2853,6 +2853,21 @@
          android:description="@string/permdesc_getPackageSize"
          android:protectionLevel="normal" />
  
@@ -40,6 +44,8 @@
      <!-- @deprecated No longer useful, see
           {@link android.content.pm.PackageManager#addPackageToPreferred}
           for details. -->
+diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
+index f4efcc7e4eec..51b461e79492 100644
 --- a/core/res/res/values/config.xml
 +++ b/core/res/res/values/config.xml
 @@ -1654,6 +1654,8 @@
@@ -51,6 +57,8 @@
      </string-array>
  
      <!-- This string array can be overriden to enable test location providers initially. -->
+diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
+index 5c659123b027..4ea996c492c7 100644
 --- a/core/res/res/values/strings.xml
 +++ b/core/res/res/values/strings.xml
 @@ -847,6 +847,18 @@
@@ -72,6 +80,8 @@
      <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
      <string name="permlab_statusBar">disable or modify status bar</string>
      <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+diff --git a/non-updatable-api/current.txt b/non-updatable-api/current.txt
+index 5f15216e8400..57748a8090a2 100644
 --- a/non-updatable-api/current.txt
 +++ b/non-updatable-api/current.txt
 @@ -79,6 +79,7 @@ package android {
@@ -90,9 +100,11 @@
      field public static final String LOCATION = "android.permission-group.LOCATION";
      field public static final String MICROPHONE = "android.permission-group.MICROPHONE";
      field public static final String PHONE = "android.permission-group.PHONE";
+diff --git a/services/core/java/com/android/server/pm/PackageManagerService.java b/services/core/java/com/android/server/pm/PackageManagerService.java
+index 9611b381942c..1a8a23856d81 100644
 --- a/services/core/java/com/android/server/pm/PackageManagerService.java
 +++ b/services/core/java/com/android/server/pm/PackageManagerService.java
-@@ -4454,8 +4454,9 @@
+@@ -4465,8 +4465,9 @@ public class PackageManagerService extends IPackageManager.Stub
                  });
              }
  
@@ -104,7 +116,7 @@
  
              if (packageInfo == null) {
                  return null;
-@@ -4491,6 +4492,24 @@
+@@ -4502,6 +4503,24 @@ public class PackageManagerService extends IPackageManager.Stub
          }
      }
  
