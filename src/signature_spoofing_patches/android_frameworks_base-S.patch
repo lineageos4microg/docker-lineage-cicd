@@ -1,5 +1,5 @@
 diff --git a/core/api/current.txt b/core/api/current.txt
-index 1de47b548a5c..7074b33c30d9 100644
+index 1dd401d04e2b..e7b0b5266438 100644
 --- a/core/api/current.txt
 +++ b/core/api/current.txt
 @@ -82,6 +82,7 @@ package android {
@@ -10,7 +10,7 @@ index 1de47b548a5c..7074b33c30d9 100644
      field public static final String EXPAND_STATUS_BAR = "android.permission.EXPAND_STATUS_BAR";
      field public static final String FACTORY_TEST = "android.permission.FACTORY_TEST";
      field public static final String FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE";
-@@ -199,6 +200,7 @@ package android {
+@@ -200,6 +201,7 @@ package android {
      field public static final String CALL_LOG = "android.permission-group.CALL_LOG";
      field public static final String CAMERA = "android.permission-group.CAMERA";
      field public static final String CONTACTS = "android.permission-group.CONTACTS";
@@ -19,10 +19,10 @@ index 1de47b548a5c..7074b33c30d9 100644
      field public static final String MICROPHONE = "android.permission-group.MICROPHONE";
      field public static final String NEARBY_DEVICES = "android.permission-group.NEARBY_DEVICES";
 diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
-index 2a0a4e3483ae..1701dd50e32d 100644
+index cb6ef5a8f1ae..e59c47403308 100644
 --- a/core/res/AndroidManifest.xml
 +++ b/core/res/AndroidManifest.xml
-@@ -3197,6 +3197,21 @@
+@@ -3203,6 +3203,21 @@
          android:description="@string/permdesc_getPackageSize"
          android:protectionLevel="normal" />
  
@@ -45,10 +45,10 @@ index 2a0a4e3483ae..1701dd50e32d 100644
           {@link android.content.pm.PackageManager#addPackageToPreferred}
           for details. -->
 diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
-index fbc14c7e2e17..f601ce35e52c 100644
+index a7d55479d2c3..36ff5513e291 100644
 --- a/core/res/res/values/config.xml
 +++ b/core/res/res/values/config.xml
-@@ -1775,6 +1775,8 @@
+@@ -1804,6 +1804,8 @@
      <string-array name="config_locationProviderPackageNames" translatable="false">
          <!-- The standard AOSP fused location provider -->
          <item>com.android.location.fused</item>
@@ -58,7 +58,7 @@ index fbc14c7e2e17..f601ce35e52c 100644
  
      <!-- Package name(s) of Advanced Driver Assistance applications. These packages have additional
 diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
-index b58638cc3ade..8cf98fa56bf6 100644
+index 166d6abd1809..cba87ff17600 100644
 --- a/core/res/res/values/strings.xml
 +++ b/core/res/res/values/strings.xml
 @@ -880,6 +880,18 @@
@@ -81,10 +81,10 @@ index b58638cc3ade..8cf98fa56bf6 100644
      <string name="permlab_statusBar">disable or modify status bar</string>
      <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
 diff --git a/services/core/java/com/android/server/pm/PackageManagerService.java b/services/core/java/com/android/server/pm/PackageManagerService.java
-index f69922f64787..9517e4032646 100644
+index 5bbde18f7e9e..f8456e6ffac4 100644
 --- a/services/core/java/com/android/server/pm/PackageManagerService.java
 +++ b/services/core/java/com/android/server/pm/PackageManagerService.java
-@@ -3325,6 +3325,33 @@ public class PackageManagerService extends IPackageManager.Stub
+@@ -3330,6 +3330,32 @@ public class PackageManagerService extends IPackageManager.Stub
              return result;
          }
  
@@ -114,11 +114,10 @@ index f69922f64787..9517e4032646 100644
 +            return pi;
 +        }
 +
-+
          public final PackageInfo generatePackageInfo(PackageSetting ps, int flags, int userId) {
              if (!mUserManager.exists(userId)) return null;
              if (ps == null) {
-@@ -3353,13 +3380,17 @@ public class PackageManagerService extends IPackageManager.Stub
+@@ -3358,13 +3384,17 @@ public class PackageManagerService extends IPackageManager.Stub
                  final int[] gids = (flags & PackageManager.GET_GIDS) == 0 ? EMPTY_INT_ARRAY
                          : mPermissionManager.getGidsForUid(UserHandle.getUid(userId, ps.appId));
                  // Compute granted permissions only if package has requested permissions
