@@ -180,6 +180,8 @@ Other useful settings are:
  * `PARALLEL_JOBS`: Limit the number of parallel jobs to run (`-j` for `repo sync` and `mka`).
    By default, the build system should match the number of parallel jobs to the number of cpu
    cores on your machine. Reducing this number can help keeping it responsive for other tasks.   
+ * `REPO_SYNC (true)`: change this to `false` if you want to skip syncing repo
+    and build from the current state of the source tree.
 
 The full list of settings, including the less interesting ones not mentioned in
 this guide, can be found in the [Dockerfile][dockerfile].
