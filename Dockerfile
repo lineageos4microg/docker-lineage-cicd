@@ -113,6 +113,10 @@ ENV DELETE_OLD_LOGS 0
 # build type of your builds (user|userdebug|eng)
 ENV BUILD_TYPE "userdebug"
 
+# For lineage-15.1
+ENV USE_PYTHON2 false
+ENV USE_GCC9 false
+
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
 #  * before.sh, run after the syncing and patching, before starting the builds
@@ -149,6 +153,7 @@ RUN apt-get -qq update && \
       libxml2-utils lsof lzop maven openjdk-8-jdk pngcrush procps python3 \
       python-is-python3 rsync schedtool squashfs-tools wget xdelta3 xsltproc yasm zip \
       zlib1g-dev \
+      python2 gcc-9 \
       && rm -rf /var/lib/apt/lists/*
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \

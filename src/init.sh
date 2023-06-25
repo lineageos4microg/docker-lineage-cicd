@@ -67,6 +67,16 @@ if [ "$SIGN_BUILDS" = true ]; then
   done
 fi
 
+if [ "$USE_PYTHON2" = true ]; then
+  update-alternatives --install /usr/bin/python python /usr/bin/python2 100
+  update-alternatives --config python
+fi
+
+if [ "$USE_GCC9" = true ]; then
+  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 100
+  update-alternatives --config gcc
+fi
+
 if [ "$CRONTAB_TIME" = "now" ]; then
   /root/build.sh
 else
