@@ -113,6 +113,9 @@ ENV DELETE_OLD_LOGS 0
 # build type of your builds (user|userdebug|eng)
 ENV BUILD_TYPE "userdebug"
 
+# we can use --depth=1 here
+ENV REPO_INIT_ARGS ""
+
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
 #  * before.sh, run after the syncing and patching, before starting the builds
