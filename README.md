@@ -32,6 +32,10 @@ start!
 
 ## How can I build LineageOS?
 
+Before you start, make sure you have the latest version of our Docker image:
+```
+docker pull lineageos4microg/docker-lineage-cicd
+```
 This Docker image contains a great number of settings, to allow you to fully
 customize your LineageOS build. Here you can find all of them, with the default
 values between the brackets.
