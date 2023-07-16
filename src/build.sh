@@ -363,7 +363,7 @@ for branch in ${BRANCH_NAME//,/ }; do
           done
           cd "$ZIP_DIR/$zipsubdir"
           for f in "${files_to_hash[@]}"; do
-            sha256sum "$f" > "$ZIP_DIR/$zipsubdir/$f.sha256sum"
+            sha256sum "$f" > "$f.sha256sum"
           done
           cd "$source_dir"
           build_successful=true
