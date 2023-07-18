@@ -249,13 +249,24 @@ for branch in ${BRANCH_NAME//,/ }; do
     # Set a custom updater URI if a OTA URL is provided
     echo ">> [$(date)] Adding OTA URL overlay (for custom URL $OTA_URL)"
     if [ -n "$OTA_URL" ]; then
-      updater_url_overlay_dir="vendor/$vendor/overlay/microg/packages/apps/Updater/res/values/"
+      if [ -d "packages/apps/Updater/app/src/main/res/values" ]; then
+        # "New" Updater project structure
+        updater_values_dir="packages/apps/Updater/app/src/main/res/values"
+      elif [ -d "packages/apps/Updater/res/values" ]; then
+        # "Old" Updater project structure
+        updater_values_dir="packages/apps/Updater/res/values"
+      else
+        echo ">> [$(date)] ERROR: no 'values' dir of Updater app found"
+        exit 1
+      fi
+
+      updater_url_overlay_dir="vendor/$vendor/overlay/microg/${updater_values_dir}/"
       mkdir -p "$updater_url_overlay_dir"
 
-      if grep -q updater_server_url packages/apps/Updater/res/values/strings.xml; then
+      if grep -q updater_server_url ${updater_values_dir}/strings.xml; then
         # "New" updater configuration: full URL (with placeholders {device}, {type} and {incr})
         sed "s|{name}|updater_server_url|g; s|{url}|$OTA_URL/v1/{device}/{type}/{incr}|g" /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
-      elif grep -q conf_update_server_url_def packages/apps/Updater/res/values/strings.xml; then
+      elif grep -q conf_update_server_url_def ${updater_values_dir}/strings.xml; then
         # "Old" updater configuration: just the URL
         sed "s|{name}|conf_update_server_url_def|g; s|{url}|$OTA_URL|g" /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
       else
