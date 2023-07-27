@@ -399,7 +399,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/post-build.sh "$codename" $build_successful &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+          /root/userscripts/post-build.sh "$codename $branch" $build_successful &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
