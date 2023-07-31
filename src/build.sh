@@ -343,6 +343,11 @@ for branch in ${BRANCH_NAME//,/ }; do
         set -eu
         if [ $breakfast_returncode -ne 0 ]; then
             echo ">> [$(date)] breakfast failed for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+            # call post-build.sh so the failure is logged in a way that is more visible
+            if [ -f /root/userscripts/post-build.sh ]; then
+              echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
+              /root/userscripts/post-build.sh "$codename" false "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+            fi
             continue
         fi
 
@@ -365,7 +370,7 @@ for branch in ${BRANCH_NAME//,/ }; do
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
             files_to_hash+=( "$build" )
           done
-          for image in recovery boot vendor_boot; do
+          for image in recovery boot vendor_boot dtbo super_empty vbmeta; do
             if [ -f "$image.img" ]; then
               recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
               cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
@@ -399,7 +404,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/post-build.sh "$codename" $build_successful &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+          /root/userscripts/post-build.sh "$codename" $build_successful "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
