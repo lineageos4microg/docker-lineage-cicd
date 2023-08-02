@@ -54,13 +54,12 @@ the list of devices for each specific branch (see [the examples](#examples)).
 
 ### GMS / microG
 
-To include microG (or possibly the actual Google Mobile Services) in your build,
-LineageOS expects certain Makefiles in `vendor/partner_gms` and variable
-`WITH_GMS` set to `true`.
+To include microG's components in your build, you must provide the components
+in `vendor/partner_gms` and set variable `WITH_MICROG` to `true`.
 
 [This][android_vendor_partner_gms] repo contains the common packages included for
-official lineageos4microg builds. To include it in your build, create an XML
-(the name is irrelevant, as long as it ends with `.xml`) in the
+official lineageos4microg builds. To include it in your build, create a `microg.xml`
+file (the name is irrelevant as long as it ends with `.xml`) in the
 `/home/user/manifests` folder with this content:
 
 ```xml
@@ -69,6 +68,9 @@ official lineageos4microg builds. To include it in your build, create an XML
     <project path="vendor/partner_gms" name="lineageos4microg/android_vendor_partner_gms" remote="github" revision="master" />
 </manifest>
 ```
+
+To include the actual Google Mobile Services in your build instead, provide
+those components in `vendor/partner_gms` and set variable `WITH_GMS` to `true`.
 
 ### Additional custom apps
 
@@ -231,7 +233,7 @@ docker run \
     -e "DEVICE_LIST=bacon" \
     -e "SIGN_BUILDS=true" \
     -e "SIGNATURE_SPOOFING=restricted" \
-    -e "WITH_GMS=true" \
+    -e "WITH_MICROG=true" \
     -v "/home/user/lineage:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
     -v "/home/user/logs:/srv/logs" \
@@ -258,7 +260,7 @@ docker run \
     -e "DEVICE_LIST_LINEAGE_18_1=river,lake" \
     -e "SIGN_BUILDS=true" \
     -e "SIGNATURE_SPOOFING=restricted" \
-    -e "WITH_GMS=true" \
+    -e "WITH_MICROG=true" \
     -e "OTA_URL=https://api.myserver.com/" \
     -v "/home/user/lineage:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
@@ -319,7 +321,7 @@ docker run \
     -e "DEVICE_LIST=a6000" \
     -e "SIGN_BUILDS=true" \
     -e "SIGNATURE_SPOOFING=restricted" \
-    -e "WITH_GMS=true" \
+    -e "WITH_MICROG=true" \
     -e "INCLUDE_PROPRIETARY=false" \
     -v "/home/user/lineage:/srv/src" \
     -v "/home/user/zips:/srv/zips" \
