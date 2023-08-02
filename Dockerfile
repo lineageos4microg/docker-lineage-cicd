@@ -58,7 +58,7 @@ ENV INCLUDE_PROPRIETARY true
 # Mount an overlay filesystem over the source dir to do each build on a clean source
 ENV BUILD_OVERLAY false
 
-# Clone the full LineageOS mirror (> 200 GB)
+# Clone the full LineageOS mirror (~ 500 GB)
 ENV LOCAL_MIRROR false
 
 # If you want to preserve old ZIPs set this to 'false'

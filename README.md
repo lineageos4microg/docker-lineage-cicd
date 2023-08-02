@@ -173,7 +173,7 @@ Other useful settings are:
     is isolated from the others, set `BUILD_OVERLAY` to `true` (longer build
     time). Requires `--cap-add=SYS_ADMIN`.
  * `LOCAL_MIRROR (false)`: change this to `true` if you want to create a local
-    mirror of the LineageOS source (> 200 GB)
+    mirror of the LineageOS source (~ 500 GB)
  * `CRONTAB_TIME (now)`: instead of building immediately and exit, build at the
     specified time (uses standard cron format)
  * `ZIP_SUBDIR (true)`: Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
