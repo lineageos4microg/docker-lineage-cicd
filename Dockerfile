@@ -93,6 +93,9 @@ ENV ZIP_SUBDIR true
 # Write the verbose logs to $LOGS_DIR/$codename instead of $LOGS_DIR/
 ENV LOGS_SUBDIR true
 
+# Include microG's components in the ROM
+ENV WITH_MICROG false
+
 # Apply the MicroG's signature spoofing patch
 # Valid values are "no", "yes" (for the original MicroG's patch) and
 # "restricted" (to grant the permission only to the system privileged apps).

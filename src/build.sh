@@ -207,6 +207,11 @@ for branch in ${BRANCH_NAME//,/ }; do
     los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
     los_ver="$los_ver_major.$los_ver_minor"
 
+    # If needed, include microG's components
+    if [ "$WITH_MICROG" = true ]; then
+      echo '$(call inherit-product, vendor/partner_gms/products/gms.mk)' > "vendor/$vendor/config/partner_gms.mk"
+    fi
+
     # If needed, apply the microG's signature spoofing patch
     if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
       # Determine which patch should be applied to the current Android source tree
