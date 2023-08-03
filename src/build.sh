@@ -211,13 +211,6 @@ for branch in ${BRANCH_NAME//,/ }; do
     if [ "$WITH_MICROG" = true ]; then
       echo '$(call inherit-product, vendor/partner_gms/products/gms.mk)' > "vendor/$vendor/config/partner_gms.mk"
     fi
-    if [ "$WITH_GMS" = true ]; then
-      if [ "$WITH_MICROG" = true ]; then
-        echo ">> [$(date)] WARNING: free space for addons be will not be reserved when both WITH_MICROG and WITH_GMS are enabled"
-      else
-        echo ">> [$(date)] WARNING: WITH_GMS will not reserve free space for addons and is deprecated in favor of WITH_MICROG"
-      fi
-    fi
 
     # If needed, apply the microG's signature spoofing patch
     if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
