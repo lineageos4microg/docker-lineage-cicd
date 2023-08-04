@@ -370,9 +370,11 @@ for branch in ${BRANCH_NAME//,/ }; do
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
             files_to_hash+=( "$build" )
           done
-          for image in recovery boot vendor_boot dtbo super_empty vbmeta; do
+          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+          for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
             if [ -f "$image.img" ]; then
               recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
+              echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
               cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
               files_to_hash+=( "$recovery_name" )
             fi
