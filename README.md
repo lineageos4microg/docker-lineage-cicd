@@ -180,6 +180,9 @@ Other useful settings are:
  * `PARALLEL_JOBS`: Limit the number of parallel jobs to run (`-j` for `repo sync` and `mka`).
    By default, the build system should match the number of parallel jobs to the number of cpu
    cores on your machine. Reducing this number can help keeping it responsive for other tasks.   
+ * `REPO_INIT_DEPTH`: Create a shallow clone with a history truncated to the specified number of
+    commits as [per documentation](https://git-scm.com/docs/git-clone#Documentation/git-clone.txt---depthltdepthgt).
+   By default the full history is retrieved.
 
 The full list of settings, including the less interesting ones not mentioned in
 this guide, can be found in the [Dockerfile][dockerfile].

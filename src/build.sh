@@ -66,6 +66,15 @@ if [ -n "${PARALLEL_JOBS-}" ]; then
   fi
 fi
 
+_repo_init_depth=""
+if [ -n "${REPO_INIT_DEPTH-}" ]; then
+  if [[ "${REPO_INIT_DEPTH}" =~ ^[1-9][0-9]*$ ]]; then
+   _repo_init_depth="--depth=${REPO_INIT_DEPTH}"
+  else
+    echo "REPO_INIT_DEPTH is not a positive number: $REPO_INIT_DEPTH"
+    exit 1
+  fi
+fi
 
 if [ "$LOCAL_MIRROR" = true ]; then
 
@@ -73,7 +82,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
 
   if [ ! -d .repo ]; then
     echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
-    ( yes||: ) | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
+    ( yes||: ) | repo init "${_repo_init_depth}" -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
   fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
@@ -169,9 +178,9 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
     if [ "$LOCAL_MIRROR" = true ]; then
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" --git-lfs &>> "$repo_log"
+      ( yes||: ) | repo init "${_repo_init_depth}" -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" --git-lfs &>> "$repo_log"
     else
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" --git-lfs &>> "$repo_log"
+      ( yes||: ) | repo init "${_repo_init_depth}" -u https://github.com/LineageOS/android.git -b "$branch" --git-lfs &>> "$repo_log"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
