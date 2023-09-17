@@ -356,6 +356,13 @@ for branch in ${BRANCH_NAME//,/ }; do
         build_successful=false
         if (set +eu ; mka "${jobs_arg[@]}" target-files-package bacon) &>> "$DEBUG_LOG"; then
 
+          # make the - img.zip file
+          echo ">> [$(date)] Making -img.zip file" | tee -a "$DEBUG_LOG"
+          infile="out/target/product/$codename/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root.zip"
+          outfile="$codename-img.zip"
+          img_from_target_files "$infile" "$outfile"  &>> "$DEBUG_LOG"
+
+
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
           cd out/target/product/"$codename"
@@ -365,6 +372,7 @@ for branch in ${BRANCH_NAME//,/ }; do
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
             files_to_hash+=( "$build" )
           done
+
           for image in recovery boot vendor_boot; do
             if [ -f "$image.img" ]; then
               recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
