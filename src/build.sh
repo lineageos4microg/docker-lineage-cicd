@@ -373,6 +373,11 @@ for branch in ${BRANCH_NAME//,/ }; do
             files_to_hash+=( "$build" )
           done
 
+          # Move -img.zip file to the main OUT directory
+          img_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-img.zip"
+          mv "outfile" "$ZIP_DIR/$zipsubdir/$img_zip_file"  &>> "$DEBUG_LOG"
+          files_to_hash+=( "$img_zip_file" )
+
           for image in recovery boot vendor_boot; do
             if [ -f "$image.img" ]; then
               recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
