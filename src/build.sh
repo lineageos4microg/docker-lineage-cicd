@@ -370,15 +370,24 @@ for branch in ${BRANCH_NAME//,/ }; do
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
             files_to_hash+=( "$build" )
           done
+
+          # Now for the 'img' files
+          files_to_zip=()
+          images_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-images.zip"
           cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+  
           for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
             if [ -f "$image.img" ]; then
-              recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
-              echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
-              cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
-              files_to_hash+=( "$recovery_name" )
+              echo ">> [$(date)] Adding $image.img" to "$images_zip_file" | tee -a "$DEBUG_LOG"
+              files_to_zip+=( "$image.img" )
             fi
           done
+
+          zip "$images_zip_file" "${files_to_zip[@]}"
+          mv "$images_zip_file" "$ZIP_DIR/$zipsubdir/"
+          files_to_hash+=( "$images_zip_file" )
+
+          # now make the hashes
           cd "$ZIP_DIR/$zipsubdir"
           for f in "${files_to_hash[@]}"; do
             sha256sum "$f" > "$ZIP_DIR/$zipsubdir/$f.sha256sum"
