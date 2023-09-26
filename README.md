@@ -30,6 +30,12 @@ the standard Docker installation.
 Once you can run the [`hello-world` image][docker-helloworld] you're ready to
 start!
 
+## What does Docker build
+
+Docker will produce two files in the `zips` directory:
+1. The main ROM zip file e.g. `lineage-20.0-20230702-microG-<device-name>.zip`. This file can be flashed from recovery as described in the next section.
+2. A `-image.zip` file e.g. `lineage-20.0-20230702-microG-<device-name>-images.zip`, containing a custom recovery image and any other images needed or mentioned in the LineageOS installation instructions.
+
 ## How can I build LineageOS?
 
 Before you start, make sure you have the latest version of our Docker image:
@@ -79,7 +85,7 @@ official lineageos4microg builds. To include it in your build, create an XML
 
 If you wish to add other apps to your ROM, you can include a repository with
 source code or prebuilt APKs. For prebuilt apks, see the [android_vendor_partner_gms][android_vendor_partner_gms]
-repository for examples on how the `Android.mk` file should look like. 
+repository for examples on how the `Android.mk` file should look like.
 
 Include the repo with another manifest file like this:
 
