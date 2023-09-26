@@ -79,6 +79,15 @@ Before you start, make sure you have the latest version of our Docker image:
 docker pull lineageos4microg/docker-lineage-cicd
 ```
 
+The requirements for building LineageOS for MicroG are roughly the same as for [builing LineageOS](https://wiki.lineageos.org/devices/sunfish/build):
+- A relatively recent x86_64 computer:
+  - Linux, macOS, or Windows - these instructions are only tested using Ubuntu 20.04 LTS, so we recommend going with that.
+  - A reasonable amount of RAM (16 GB to build up to lineage-17.1, 32 GB or more for lineage-18.1 and up). The less RAM you have, the longer the build will take. Enabling ZRAM can be helpful. If builds fail because of lack of memory, you can sometimes get over the problem by increasing the amount of swap, but this will be at the expense of slower buid times.
+  - A reasonable amount of Storage (~300 GB for lineage-18.1 and up). You might require more free space for enabling ccache, building for multiple devices, or if you choose to mirror the LineageOS sources (see below). Using SSDs results in considerably faster build times than traditional hard drives.
+
+- A decent internet connection and reliable electricity. :)
+- Some familiarity with basic Android operation and terminology. It may be useful to know some basic command line concepts such as cd, which stands for “change directory”, the concept of directory hierarchies, and that in Linux they are separated by /, etc.
+
 This Docker image contains a great number of settings, to allow you to fully
 customize your LineageOS build. Here you can find all of them, with the default
 values between the brackets.
