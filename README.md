@@ -40,6 +40,22 @@ Docker will produce two files in the `zips` directory:
 
 Follow the LineageOS installation instructions for your device, which can be accessed from the [LineageOS Devices wiki pages](https://wiki.lineageos.org/devices/). If the LineageOS installation instructions require or refer to any `.img` files, these images can be obtained by unzipping the `-images.zip` file mentioned in the previous section.
 
+### 'Clean' and 'dirty' flashing
+
+A 'clean' flash is when the data partition is wiped and/or formatted before the ROM is installed. This will remove all user-installed apps and data. It is sometimes referred to as a 'fresh installation'.
+
+A 'dirty flash' is when the data partition ***is not*** wiped and/or formatted before the ROM is installed. Normally this will result in all user-installed apps and data still being present after the intallation.
+
+Newer versions of the LineageOS for MicroG ROM can usually be 'dirty flashed' over older versions ***with the same Android version***.
+
+Dirty flashing is ***sometimes*** possible over
+- older versions of the LineageOS for MicroG ROM ***with an earlier** Android version***;
+- the official LineageOS ROM (without microG)
+
+In both these cases, problems may be encountered with app permissions, both for user-installed apps and for the pre-installed apps. These problems can sometimes be fixed by manually changing the app permissions.
+
+If you are 'dirty' flashing, it is a good idea to backup your user-installed apps and data in case the 'dirty' flash fails.
+
 ## How can I build LineageOS?
 
 Before you start, make sure you have the latest version of our Docker image:
