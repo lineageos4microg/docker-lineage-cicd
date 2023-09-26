@@ -36,6 +36,10 @@ Docker will produce two files in the `zips` directory:
 1. The main ROM zip file e.g. `lineage-20.0-20230702-microG-<device-name>.zip`. This file can be flashed from recovery as described in the next section.
 2. A `-image.zip` file e.g. `lineage-20.0-20230702-microG-<device-name>-images.zip`, containing a custom recovery image and any other images needed or mentioned in the LineageOS installation instructions.
 
+## How do I install the LineageOS for MicroG ROM
+
+Follow the LineageOS installation instructions for your device, which can be accessed from the [LineageOS Devices wiki pages](https://wiki.lineageos.org/devices/). If the LineageOS installation instructions require or refer to any `.img` files, these images can be obtained by unzipping the `-images.zip` file mentioned in the previous section.
+
 ## How can I build LineageOS?
 
 Before you start, make sure you have the latest version of our Docker image:
