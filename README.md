@@ -36,42 +36,6 @@ Docker will produce two files in the `zips` directory:
 1. The main ROM zip file e.g. `lineage-20.0-20230702-microG-<device-name>.zip`. This file can be flashed from recovery as described in the next section.
 2. A `-image.zip` file e.g. `lineage-20.0-20230702-microG-<device-name>-images.zip`, containing a custom recovery image and any other images needed or mentioned in the LineageOS installation instructions.
 
-## How do I install the LineageOS for MicroG ROM
-
-Follow the LineageOS installation instructions for your device, which can be accessed from the [LineageOS Devices wiki pages](https://wiki.lineageos.org/devices/). If the LineageOS installation instructions require or refer to any `.img` files, these images can be obtained by unzipping the `-images.zip` file mentioned in the previous section.
-
-### 'Clean' and 'dirty' flashing
-
-A 'clean' flash is when the data partition is wiped and/or formatted before the ROM is installed. This will remove all user-installed apps and data. It is sometimes referred to as a 'fresh installation'.
-
-A 'dirty flash' is when the data partition ***is not*** wiped and/or formatted before the ROM is installed. Normally this will result in all user-installed apps and data still being present after the intallation.
-
-Newer versions of the LineageOS for MicroG ROM can usually be 'dirty flashed' over older versions ***with the same Android version***.
-
-Dirty flashing is ***sometimes*** possible over
-- older versions of the LineageOS for MicroG ROM ***with an earlier** Android version***;
-- the official LineageOS ROM (without microG)
-
-In both these cases, problems may be encountered with app permissions, both for user-installed apps and for the pre-installed apps. These problems can sometimes be fixed by manually changing the app permissions.
-
-If you are 'dirty' flashing, it is a good idea to backup your user-installed apps and data in case the 'dirty' flash fails.
-
-## Troubleshooting and support
-
-The LineageOS for MicroG project is not in a position to offer much by way of technical support:
-
-- the number of active volunteer maintainers / contributors is very small, and we spend what time we have trying to ensure that the process of making regular builds keeps going. We can generally investigate problems with the build tools, but not with the ROM itself;
-- we don't have access to any devices for testing / debugging
-
-The [project issue tracker](https://github.com/lineageos4microg/docker-lineage-cicd/issues) is mostly for tracking problems with the Docker build tool. It is ***not*** intended for tracking problems with ***installing*** or ***running*** the LineageOS for MicroG ROM. If you run into such problems, our advice is to work through the following steps to see if they help. (Make a backup of your user apps & data first):
-- full power off and restart
-- factory reset
-- format data partition
-- install the most recent LineageOS for MicroG build for your device, from [here](https://download.lineage.microg.org/) following the [LOS installation instructions](https://wiki.lineageos.org/devices/).
-- install the latest official LineageOS build from [here](https://download.lineageos.org/devices/)
-
-For ***any*** problems, with building, installing, or running LineageOS for MicroG, we recommend that you ask for help in [the XDA Forum thread](https://forum.xda-developers.com/t/lineageos-for-microg.3700997/) or in device specific [XDA forum threads](https://forum.xda-developers.com/). The LineageOS for MicroG forum thread is not maintained by us, but there are many knowlegdeable contributors there, who build and run the LineageOS for MicroG ROM on a wide variety of devices.
-
 ## How can I build LineageOS?
 
 Before you start, make sure you have the latest version of our Docker image:
@@ -385,6 +349,48 @@ docker run \
     -v "/home/user/manifests:/srv/local_manifests" \
     lineageos4microg/docker-lineage-cicd
 ```
+
+# Web Site text
+
+The following should be published on [the LineageOS for microG website](https://lineage.microg.org/). It is included here until the website can be updated
+
+
+## How do I install the LineageOS for MicroG ROM
+
+Follow the LineageOS installation instructions for your device, which can be accessed from the [LineageOS Devices wiki pages](https://wiki.lineageos.org/devices/). If the LineageOS installation instructions require or refer to any `.img` files, these images can be obtained by unzipping the `-images.zip` file mentioned in the previous section.
+
+### 'Clean' and 'dirty' flashing
+
+A 'clean' flash is when the data partition is wiped and/or formatted before the ROM is installed. This will remove all user-installed apps and data. It is sometimes referred to as a 'fresh installation'.
+
+A 'dirty flash' is when the data partition ***is not*** wiped and/or formatted before the ROM is installed. Normally this will result in all user-installed apps and data still being present after the intallation.
+
+Newer versions of the LineageOS for MicroG ROM can usually be 'dirty flashed' over older versions ***with the same Android version***.
+
+Dirty flashing is ***sometimes*** possible over
+- older versions of the LineageOS for MicroG ROM ***with an earlier** Android version***;
+- the official LineageOS ROM (without microG)
+
+In both these cases, problems may be encountered with app permissions, both for user-installed apps and for the pre-installed apps. These problems can sometimes be fixed by manually changing the app permissions.
+
+If you are 'dirty' flashing, it is a good idea to backup your user-installed apps and data in case the 'dirty' flash fails.
+
+## Troubleshooting and support
+
+The LineageOS for MicroG project is not in a position to offer much by way of technical support:
+
+- the number of active volunteer maintainers / contributors is very small, and we spend what time we have trying to ensure that the process of making regular builds keeps going. We can generally investigate problems with the build tools, but not with the ROM itself;
+- we don't have access to any devices for testing / debugging
+
+The [project issue tracker](https://github.com/lineageos4microg/docker-lineage-cicd/issues) is mostly for tracking problems with the Docker build tool. It is ***not*** intended for tracking problems with ***installing*** or ***running*** the LineageOS for MicroG ROM. If you run into such problems, our advice is to work through the following steps to see if they help. (Make a backup of your user apps & data first):
+- full power off and restart
+- factory reset
+- format data partition
+- install the most recent LineageOS for MicroG build for your device, from [here](https://download.lineage.microg.org/) following the [LOS installation instructions](https://wiki.lineageos.org/devices/).
+- install the latest official LineageOS build from [here](https://download.lineageos.org/devices/)
+
+For ***any*** problems, with building, installing, or running LineageOS for MicroG, we recommend that you ask for help in [the XDA Forum thread](https://forum.xda-developers.com/t/lineageos-for-microg.3700997/) or in device specific [XDA forum threads](https://forum.xda-developers.com/). The LineageOS for MicroG forum thread is not maintained by us, but there are many knowlegdeable contributors there, who build and run the LineageOS for MicroG ROM on a wide variety of devices.
+
 
 
 [docker-ubuntu]: https://docs.docker.com/install/linux/docker-ce/ubuntu/
