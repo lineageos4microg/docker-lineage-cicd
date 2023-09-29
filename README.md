@@ -30,7 +30,27 @@ the standard Docker installation.
 Once you can run the [`hello-world` image][docker-helloworld] you're ready to
 start!
 
+## What does Docker build
+
+Docker will produce two files in the `zips` directory:
+1. The main ROM zip file e.g. `lineage-20.0-20230702-microG-<device-name>.zip`. This file can be flashed from recovery as described in the next section.
+2. A `-image.zip` file e.g. `lineage-20.0-20230702-microG-<device-name>-images.zip`, containing a custom recovery image and any other images needed or mentioned in the LineageOS installation instructions.
+
 ## How can I build LineageOS?
+
+Before you start, make sure you have the latest version of our Docker image:
+```
+docker pull lineageos4microg/docker-lineage-cicd
+```
+
+The requirements for building LineageOS for MicroG are roughly the same as for [builing LineageOS](https://wiki.lineageos.org/devices/sunfish/build):
+- A relatively recent x86_64 computer:
+  - Linux, macOS, or Windows - these instructions are only tested using Ubuntu 20.04 LTS, so we recommend going with that.
+  - A reasonable amount of RAM (16 GB to build up to lineage-17.1, 32 GB or more for lineage-18.1 and up). The less RAM you have, the longer the build will take. Enabling ZRAM can be helpful. If builds fail because of lack of memory, you can sometimes get over the problem by increasing the amount of swap, but this will be at the expense of slower buid times.
+  - A reasonable amount of Storage (~300 GB for lineage-18.1 and up). You might require more free space for enabling ccache, building for multiple devices, or if you choose to mirror the LineageOS sources (see below). Using SSDs results in considerably faster build times than traditional hard drives.
+
+- A decent internet connection and reliable electricity. :)
+- Some familiarity with basic Android operation and terminology. It may be useful to know some basic command line concepts such as cd, which stands for “change directory”, the concept of directory hierarchies, and that in Linux they are separated by /, etc.
 
 This Docker image contains a great number of settings, to allow you to fully
 customize your LineageOS build. Here you can find all of them, with the default
@@ -74,7 +94,7 @@ official lineageos4microg builds. To include it in your build, create an XML
 
 If you wish to add other apps to your ROM, you can include a repository with
 source code or prebuilt APKs. For prebuilt apks, see the [android_vendor_partner_gms][android_vendor_partner_gms]
-repository for examples on how the `Android.mk` file should look like. 
+repository for examples on how the `Android.mk` file should look like.
 
 Include the repo with another manifest file like this:
 
@@ -329,6 +349,148 @@ docker run \
     -v "/home/user/manifests:/srv/local_manifests" \
     lineageos4microg/docker-lineage-cicd
 ```
+
+# Web Site text
+
+The following should be published on [the LineageOS for microG website](https://lineage.microg.org/). It is included here until the website can be updated
+
+
+## How do I install the LineageOS for MicroG ROM
+
+Follow the LineageOS installation instructions for your device, which can be accessed from the [LineageOS Devices wiki pages](https://wiki.lineageos.org/devices/). If the LineageOS installation instructions require or refer to any `.img` files, these images can be obtained by unzipping the `-images.zip` file mentioned in the previous section.
+
+### 'Clean' and 'dirty' flashing
+
+A 'clean' flash is when the data partition is wiped and/or formatted before the ROM is installed. This will remove all user-installed apps and data. It is sometimes referred to as a 'fresh installation'.
+
+A 'dirty flash' is when the data partition ***is not*** wiped and/or formatted before the ROM is installed. Normally this will result in all user-installed apps and data still being present after the intallation.
+
+Newer versions of the LineageOS for MicroG ROM can usually be 'dirty flashed' over older versions ***with the same Android version***.
+
+Dirty flashing is ***sometimes*** possible over
+- older versions of the LineageOS for MicroG ROM ***with an earlier** Android version***;
+- the official LineageOS ROM (without microG)
+
+In both these cases, problems may be encountered with app permissions, both for user-installed apps and for the pre-installed apps. These problems can sometimes be fixed by manually changing the app permissions.
+
+If you are 'dirty' flashing, it is a good idea to backup your user-installed apps and data in case the 'dirty' flash fails.
+
+## Troubleshooting and support
+
+The LineageOS for MicroG project is not in a position to offer much by way of technical support:
+
+- the number of active volunteer maintainers / contributors is very small, and we spend what time we have trying to ensure that the process of making regular builds keeps going. We can generally investigate problems with the build tools, but not with the ROM itself;
+- we don't have access to any devices for testing / debugging
+
+The [project issue tracker](https://github.com/lineageos4microg/docker-lineage-cicd/issues) is mostly for tracking problems with the Docker build tool. It is ***not*** intended for tracking problems with ***installing*** or ***running*** the LineageOS for MicroG ROM. If you run into such problems, our advice is to work through the following steps to see if they help. (Make a backup of your user apps & data first):
+- full power off and restart
+- factory reset
+- format data partition
+- install the most recent LineageOS for MicroG build for your device, from [here](https://download.lineage.microg.org/) following the [LOS installation instructions](https://wiki.lineageos.org/devices/).
+- install the latest official LineageOS build from [here](https://download.lineageos.org/devices/)
+
+For ***any*** problems, with building, installing, or running LineageOS for MicroG, we recommend that you ask for help in [the XDA Forum thread](https://forum.xda-developers.com/t/lineageos-for-microg.3700997/) or in device specific [XDA forum threads](https://forum.xda-developers.com/). The LineageOS for MicroG forum thread is not maintained by us, but there are many knowlegdeable contributors there, who build and run the LineageOS for MicroG ROM on a wide variety of devices.
+
+
+## LineageOS for microG: Project Scope & Objectives
+
+As the website says, the LineageOS for microG project is a
+
+> LineageOS unofficial fork with built-in microG gapps implementation
+
+The prime objectives of the project are to:
+- deliver regular builds of the project for all the phones and tablets[1] currently supported officially by LOS;
+- create and maintain the source code, tools ,and computing resources needed:
+    - to make the builds;
+    - to make the builds available for download, for manual and OTA installation.
+
+Another - less central - objective is to allow other projects and individuals to use our source code and tools (though not currently our computing resources) to make and maintain their own builds:
+- of L4M, 'vanilla' LOS, and / or other LOS-based custom ROMs;
+- for other devices, whether or not supported officially.
+
+### Upstreams
+
+The project has two main 'upstream` projects:
+- LineageOS ([website](https://lineageos.org/) , [github repos](https://github.com/LineageOS))
+- MicroG ([website](https://microg.org//) , [github repos](https://github.com/microg))
+
+Like LineageOS, the project also uses 'TheMuppets` [github](https://github.com/TheMuppets/) and [gitlab](https://gitlab.com/the-muppets) repos as the source for device-specific vendor binary blobs.
+
+The main work of the project is to integrate the upstream components and build them into the ROM images we make available.
+
+### Project Github repositories
+
+The project has two main public repositories on GitHub:
+-  [`docker-lineage-cicd`]( https://github.com/lineageos4microg/docker-lineage-cicd)
+ The Docker image used by the project to make the regular builds, along with a [`README.md`](https://github.com/lineageos4microg/docker-lineage-cicd#readme) explaining how it can be used. The Docker images is rebuilt and pushed to [DockerHub](https://hub.docker.com/r/lineageos4microg/docker-lineage-cicd/) automatically when changes are pushed to the `master` branch
+- [`android_vendor_partner_gms` ](https://github.com/lineageos4microg/android_vendor_partner_gms)
+The pre-built components from MicroG, along with makefiles for easy integration in the Android build system. The pre-built components are pulled automatically from the MicroG releases.
+
+### Project deliverables
+
+1. The device-specific ROM zip files.
+2. Device-specific `-images.zip` files containing any `.img` files that are needed for installing or updating the ROM zip file (e.g. `boot.img`,  `recovery.img`).
+3. The Docker image used to make the builds, including the (limited) documentation in the `README.md`.
+
+The ROM zips and other device-specific files are made available in sub-directories on [the download server](https://download.lineage.microg.org/)
+
+The Docker image is pushed to [DockerHub](https://hub.docker.com/r/lineageos4microg/docker-lineage-cicd/)
+
+### Project Scope
+
+The following items are explicitly ***not*** within the scope of the project
+- Changes to, or forks of, upstream components, except where necessary for the correct operation of the integrated components. At present, this means only [the signature spoofing patches](https://github.com/lineageos4microg/docker-lineage-cicd/tree/master/src/signature_spoofing_patches) that are needed for the correct operation of the MicroG software components (see Note 1)
+- Maintaining, supporting or documenting the  tools or binary files, needed for ***installation*** of our ROMs. This is within the scope of the LineageOS upstream, which either builds and makes available the necessary tools and files,  or links to other projects (e.g. TWRP) which provide them
+
+### Project Status
+
+The project is currently in a fairly stable state:
+- we are (mostly) achieving our objective of delivering monthly builds
+- the only essential work that is ongoing is to
+    - monitor the delivery process,  to fix any problems that may occur, and to make any changes that are needed to ensure that the problems do not recur
+    - to make any changes needed when upstreams make changes. In particular, when LineageOS introduces support for a new Android version and / or drops support for older Android versions
+
+The project is therefore - in the opinion of the currently active maintainers - essentially 'feature complete' and in 'maintenance' mode. The only change that we believe might significantly improve the project is to support other classes of Android devices, specifically
+- `Minimal` & `Android TV` devices (see Note 2)
+- [`Treble-capable`](https://www.xda-developers.com/list-android-devices-project-treble-support/) devices which are not officially supported by LOS.  [As has recently been suggested](https://github.com/lineageos4microg/docker-lineage-cicd/issues/462) building for the `lineage_gsi` target would make our builds available for and usable on these devices.
+
+
+### Issue Reporting & Tracking
+
+Our public github repos both have issue trackers, where any github user can create new issues. They are primarily intended for
+- tracking problems with the components owned by the repos, i.e.  the Docker image, and ***our integration of*** the microG components.
+- asking questions about how to use the components
+- suggesting improvements to those components e.g.
+    - ways in which the docker image could be changed to make the build process more efficient, or less error-prone
+    - how our limited documentation (primarily the `README.md`) could be improved
+
+They are not intended for
+- problems 'owned' by the upstream projects (see Note 3) e.g  incorrect functionality, or requests for new or different functionality in
+    - apps which are 'built-in' to LineageOS
+    - microG components (unless the incorrect functionality is  caused by our integration of those components)
+- problems which are out of scope (see above)
+- providing support for users of our ROMs (see below)
+- requests for new features in our components (see Note 4). As mentioned above, we believe the project is 'feature complete,' and the project does not have the time and / or resources to expand its scope, even if we thought such expansion was desirable. We will consider any such feature requests (when / if we have the time to do so), but the answer is likely to be negative.
+
+One area where we know improvements can be made is in showing the progress (or lack of progress) in addressing reported issues:
+- currently an issue is either 'Open' or 'Closed'
+- no indication of whether 'Open' issues will be fixed or not
+- no visibility of the priority of open issues, or when or in what order they will be addressed
+- no indication of whether 'Closed' issues were fixed or not before closure
+
+Some gradual changes are in hand to address this
+
+### User Support
+
+The project and the currently active maintainers do not have the time or resources to provide 'official' support for users of our ROMs. Fortunately, support and 'self-help' is available from the user community, in particular in the [LineageOS for microG' XDA Forums thread](https://forum.xda-developers.com/t/lineageos-for-microg.3700997/).
+
+Upstream projects have their own channels for supporting users.
+
+### Notes
+1. ***If*** such changes are needed, we will try to provide patches or Pull Requests to the upsteam components. We will only maintain our changes ourselves if the upstreams will not accept our changes
+2. L4M ***does not*** currently support building for `Minimal` or `Android TV` devices, even when those devices are supported by LOS
+3. This class of problem usually includes ***device-specific*** issues: we have no device-specific code, it all comes from upstream
+4. Any new issues or feature requests are more likely to be received positively if they are accompanied by code changes (in patches or - preferred - in Pull Requests) to fix the issue or implement the change. However, such changes will not be accepted just ***because*** code changes are provided.
 
 
 [docker-ubuntu]: https://docs.docker.com/install/linux/docker-ce/ubuntu/
