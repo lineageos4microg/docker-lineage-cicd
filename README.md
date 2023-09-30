@@ -43,7 +43,7 @@ Before you start, make sure you have the latest version of our Docker image:
 docker pull lineageos4microg/docker-lineage-cicd
 ```
 
-The requirements for building LineageOS for MicroG are roughly the same as for [builing LineageOS](https://wiki.lineageos.org/devices/sunfish/build):
+The requirements for building LineageOS for MicroG are roughly the same as for [building LineageOS](https://wiki.lineageos.org/devices/sunfish/build):
 - A relatively recent x86_64 computer:
   - Linux, macOS, or Windows - these instructions are only tested using Ubuntu 20.04 LTS, so we recommend going with that.
   - A reasonable amount of RAM (16 GB to build up to lineage-17.1, 32 GB or more for lineage-18.1 and up). The less RAM you have, the longer the build will take. Enabling ZRAM can be helpful. If builds fail because of lack of memory, you can sometimes get over the problem by increasing the amount of swap, but this will be at the expense of slower buid times.
