@@ -43,7 +43,7 @@ Before you start, make sure you have the latest version of our Docker image:
 docker pull lineageos4microg/docker-lineage-cicd
 ```
 
-The requirements for building LineageOS for MicroG are roughly the same as for [builing LineageOS](https://wiki.lineageos.org/devices/sunfish/build):
+The requirements for building LineageOS for MicroG are roughly the same as for [building LineageOS](https://wiki.lineageos.org/devices/sunfish/build):
 - A relatively recent x86_64 computer:
   - Linux, macOS, or Windows - these instructions are only tested using Ubuntu 20.04 LTS, so we recommend going with that.
   - A reasonable amount of RAM (16 GB to build up to lineage-17.1, 32 GB or more for lineage-18.1 and up). The less RAM you have, the longer the build will take. Enabling ZRAM can be helpful. If builds fail because of lack of memory, you can sometimes get over the problem by increasing the amount of swap, but this will be at the expense of slower buid times.
@@ -435,6 +435,15 @@ The pre-built components from MicroG, along with makefiles for easy integration 
 The ROM zips and other device-specific files are made available in sub-directories on [the download server](https://download.lineage.microg.org/)
 
 The Docker image is pushed to [DockerHub](https://hub.docker.com/r/lineageos4microg/docker-lineage-cicd/)
+
+#### Build Targets and Frequency
+
+We build for the same devices as LineageOS using [their list of build targets](https://github.com/LineageOS/hudson/blob/master/lineage-build-targets) as the input to our build run.
+
+We currently make builds monthly, starting on the first day of the month. The devices included in a build run are defined by the content of the [LOS target list](https://github.com/LineageOS/hudson/blob/master/lineage-build-targets) ***at the point the build run starts***. Our monthly build run takes 15-16 days to complete. You can see the current status of the build in [the dedicated matrix room](https://matrix.to/#/#microg-lineage-os-builds:matrix.domainepublic.net) 
+
+If builds for any devices fail during a build run, we will try the build again ***after the main build run has completed***. If you do not see a new build for your device when you expect it, please check whether the build failure was reported in the matrix room. If it was, there is no need to report it - we will deal with it! If the failure was not reported in the matrix room, then please report it in [our issue tracker](https://github.com/lineageos4microg/docker-lineage-cicd/issues) or in [the XDA Forums thread](https://forum.xda-developers.com/t/lineageos-for-microg.3700997/)
+
 
 ### Project Scope
 
