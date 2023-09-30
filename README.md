@@ -436,6 +436,15 @@ The ROM zips and other device-specific files are made available in sub-directori
 
 The Docker image is pushed to [DockerHub](https://hub.docker.com/r/lineageos4microg/docker-lineage-cicd/)
 
+#### Build Targets and Frequency
+
+We build for the same devices as LineageOS using [their list of build targets](https://github.com/LineageOS/hudson/blob/master/lineage-build-targets) as the input to our build run.
+
+We currently make builds monthly, starting on the first day of the month. The devices included in a build run are defined by the content of the [LOS target list](https://github.com/LineageOS/hudson/blob/master/lineage-build-targets) ***at the point the build run starts***. Our monthly build run takes 15-16 days to complete. You can see the current status of the build in [the dedicated matrix room](https://matrix.to/#/#microg-lineage-os-builds:matrix.domainepublic.net) 
+
+If builds for any devices fail during a build run, we will try the build again ***after the main build run has completed***. If you do not see a new build for your device when you expect it, please check whether the build failure was reported in the matrix room. If it was, there is no need to report it - we will deal with it! If the failure was not reported in the matrix room, then please report it in [our issue tracker](https://github.com/lineageos4microg/docker-lineage-cicd/issues) or in [the XDA Forums thread](https://forum.xda-developers.com/t/lineageos-for-microg.3700997/)
+
+
 ### Project Scope
 
 The following items are explicitly ***not*** within the scope of the project
