@@ -93,6 +93,20 @@ ENV ZIP_SUBDIR true
 # Write the verbose logs to $LOGS_DIR/$codename instead of $LOGS_DIR/
 ENV LOGS_SUBDIR true
 
+# Include microG's components in the ROM
+ENV WITH_GMS false
+
+# Include microG's components in the ROM providing free space for add-ons in system
+#
+# On newer devices running Android 10+ and using dynamic partitions, the size of
+# the system partition is defined by the ROM being flashed. For these devices,
+# regular LineageOS builds reserve some free space in the system partition
+# for add-ons such as GApps (typically 600MB). However, using WITH_GMS to include
+# microG's components in the ROM has the side effect of disabling this space
+# reservation, making later installation of add-ons impossible. Use WITH_GMS_ALT
+# as an alternative to WITH_GMS that does not disable space reservation in system.
+ENV WITH_GMS_ALT false
+
 # Apply the MicroG's signature spoofing patch
 # Valid values are "no", "yes" (for the original MicroG's patch) and
 # "restricted" (to grant the permission only to the system privileged apps).
