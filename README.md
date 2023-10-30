@@ -46,7 +46,7 @@ docker pull lineageos4microg/docker-lineage-cicd
 The requirements for building LineageOS for MicroG are roughly the same as for [building LineageOS](https://wiki.lineageos.org/devices/sunfish/build):
 - A relatively recent x86_64 computer:
   - Linux, macOS, or Windows - these instructions are only tested using Ubuntu 20.04 LTS, so we recommend going with that.
-  - A reasonable amount of RAM (16 GB to build up to lineage-17.1, 32 GB or more for lineage-18.1 and up). The less RAM you have, the longer the build will take. Enabling ZRAM can be helpful. If builds fail because of lack of memory, you can sometimes get over the problem by increasing the amount of swap, but this will be at the expense of slower buid times.
+  - A reasonable amount of RAM (16 GB to build up to lineage-17.1, 32 GB or more for lineage-18.1 and up). The less RAM you have, the longer the build will take. Enabling ZRAM can be helpful. If builds fail because of lack of memory, you can sometimes get over the problem by increasing the amount of swap, but this will be at the expense of slower build times.
   - A reasonable amount of Storage (~300 GB for lineage-18.1 and up). You might require more free space for enabling ccache, building for multiple devices, or if you choose to mirror the LineageOS sources (see below). Using SSDs results in considerably faster build times than traditional hard drives.
 
 - A decent internet connection and reliable electricity. :)
@@ -389,7 +389,7 @@ The [project issue tracker](https://github.com/lineageos4microg/docker-lineage-c
 - install the most recent LineageOS for MicroG build for your device, from [here](https://download.lineage.microg.org/) following the [LOS installation instructions](https://wiki.lineageos.org/devices/).
 - install the latest official LineageOS build from [here](https://download.lineageos.org/devices/)
 
-For ***any*** problems, with building, installing, or running LineageOS for MicroG, we recommend that you ask for help in [the XDA Forum thread](https://forum.xda-developers.com/t/lineageos-for-microg.3700997/) or in device specific [XDA forum threads](https://forum.xda-developers.com/). The LineageOS for MicroG forum thread is not maintained by us, but there are many knowlegdeable contributors there, who build and run the LineageOS for MicroG ROM on a wide variety of devices.
+For ***any*** problems, with building, installing, or running LineageOS for MicroG, we recommend that you ask for help in [the XDA Forum thread](https://xdaforums.com/t/lineageos-for-microg.3700997/) or in device specific [XDA forum threads](https://xdaforums.com/). The LineageOS for MicroG forum thread is not maintained by us, but there are many knowlegdeable contributors there, who build and run the LineageOS for MicroG ROM on a wide variety of devices.
 
 
 ## LineageOS for microG: Project Scope & Objectives
@@ -400,7 +400,7 @@ As the website says, the LineageOS for microG project is a
 
 The prime objectives of the project are to:
 - deliver regular builds of the project for all the phones and tablets[1] currently supported officially by LOS;
-- create and maintain the source code, tools ,and computing resources needed:
+- create and maintain the source code, tools, and computing resources needed:
     - to make the builds;
     - to make the builds available for download, for manual and OTA installation.
 
@@ -411,8 +411,8 @@ Another - less central - objective is to allow other projects and individuals to
 ### Upstreams
 
 The project has two main 'upstream` projects:
-- LineageOS ([website](https://lineageos.org/) , [github repos](https://github.com/LineageOS))
-- MicroG ([website](https://microg.org//) , [github repos](https://github.com/microg))
+- LineageOS ([website](https://lineageos.org/), [github repos](https://github.com/LineageOS))
+- MicroG ([website](https://microg.org/), [github repos](https://github.com/microg))
 
 Like LineageOS, the project also uses 'TheMuppets` [github](https://github.com/TheMuppets/) and [gitlab](https://gitlab.com/the-muppets) repos as the source for device-specific vendor binary blobs.
 
@@ -423,7 +423,7 @@ The main work of the project is to integrate the upstream components and build t
 The project has two main public repositories on GitHub:
 -  [`docker-lineage-cicd`]( https://github.com/lineageos4microg/docker-lineage-cicd)
  The Docker image used by the project to make the regular builds, along with a [`README.md`](https://github.com/lineageos4microg/docker-lineage-cicd#readme) explaining how it can be used. The Docker images is rebuilt and pushed to [DockerHub](https://hub.docker.com/r/lineageos4microg/docker-lineage-cicd/) automatically when changes are pushed to the `master` branch
-- [`android_vendor_partner_gms` ](https://github.com/lineageos4microg/android_vendor_partner_gms)
+- [`android_vendor_partner_gms`](https://github.com/lineageos4microg/android_vendor_partner_gms)
 The pre-built components from MicroG, along with makefiles for easy integration in the Android build system. The pre-built components are pulled automatically from the MicroG releases.
 
 ### Project deliverables
@@ -432,9 +432,9 @@ The pre-built components from MicroG, along with makefiles for easy integration 
 2. Device-specific `-images.zip` files containing any `.img` files that are needed for installing or updating the ROM zip file (e.g. `boot.img`,  `recovery.img`).
 3. The Docker image used to make the builds, including the (limited) documentation in the `README.md`.
 
-The ROM zips and other device-specific files are made available in sub-directories on [the download server](https://download.lineage.microg.org/)
+The ROM zips and other device-specific files are made available in sub-directories on [the download server](https://download.lineage.microg.org/).
 
-The Docker image is pushed to [DockerHub](https://hub.docker.com/r/lineageos4microg/docker-lineage-cicd/)
+The Docker image is pushed to [DockerHub](https://hub.docker.com/r/lineageos4microg/docker-lineage-cicd/).
 
 #### Build Targets and Frequency
 
@@ -442,7 +442,7 @@ We build for the same devices as LineageOS using [their list of build targets](h
 
 We currently make builds monthly, starting on the first day of the month. The devices included in a build run are defined by the content of the [LOS target list](https://github.com/LineageOS/hudson/blob/master/lineage-build-targets) ***at the point the build run starts***. Our monthly build run takes 15-16 days to complete. You can see the current status of the build in [the dedicated matrix room](https://matrix.to/#/#microg-lineage-os-builds:matrix.domainepublic.net) 
 
-If builds for any devices fail during a build run, we will try the build again ***after the main build run has completed***. If you do not see a new build for your device when you expect it, please check whether the build failure was reported in the matrix room. If it was, there is no need to report it - we will deal with it! If the failure was not reported in the matrix room, then please report it in [our issue tracker](https://github.com/lineageos4microg/docker-lineage-cicd/issues) or in [the XDA Forums thread](https://forum.xda-developers.com/t/lineageos-for-microg.3700997/)
+If builds for any devices fail during a build run, we will try the build again ***after the main build run has completed***. If you do not see a new build for your device when you expect it, please check whether the build failure was reported in the matrix room. If it was, there is no need to report it - we will deal with it! If the failure was not reported in the matrix room, then please report it in [our issue tracker](https://github.com/lineageos4microg/docker-lineage-cicd/issues) or in [the XDA Forums thread](https://xdaforums.com/t/lineageos-for-microg.3700997/)
 
 
 ### Project Scope
@@ -479,7 +479,7 @@ They are not intended for
     - microG components (unless the incorrect functionality is  caused by our integration of those components)
 - problems which are out of scope (see above)
 - providing support for users of our ROMs (see below)
-- requests for new features in our components (see Note 4). As mentioned above, we believe the project is 'feature complete,' and the project does not have the time and / or resources to expand its scope, even if we thought such expansion was desirable. We will consider any such feature requests (when / if we have the time to do so), but the answer is likely to be negative.
+- requests for new features in our components (see Note 4). As mentioned above, we believe the project is 'feature complete', and the project does not have the time and / or resources to expand its scope, even if we thought such expansion was desirable. We will consider any such feature requests (when / if we have the time to do so), but the answer is likely to be negative.
 
 One area where we know improvements can be made is in showing the progress (or lack of progress) in addressing reported issues:
 - currently an issue is either 'Open' or 'Closed'
@@ -487,11 +487,11 @@ One area where we know improvements can be made is in showing the progress (or l
 - no visibility of the priority of open issues, or when or in what order they will be addressed
 - no indication of whether 'Closed' issues were fixed or not before closure
 
-Some gradual changes are in hand to address this
+Some gradual changes are in hand to address this.
 
 ### User Support
 
-The project and the currently active maintainers do not have the time or resources to provide 'official' support for users of our ROMs. Fortunately, support and 'self-help' is available from the user community, in particular in the [LineageOS for microG' XDA Forums thread](https://forum.xda-developers.com/t/lineageos-for-microg.3700997/).
+The project and the currently active maintainers do not have the time or resources to provide 'official' support for users of our ROMs. Fortunately, support and 'self-help' is available from the user community, in particular in the [LineageOS for microG' XDA Forums thread](https://xdaforums.com/t/lineageos-for-microg.3700997/).
 
 Upstream projects have their own channels for supporting users.
 
@@ -523,6 +523,6 @@ Upstream projects have their own channels for supporting users.
 [los-extras]: https://download.lineageos.org/extras
 [dockerfile]: Dockerfile
 [android_vendor_partner_gms]: https://github.com/lineageos4microg/android_vendor_partner_gms
-[a6000-xda]: https://forum.xda-developers.com/lenovo-a6000/development/rom-lineageos-15-1-t3733747
+[a6000-xda]: https://xdaforums.com/t/eol-rom-8-1-0_r43-f2fs-lineageos-15-1-arm-stable-final-android-go.3733747/
 [a6000-device-tree-deps]: https://github.com/dev-harsh1998/android_device_lenovo_a6000/blob/lineage-15.1/lineage.dependencies
 [a6000-common-tree-deps]: https://github.com/dev-harsh1998/android_device_lenovo_msm8916-common/blob/lineage-15.1/lineage.dependencies
