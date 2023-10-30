@@ -187,7 +187,7 @@ Other useful settings are:
     when set to `false`, you can still enable root by flashing the
     [su installable ZIP][los-extras]). This is only for lineage version 16 and below.
  * `RELEASE_TYPE (UNOFFICIAL)`: change the release type of your builds
- * `BUILD_TYPE (userdebug)`: type of your builds, see [Android docs](https://source.android.com/setup/build/building#choose-a-target)
+ * `BUILD_TYPE (userdebug)`: type of your builds, see [Android docs](https://source.android.com/docs/setup/build/building#choose-a-target)
  * `BUILD_OVERLAY (false)`: normally each build is done on the source tree, then
     the tree is cleaned with `mka clean`. If you want to be sure that each build
     is isolated from the others, set `BUILD_OVERLAY` to `true` (longer build
@@ -363,7 +363,7 @@ Follow the LineageOS installation instructions for your device, which can be acc
 
 A 'clean' flash is when the data partition is wiped and/or formatted before the ROM is installed. This will remove all user-installed apps and data. It is sometimes referred to as a 'fresh installation'.
 
-A 'dirty flash' is when the data partition ***is not*** wiped and/or formatted before the ROM is installed. Normally this will result in all user-installed apps and data still being present after the intallation.
+A 'dirty flash' is when the data partition ***is not*** wiped and/or formatted before the ROM is installed. Normally this will result in all user-installed apps and data still being present after the installation.
 
 Newer versions of the LineageOS for MicroG ROM can usually be 'dirty flashed' over older versions ***with the same Android version***.
 
@@ -389,7 +389,7 @@ The [project issue tracker](https://github.com/lineageos4microg/docker-lineage-c
 - install the most recent LineageOS for MicroG build for your device, from [here](https://download.lineage.microg.org/) following the [LOS installation instructions](https://wiki.lineageos.org/devices/).
 - install the latest official LineageOS build from [here](https://download.lineageos.org/devices/)
 
-For ***any*** problems, with building, installing, or running LineageOS for MicroG, we recommend that you ask for help in [the XDA Forum thread](https://xdaforums.com/t/lineageos-for-microg.3700997/) or in device specific [XDA forum threads](https://xdaforums.com/). The LineageOS for MicroG forum thread is not maintained by us, but there are many knowlegdeable contributors there, who build and run the LineageOS for MicroG ROM on a wide variety of devices.
+For ***any*** problems, with building, installing, or running LineageOS for MicroG, we recommend that you ask for help in [the XDA Forum thread](https://xdaforums.com/t/lineageos-for-microg.3700997/) or in device specific [XDA forum threads](https://xdaforums.com/). The LineageOS for MicroG forum thread is not maintained by us, but there are many knowledgeable contributors there, who build and run the LineageOS for MicroG ROM on a wide variety of devices.
 
 
 ## LineageOS for microG: Project Scope & Objectives
@@ -502,16 +502,16 @@ Upstream projects have their own channels for supporting users.
 4. Any new issues or feature requests are more likely to be received positively if they are accompanied by code changes (in patches or - preferred - in Pull Requests) to fix the issue or implement the change. However, such changes will not be accepted just ***because*** code changes are provided.
 
 
-[docker-ubuntu]: https://docs.docker.com/install/linux/docker-ce/ubuntu/
-[docker-debian]: https://docs.docker.com/install/linux/docker-ce/debian/
-[docker-centos]: https://docs.docker.com/install/linux/docker-ce/centos/
-[docker-fedora]: https://docs.docker.com/install/linux/docker-ce/fedora/
-[docker-win]: https://docs.docker.com/docker-for-windows/install/
-[docker-mac]: https://docs.docker.com/docker-for-mac/install/
-[docker-toolbox]: https://docs.docker.com/toolbox/overview/
+[docker-ubuntu]: https://docs.docker.com/engine/install/ubuntu/
+[docker-debian]: https://docs.docker.com/engine/install/debian/
+[docker-centos]: https://docs.docker.com/engine/install/centos/
+[docker-fedora]: https://docs.docker.com/engine/install/fedora/
+[docker-win]: https://docs.docker.com/desktop/install/windows-install/
+[docker-mac]: https://docs.docker.com/desktop/install/mac-install/
+[docker-toolbox]: https://docs.docker.com/desktop/
 [docker-helloworld]: https://docs.docker.com/get-started/#test-docker-installation
 [los-branches]: https://github.com/LineageOS/android/branches
-[signature-spoofing]: https://github.com/microg/android_packages_apps_GmsCore/wiki/Signature-Spoofing
+[signature-spoofing]: https://github.com/microg/GmsCore/wiki/Signature-Spoofing
 [microg]: https://microg.org/
 [signature-spoofing-patches]: src/signature_spoofing_patches/
 [blobs-pull]: https://wiki.lineageos.org/devices/bacon/build#extract-proprietary-blobs
