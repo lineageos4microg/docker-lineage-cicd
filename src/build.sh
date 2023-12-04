@@ -196,9 +196,13 @@ for branch in ${BRANCH_NAME//,/ }; do
         "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
     fi
 
-    echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-    builddate=$(date +%Y%m%d)
-    repo sync "${jobs_arg[@]}" -c --force-sync &>> "$repo_log"
+    if [ "$CALL_REPO_INIT" = true ]; then
+      echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
+      builddate=$(date +%Y%m%d)
+      repo sync "${jobs_arg[@]}" -c --force-sync &>> "$repo_log"
+    else
+      echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
+    fi
 
     if [ ! -d "vendor/$vendor" ]; then
       echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
