@@ -76,15 +76,18 @@ if [ -n "${RETRY_FETCHES-}" ]; then
   fi
 fi
 
-
 if [ "$LOCAL_MIRROR" = true ]; then
 
   cd "$MIRROR_DIR"
-
-  if [ ! -d .repo ]; then
-    echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
-    ( yes||: ) | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
+  if [ "$INIT_MIRROR" = true ]; then
+    if [ ! -d .repo ]; then
+      echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
+      ( yes||: ) | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
+    fi
+  else
+    echo ">> [$(date)] Initializing mirror repository disabled" | tee -a "$repo_log"
   fi
+fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
   echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
@@ -449,7 +452,6 @@ for branch in ${BRANCH_NAME//,/ }; do
 
       fi
     done
-
   fi
 done
 
