@@ -87,7 +87,6 @@ if [ "$LOCAL_MIRROR" = true ]; then
   else
     echo ">> [$(date)] Initializing mirror repository disabled" | tee -a "$repo_log"
   fi
-fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
   echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
@@ -107,6 +106,7 @@ fi
   else
     echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
   fi
+fi
 
 for branch in ${BRANCH_NAME//,/ }; do
   branch_dir=${branch//[^[:alnum:]]/_}
@@ -206,9 +206,9 @@ for branch in ${BRANCH_NAME//,/ }; do
         "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
     fi
 
-    if [ "$CALL_REPO_INIT" = true ]; then
+    builddate=$(date +%Y%m%d)
+    if [ "$CALL_REPO_SYNC" = true ]; then
       echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-      builddate=$(date +%Y%m%d)
       repo sync "${jobs_arg[@]}" -c --force-sync &>> "$repo_log"
     else
       echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
