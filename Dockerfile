@@ -116,6 +116,18 @@ ENV BUILD_TYPE "userdebug"
 # we can use --depth=1 here
 ENV REPO_INIT_ARGS ""
 
+# variables to control whether or not tasks are implemented
+ENV INIT_MIRROR true
+ENV SYNC_MIRROR true
+ENV RESET_VENDOR_UNDO_PATCHES true
+ENV CALL_REPO_INIT true
+ENV CALL_REPO_SYNC true
+ENV APPLY_PATCHES true
+ENV PREPARE_BUILD_ENVIRONMENT true
+ENV CALL_BREAKFAST true
+ENV CALL_MKA true
+ENV ZIP_UP_IMAGES false
+
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
 #  * before.sh, run after the syncing and patching, before starting the builds
