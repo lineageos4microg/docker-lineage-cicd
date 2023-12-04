@@ -312,12 +312,16 @@ for branch in ${BRANCH_NAME//,/ }; do
       fi
     fi
 
-    # Prepare the environment
-    echo ">> [$(date)] Preparing build environment"
-    set +eu
-    # shellcheck source=/dev/null
-    source build/envsetup.sh > /dev/null
-    set -eu
+    if [ "$PREPARE_BUILD_ENVIRONMENT" = true ]; then
+      # Prepare the environment
+      echo ">> [$(date)] Preparing build environment"
+      set +eu
+      # shellcheck source=/dev/null
+      source build/envsetup.sh > /dev/null
+      set -eu
+    else
+      echo ">> [$(date)] Preparing build environment disabled"
+    fi
 
     if [ -f /root/userscripts/before.sh ]; then
       echo ">> [$(date)] Running before.sh"
@@ -355,10 +359,16 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
-        set +eu
-        breakfast "$codename" "$BUILD_TYPE" &>> "$DEBUG_LOG"
-        breakfast_returncode=$?
-        set -eu
+        breakfast_returncode=0
+        if [ "$CALL_BREAKFAST" = true ]; then
+          set +eu
+          breakfast "$codename" "$BUILD_TYPE" &>> "$DEBUG_LOG"
+          breakfast_returncode=$?
+          set -eu
+        else
+          echo ">> [$(date)] Calling breakfast disabled"
+        fi
+
         if [ $breakfast_returncode -ne 0 ]; then
             echo ">> [$(date)] breakfast failed for $codename, $branch branch" | tee -a "$DEBUG_LOG"
             # call post-build.sh so the failure is logged in a way that is more visible
