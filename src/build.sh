@@ -177,11 +177,15 @@ for branch in ${BRANCH_NAME//,/ }; do
       echo ">> [$(date)] Resetting vendor and undoing patches disabled" | tee -a "$repo_log"
     fi
 
-    echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
-    if [ "$LOCAL_MIRROR" = true ]; then
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" --git-lfs &>> "$repo_log"
+    if [ "$CALL_REPO_INIT" = true ]; then
+      echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
+      if [ "$LOCAL_MIRROR" = true ]; then
+        ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" --git-lfs &>> "$repo_log"
+      else
+        ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" --git-lfs &>> "$repo_log"
+      fi
     else
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" --git-lfs &>> "$repo_log"
+      echo ">> [$(date)] Calling repo init disabled"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
@@ -422,7 +426,6 @@ for branch in ${BRANCH_NAME//,/ }; do
         else
           echo ">> [$(date)] Calling mka for $codename, $branch branch disabled"
       fi
-
 
         # Remove old zips and logs
         if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
