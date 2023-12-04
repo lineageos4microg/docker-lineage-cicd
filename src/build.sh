@@ -101,9 +101,12 @@ fi
       "https://gitlab.com/the-muppets/manifest/raw/mirror/default.xml" .repo/local_manifests/proprietary_gitlab.xml
   fi
 
-  echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-  repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
-fi
+  if [ "$SYNC_MIRROR" = true ]; then
+    echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
+    repo sync "${jobs_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+  else
+    echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
+  fi
 
 for branch in ${BRANCH_NAME//,/ }; do
   branch_dir=${branch//[^[:alnum:]]/_}
