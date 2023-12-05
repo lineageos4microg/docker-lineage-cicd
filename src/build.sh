@@ -414,25 +414,48 @@ for branch in ${BRANCH_NAME//,/ }; do
               echo ">> [$(date)] Making -img.zip file disabled"
             fi
 
-            # Move produced ZIP files to the main OUT directory
-            echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
-            cd out/target/product/"$codename"
-            files_to_hash=()
-            for build in lineage-*.zip; do
-              cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
-              mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
-              files_to_hash+=( "$build" )
-            done
-          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
-
-          for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
-            if [ -f "$image.img" ]; then
-              recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
-              echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
-              cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
-              files_to_hash+=( "$recovery_name" )
-            fi
+          # Move produced ZIP files to the main OUT directory
+          echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
+          cd out/target/product/"$codename"
+          files_to_hash=()
+          for build in lineage-*.zip; do
+            cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
+            mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
+            files_to_hash+=( "$build" )
           done
+
+          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+          if [ "$ZIP_UP_IMAGES" = true ]; then
+            # zipping the .img files
+            echo ">> [$(date)] Zipping the .img files" | tee -a "$DEBUG_LOG"
+
+            files_to_zip=()
+            images_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-images.zip"
+            cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+
+            for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
+              if [ -f "$image.img" ]; then
+                echo ">> [$(date)] Adding $image.img" to "$images_zip_file" | tee -a "$DEBUG_LOG"
+                files_to_zip+=( "$image.img" )
+              fi
+            done
+
+            zip "$images_zip_file" "${files_to_zip[@]}"
+            mv "$images_zip_file" "$ZIP_DIR/$zipsubdir/"
+            files_to_hash+=( "$images_zip_file" )
+          else
+            # just copy the mages to the zips directory
+            echo ">> [$(date)] Zipping the '-img' files disabled"
+            for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
+              if [ -f "$image.img" ]; then
+                recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
+                echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
+                cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
+                files_to_hash+=( "$recovery_name" )
+              fi
+            done
+          fi
+
           cd "$ZIP_DIR/$zipsubdir"
           for f in "${files_to_hash[@]}"; do
             sha256sum "$f" > "$ZIP_DIR/$zipsubdir/$f.sha256sum"
@@ -444,6 +467,7 @@ for branch in ${BRANCH_NAME//,/ }; do
           fi
         else
           echo ">> [$(date)] Calling mka for $codename, $branch branch disabled"
+        fi
       fi
 
         # Remove old zips and logs
@@ -463,7 +487,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         fi
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/post-build.sh "$codename" $build_successful "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+          /root/userscripts/post-build.sh "$codename" "$build_successful" "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
@@ -492,8 +516,6 @@ for branch in ${BRANCH_NAME//,/ }; do
             (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
           fi
         fi
-
-      fi
     done
   fi
 done
