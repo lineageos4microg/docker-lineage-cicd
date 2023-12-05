@@ -127,6 +127,7 @@ ENV PREPARE_BUILD_ENVIRONMENT true
 ENV CALL_BREAKFAST true
 ENV CALL_MKA true
 ENV ZIP_UP_IMAGES false
+ENV MAKE_IMG_ZIP_FILE false
 
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
