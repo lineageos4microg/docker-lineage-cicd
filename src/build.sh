@@ -393,21 +393,27 @@ for branch in ${BRANCH_NAME//,/ }; do
           # Start the build
           echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
           build_successful=false
+          files_to_hash=()
+
           if (set +eu ; mka "${jobs_arg[@]}" bacon) &>> "$DEBUG_LOG"; then
             if [ "$MAKE_IMG_ZIP_FILE" = true ]; then
               # make the `-img.zip` file
               echo ">> [$(date)] Making -img.zip file" | tee -a "$DEBUG_LOG"
               infile="out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root.zip"
-              img_zip_file="out/target/product/$codename/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-img.zip"
+              img_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-img.zip"
               img_from_target_files "$infile" "$img_zip_file"  &>> "$DEBUG_LOG"
+
+              # move it to the zips directory
+              mv "$img_zip_file" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
+              files_to_hash+=( "$img_zip_file" )
             else
               echo ">> [$(date)] Making -img.zip file disabled"
             fi
 
-          # Move produced ZIP files to the main OUT directory
+          # Move the ROM zip files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
           cd out/target/product/"$codename"
-          files_to_hash=()
+
           for build in lineage-*.zip; do
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
