@@ -66,6 +66,16 @@ if [ -n "${PARALLEL_JOBS-}" ]; then
   fi
 fi
 
+retry_fetches_arg=()
+if [ -n "${RETRY_FETCHES-}" ]; then
+  if [[ "$RETRY_FETCHES" =~ ^[1-9][0-9]*$ ]]; then
+    retry_fetches_arg+=( "--retry-fetches=$RETRY_FETCHES" )
+  else
+    echo "RETRY_FETCHES is not a positive number: $RETRY_FETCHES"
+    exit 1
+  fi
+fi
+
 
 if [ "$LOCAL_MIRROR" = true ]; then
 
@@ -89,7 +99,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
 
   echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-  repo sync "${jobs_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+  repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
 fi
 
 for branch in ${BRANCH_NAME//,/ }; do
@@ -188,7 +198,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     builddate=$(date +%Y%m%d)
-    repo sync "${jobs_arg[@]}" -c --force-sync &>> "$repo_log"
+    repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" -c --force-sync &>> "$repo_log"
 
     if [ ! -d "vendor/$vendor" ]; then
       echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"

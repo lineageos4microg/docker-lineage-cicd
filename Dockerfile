@@ -116,6 +116,11 @@ ENV BUILD_TYPE "userdebug"
 # we can use --depth=1 here
 ENV REPO_INIT_ARGS ""
 
+# You can specify the number of retries for repo sync here. This is useful if you get connection errors during repo sync. The value will be directly forwarded to the repo command
+# Default: unset; repo uses default retry mechanism
+# Allowed values: positive, non-null integers
+ENV RETRY_FETCHES=
+
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
 #  * before.sh, run after the syncing and patching, before starting the builds
