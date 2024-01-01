@@ -404,19 +404,20 @@ for branch in ${BRANCH_NAME//,/ }; do
               echo ">> [$(date)] Making -img.zip file disabled"
             fi
 
-            # Move produced ZIP files to the main OUT directory
-            echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
-            cd out/target/product/"$codename"
-            files_to_hash=()
-            for build in lineage-*.zip; do
-              cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
-              mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
-              files_to_hash+=( "$build" )
-            done
+          # Move produced ZIP files to the main OUT directory
+          echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
+          cd out/target/product/"$codename"
+          files_to_hash=()
+          for build in lineage-*.zip; do
+            cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
+            mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
+            files_to_hash+=( "$build" )
+          done
+
           cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
           if [ "$ZIP_UP_IMAGES" = true ]; then
-            # zipping the `-img` files
-            echo ">> [$(date)] Zipping the `-img` files" | tee -a "$DEBUG_LOG"
+            # zipping the .img files
+            echo ">> [$(date)] Zipping the .img files" | tee -a "$DEBUG_LOG"
 
             files_to_zip=()
             images_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-images.zip"
@@ -505,8 +506,6 @@ for branch in ${BRANCH_NAME//,/ }; do
             (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
           fi
         fi
-
-      fi
     done
   fi
 done
