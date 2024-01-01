@@ -208,6 +208,13 @@ for branch in ${BRANCH_NAME//,/ }; do
       echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
     fi
 
+    if [ "$CALL_GIT_LFS_PULL" = true ]; then
+      echo ">> [$(date)] Calling git lfs pull" | tee -a "$repo_log"
+      repo forall -v -c git lfs pull &>> "$repo_log"
+    else
+      echo ">> [$(date)] Calling git lfs pull disabled" | tee -a "$repo_log"
+    fi
+
     if [ ! -d "vendor/$vendor" ]; then
       echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
       exit 1
