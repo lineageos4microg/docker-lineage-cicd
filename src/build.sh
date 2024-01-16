@@ -80,10 +80,13 @@ fi
 if [ "$LOCAL_MIRROR" = true ]; then
 
   cd "$MIRROR_DIR"
-
-  if [ ! -d .repo ]; then
-    echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
-    ( yes||: ) | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
+  if [ "$INIT_MIRROR" = true ]; then
+    if [ ! -d .repo ]; then
+      echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
+      ( yes||: ) | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
+    fi
+  else
+    echo ">> [$(date)] Initializing mirror repository disabled" | tee -a "$repo_log"
   fi
 
   # Copy local manifests to the appropriate folder in order take them into consideration
@@ -98,8 +101,13 @@ if [ "$LOCAL_MIRROR" = true ]; then
       "https://gitlab.com/the-muppets/manifest/raw/mirror/default.xml" .repo/local_manifests/proprietary_gitlab.xml
   fi
 
+
+  if [ "$SYNC_MIRROR" = true ]; then
   echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
   repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+  else
+    echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
+  fi
 fi
 
 for branch in ${BRANCH_NAME//,/ }; do
@@ -166,22 +174,30 @@ for branch in ${BRANCH_NAME//,/ }; do
     echo ">> [$(date)] Branch:  $branch"
     echo ">> [$(date)] Devices: $devices"
 
-    # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
-    # TODO: maybe reset everything using https://source.android.com/setup/develop/repo#forall
-    for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController" "packages/modules/Permission"; do
-      if [ -d "$path" ]; then
-        cd "$path"
-        git reset -q --hard
-        git clean -q -fd
-        cd "$SRC_DIR/$branch_dir"
-      fi
-    done
-
-    echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
-    if [ "$LOCAL_MIRROR" = true ]; then
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" --git-lfs &>> "$repo_log"
+    if [ "$RESET_VENDOR_UNDO_PATCHES" = true ]; then
+      # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
+      # TODO: maybe reset everything using https://source.android.com/setup/develop/repo#forall
+      for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController" "packages/modules/Permission"; do
+        if [ -d "$path" ]; then
+          cd "$path"
+          git reset -q --hard
+          git clean -q -fd
+          cd "$SRC_DIR/$branch_dir"
+        fi
+      done
     else
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" --git-lfs &>> "$repo_log"
+      echo ">> [$(date)] Resetting vendor and undoing patches disabled" | tee -a "$repo_log"
+    fi
+
+    if [ "$CALL_REPO_INIT" = true ]; then
+      echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
+      if [ "$LOCAL_MIRROR" = true ]; then
+        ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" --git-lfs &>> "$repo_log"
+      else
+        ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" --git-lfs &>> "$repo_log"
+      fi
+    else
+      echo ">> [$(date)] Calling repo init disabled"
     fi
 
     # Copy local manifests to the appropriate folder in order take them into consideration
@@ -196,9 +212,20 @@ for branch in ${BRANCH_NAME//,/ }; do
         "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
     fi
 
-    echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     builddate=$(date +%Y%m%d)
+    if [ "$CALL_REPO_SYNC" = true ]; then
+      echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" -c --force-sync &>> "$repo_log"
+    else
+      echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
+    fi
+
+    if [ "$CALL_GIT_LFS_PULL" = true ]; then
+      echo ">> [$(date)] Calling git lfs pull" | tee -a "$repo_log"
+      repo forall -v -c git lfs pull &>> "$repo_log"
+    else
+      echo ">> [$(date)] Calling git lfs pull disabled" | tee -a "$repo_log"
+    fi
 
     if [ ! -d "vendor/$vendor" ]; then
       echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
@@ -217,40 +244,44 @@ for branch in ${BRANCH_NAME//,/ }; do
     los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
     los_ver="$los_ver_major.$los_ver_minor"
 
+    if [ "$APPLY_PATCHES" = true ]; then
     # If needed, apply the microG's signature spoofing patch
-    if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
-      # Determine which patch should be applied to the current Android source tree
-      cd frameworks/base
-      if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-        echo ">> [$(date)] Applying the standard signature spoofing patch ($frameworks_base_patch) to frameworks/base"
-        echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
-        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$frameworks_base_patch"
-      else
-        echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $frameworks_base_patch) to frameworks/base"
-        sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$frameworks_base_patch" | patch --quiet --force -p1
-      fi
-      git clean -q -f
-      cd ../..
-
-      if [ -n "$apps_permissioncontroller_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-        cd packages/apps/PermissionController
-        echo ">> [$(date)] Applying the apps/PermissionController patch ($apps_permissioncontroller_patch) to packages/apps/PermissionController"
-        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$apps_permissioncontroller_patch"
+      if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
+        # Determine which patch should be applied to the current Android source tree
+        cd frameworks/base
+        if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+          echo ">> [$(date)] Applying the standard signature spoofing patch ($frameworks_base_patch) to frameworks/base"
+          echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
+          patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$frameworks_base_patch"
+        else
+          echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $frameworks_base_patch) to frameworks/base"
+          sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$frameworks_base_patch" | patch --quiet --force -p1
+        fi
         git clean -q -f
-        cd ../../..
-      fi
+        cd ../..
 
-      if [ -n "$modules_permission_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-        cd packages/modules/Permission
-        echo ">> [$(date)] Applying the modules/Permission patch ($modules_permission_patch) to packages/modules/Permission"
-        patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$modules_permission_patch"
-        git clean -q -f
-        cd ../../..
-      fi
+        if [ -n "$apps_permissioncontroller_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+          cd packages/apps/PermissionController
+          echo ">> [$(date)] Applying the apps/PermissionController patch ($apps_permissioncontroller_patch) to packages/apps/PermissionController"
+          patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$apps_permissioncontroller_patch"
+          git clean -q -f
+          cd ../../..
+        fi
 
-      # Override device-specific settings for the location providers
-      mkdir -p "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/"
-      cp /root/signature_spoofing_patches/frameworks_base_config.xml "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/config.xml"
+        if [ -n "$modules_permission_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+          cd packages/modules/Permission
+          echo ">> [$(date)] Applying the modules/Permission patch ($modules_permission_patch) to packages/modules/Permission"
+          patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$modules_permission_patch"
+          git clean -q -f
+          cd ../../..
+        fi
+
+        # Override device-specific settings for the location providers
+        mkdir -p "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/"
+        cp /root/signature_spoofing_patches/frameworks_base_config.xml "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/config.xml"
+      fi
+    else
+      echo ">> [$(date)] Applying patches disabled"
     fi
 
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
@@ -304,12 +335,16 @@ for branch in ${BRANCH_NAME//,/ }; do
       fi
     fi
 
-    # Prepare the environment
-    echo ">> [$(date)] Preparing build environment"
-    set +eu
-    # shellcheck source=/dev/null
-    source build/envsetup.sh > /dev/null
-    set -eu
+    if [ "$PREPARE_BUILD_ENVIRONMENT" = true ]; then
+      # Prepare the environment
+      echo ">> [$(date)] Preparing build environment"
+      set +eu
+      # shellcheck source=/dev/null
+      source build/envsetup.sh > /dev/null
+      set -eu
+    else
+      echo ">> [$(date)] Preparing build environment disabled"
+    fi
 
     if [ -f /root/userscripts/before.sh ]; then
       echo ">> [$(date)] Running before.sh"
@@ -347,10 +382,16 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
-        set +eu
-        breakfast "$codename" "$BUILD_TYPE" &>> "$DEBUG_LOG"
-        breakfast_returncode=$?
-        set -eu
+        breakfast_returncode=0
+        if [ "$CALL_BREAKFAST" = true ]; then
+          set +eu
+          breakfast "$codename" "$BUILD_TYPE" &>> "$DEBUG_LOG"
+          breakfast_returncode=$?
+          set -eu
+        else
+          echo ">> [$(date)] Calling breakfast disabled"
+        fi
+
         if [ $breakfast_returncode -ne 0 ]; then
             echo ">> [$(date)] breakfast failed for $codename, $branch branch" | tee -a "$DEBUG_LOG"
             # call post-build.sh so the failure is logged in a way that is more visible
@@ -366,39 +407,83 @@ for branch in ${BRANCH_NAME//,/ }; do
           /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: pre-build.sh failed!"
         fi
 
-        # Start the build
-        echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
-        build_successful=false
-        if (set +eu ; mka "${jobs_arg[@]}" bacon) &>> "$DEBUG_LOG"; then
+        build_successful=true
+        if [ "$CALL_MKA" = true ]; then
+          # Start the build
+          echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+          build_successful=false
+          files_to_hash=()
 
-          # Move produced ZIP files to the main OUT directory
+          if (set +eu ; mka "${jobs_arg[@]}" bacon) &>> "$DEBUG_LOG"; then
+            if [ "$MAKE_IMG_ZIP_FILE" = true ]; then
+              # make the `-img.zip` file
+              echo ">> [$(date)] Making -img.zip file" | tee -a "$DEBUG_LOG"
+              infile="out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root.zip"
+              img_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-img.zip"
+              img_from_target_files "$infile" "$img_zip_file"  &>> "$DEBUG_LOG"
+
+              # move it to the zips directory
+              mv "$img_zip_file" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
+              files_to_hash+=( "$img_zip_file" )
+            else
+              echo ">> [$(date)] Making -img.zip file disabled"
+            fi
+
+          # Move the ROM zip files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
           cd out/target/product/"$codename"
-          files_to_hash=()
+
           for build in lineage-*.zip; do
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
             files_to_hash+=( "$build" )
           done
-          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
 
-          for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
-            if [ -f "$image.img" ]; then
-              recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
-              echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
-              cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
-              files_to_hash+=( "$recovery_name" )
-            fi
-          done
+          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+          if [ "$ZIP_UP_IMAGES" = true ]; then
+            # zipping the .img files
+            echo ">> [$(date)] Zipping the .img files" | tee -a "$DEBUG_LOG"
+
+            files_to_zip=()
+            images_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-images.zip"
+            cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+
+            for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
+              if [ -f "$image.img" ]; then
+                echo ">> [$(date)] Adding $image.img" to "$images_zip_file" | tee -a "$DEBUG_LOG"
+                files_to_zip+=( "$image.img" )
+              fi
+            done
+
+            zip "$images_zip_file" "${files_to_zip[@]}"
+            mv "$images_zip_file" "$ZIP_DIR/$zipsubdir/"
+            files_to_hash+=( "$images_zip_file" )
+          else
+            # just copy the mages to the zips directory
+            echo ">> [$(date)] Zipping the `-img` files disabled"
+            for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
+              if [ -f "$image.img" ]; then
+                recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
+                echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
+                cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
+                files_to_hash+=( "$recovery_name" )
+              fi
+            done
+          fi
+
           cd "$ZIP_DIR/$zipsubdir"
           for f in "${files_to_hash[@]}"; do
             sha256sum "$f" > "$ZIP_DIR/$zipsubdir/$f.sha256sum"
           done
           cd "$source_dir"
           build_successful=true
+          else
+            echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
+          fi
         else
-          echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
+          echo ">> [$(date)] Calling mka for $codename, $branch branch disabled"
         fi
+      fi
 
         # Remove old zips and logs
         if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
@@ -446,10 +531,7 @@ for branch in ${BRANCH_NAME//,/ }; do
             (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
           fi
         fi
-
-      fi
     done
-
   fi
 done
 
