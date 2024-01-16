@@ -66,6 +66,17 @@ if [ -n "${PARALLEL_JOBS-}" ]; then
   fi
 fi
 
+retry_fetches_arg=()
+if [ -n "${RETRY_FETCHES-}" ]; then
+  if [[ "$RETRY_FETCHES" =~ ^[1-9][0-9]*$ ]]; then
+    retry_fetches_arg+=( "--retry-fetches=$RETRY_FETCHES" )
+  else
+    echo "RETRY_FETCHES is not a positive number: $RETRY_FETCHES"
+    exit 1
+  fi
+fi
+
+
 if [ "$LOCAL_MIRROR" = true ]; then
 
   cd "$MIRROR_DIR"
@@ -90,9 +101,10 @@ if [ "$LOCAL_MIRROR" = true ]; then
       "https://gitlab.com/the-muppets/manifest/raw/mirror/default.xml" .repo/local_manifests/proprietary_gitlab.xml
   fi
 
+
   if [ "$SYNC_MIRROR" = true ]; then
-    echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-    repo sync "${jobs_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+  echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
+  repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
   else
     echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
   fi
@@ -203,7 +215,7 @@ for branch in ${BRANCH_NAME//,/ }; do
     builddate=$(date +%Y%m%d)
     if [ "$CALL_REPO_SYNC" = true ]; then
       echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-      repo sync "${jobs_arg[@]}" -c --force-sync &>> "$repo_log"
+    repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" -c --force-sync &>> "$repo_log"
     else
       echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
     fi

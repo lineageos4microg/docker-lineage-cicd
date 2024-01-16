@@ -1,4 +1,4 @@
-FROM ubuntu:22.04@sha256:67211c14fa74f070d27cc59d69a7fa9aeff8e28ea118ef3babc295a0428a6d21
+FROM ubuntu:22.04@sha256:6042500cf4b44023ea1894effe7890666b0c5c7871ed83a97c36c76ae560bb9b
 LABEL maintainer="Nicola Corna <nicola@corna.info>"
 
 # Environment variables
@@ -115,6 +115,12 @@ ENV BUILD_TYPE "userdebug"
 
 # we can use --depth=1 here
 ENV REPO_INIT_ARGS ""
+
+
+# You can specify the number of retries for repo sync here. This is useful if you get connection errors during repo sync. The value will be directly forwarded to the repo command
+# Default: unset; repo uses default retry mechanism
+# Allowed values: positive, non-null integers
+ENV RETRY_FETCHES=
 
 # variables to control whether or not tasks are implemented
 ENV INIT_MIRROR true
