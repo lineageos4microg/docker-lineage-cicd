@@ -72,7 +72,7 @@ to the LineageOS official builds, just signed with the test keys.
 When multiple branches are selected, use `DEVICE_LIST_<BRANCH_NAME>` to specify
 the list of devices for each specific branch (see [the examples](#examples)).
 
-### GMS / microG
+#### GMS / microG
 
 To include microG (or possibly the actual Google Mobile Services) in your build,
 LineageOS expects certain Makefiles in `vendor/partner_gms` and variable
@@ -90,7 +90,7 @@ official lineageos4microg builds. To include it in your build, create an XML
 </manifest>
 ```
 
-### Additional custom apps
+#### Additional custom apps
 
 If you wish to add other apps to your ROM, you can include a repository with
 source code or prebuilt APKs. For prebuilt apks, see the [android_vendor_partner_gms][android_vendor_partner_gms]
@@ -108,7 +108,7 @@ Include the repo with another manifest file like this:
 And when starting the build, set the `CUSTOM_PACKAGES` variable to a list of app names
 (defined by `LOCAL_MODULE` in `Android.mk`) separated by spaces.
 
-### Signature spoofing
+#### Signature spoofing
 
 There are two options for the [signature spoofing patch][signature-spoofing]
 required for [microG][microg]:
@@ -134,7 +134,7 @@ FAKE_SIGNATURE permission must be included in the build as system apps
 (e.g. as part of GMS or `CUSTOM_PACKAGES`)
 
 
-### Proprietary files
+#### Proprietary files
 
 Some proprietary files are needed to create a LineageOS build, but they're not
 included in the LineageOS repo for legal reasons. You can obtain these blobs in
@@ -149,7 +149,7 @@ The third way is the easiest one and is enabled by default; if you're OK with
 that just move on, otherwise set `INCLUDE_PROPRIETARY (true)` to `false` and
 manually provide the blobs (not explained in this guide).
 
-### Over the Air updates
+#### Over the Air updates
 
 To enable OTA for you builds, you need to run a server that speaks the protocol
 understood by the [LineageOS updater app][updater] and provide the URL to this
@@ -169,7 +169,7 @@ image. Follow these steps to prepare your builds for OTA:
 If you don't setup a OTA server you won't be able to update the device from the
 updater app (but you can still update it manually with the recovery of course).
 
-### Signing
+#### Signing
 
 By default, builds are signed with the Android test keys. If you want to sign
 your builds with your own keys (**highly recommended**):
@@ -177,7 +177,7 @@ your builds with your own keys (**highly recommended**):
  * `SIGN_BUILDS (false)`: set to `true` to sign the builds with the keys
     contained in `/srv/keys`; if no keys are present, a new set will be generated
 
-### Settings to control 'switchable' build steps
+#### Settings to control 'switchable' build steps
 
 Some of the the steps in the build process (e.g `repo sync`, `mka`) can take a long time to complete. When working on a build, it may be desirable to skip some of the steps. The following environment variables (and their default values) control whether or not each step is performed
 ```
@@ -205,7 +205,7 @@ The `ZIP_UP_IMAGES` and `MAKE_IMG_ZIP_FILE` variables control how the `.img` fil
 - if `MAKE_IMG_ZIP_FILE` is set `true`, a flashsable `...-img.zip` file is created, which can be installed using `fastboot flash` or `fastboot update`
 
 
-### Other settings
+#### Other settings
 
 Other useful settings are:
 
