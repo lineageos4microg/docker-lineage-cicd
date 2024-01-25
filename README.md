@@ -177,6 +177,34 @@ your builds with your own keys (**highly recommended**):
  * `SIGN_BUILDS (false)`: set to `true` to sign the builds with the keys
     contained in `/srv/keys`; if no keys are present, a new set will be generated
 
+### Settings to control 'switchable' build steps
+
+Some of the the steps in the build process (e.g `repo sync`, `mka`) can take a long time to complete. When working on a build, it may be desirable to skip some of the steps. The following environment variables (and their default values) control whether or not each step is performed
+```
+# variables to control whether or not tasks are implemented
+ENV INIT_MIRROR true
+ENV SYNC_MIRROR true
+ENV RESET_VENDOR_UNDO_PATCHES true
+ENV CALL_REPO_INIT true
+ENV CALL_REPO_SYNC true
+ENV CALL_GIT_LFS_PULL false
+ENV APPLY_PATCHES true
+ENV PREPARE_BUILD_ENVIRONMENT true
+ENV CALL_BREAKFAST true
+ENV CALL_MKA true
+ENV ZIP_UP_IMAGES false
+ENV MAKE_IMG_ZIP_FILE false
+```
+
+To `switch` an operation, change the default value of the the variable in a `-e clause` in the `docker run` command e.g.
+` -e "CALL_REPO-SYNC=false" \`
+
+The `ZIP_UP_IMAGES` and `MAKE_IMG_ZIP_FILE` variables control how the `.img` files created by the buid are handled:
+- by default, the `img` files are copied - unzipped - to the `zips` directory
+- if `ZIP_UP_IMAGES` is set `true`, the images are zipped and the resulting `...images.zip` is copied to the `zips` directory
+- if `MAKE_IMG_ZIP_FILE` is set `true`, a flashsable `...-img.zip` file is created, which can be installed using `fastboot flash` or `fastboot update`
+
+
 ### Other settings
 
 Other useful settings are:
