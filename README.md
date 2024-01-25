@@ -211,9 +211,6 @@ Other useful settings are:
 
  * `CCACHE_SIZE (50G)`: change this if you want to give more (or less) space to
     ccache
- * `WITH_SU (false)`: set to `true` to embed `su` in the build (note that, even
-    when set to `false`, you can still enable root by flashing the
-    [su installable ZIP][los-extras]). This is only for lineage version 16 and below.
  * `RELEASE_TYPE (UNOFFICIAL)`: change the release type of your builds
  * `BUILD_TYPE (userdebug)`: type of your builds, see [Android docs](https://source.android.com/docs/setup/build/building#choose-a-target)
  * `BUILD_OVERLAY (false)`: normally each build is done on the source tree, then
