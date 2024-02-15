@@ -153,7 +153,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         modules_permission_patch="packages_modules_Permission-Android13.patch"
         ;;
       lineage-21.0*)
-        themuppets_branch="lineage-20.0"
+        themuppets_branch="lineage-21.0"
         android_version="14"
         frameworks_base_patch="android_frameworks_base-Android14.patch"
         modules_permission_patch="packages_modules_Permission-Android14.patch"

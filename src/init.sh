@@ -61,7 +61,7 @@ if [ "$SIGN_BUILDS" = true ]; then
   fi
   
   # Android 14 requires to set a BUILD file for bazel to avoid errors:
-  cat > $"KEYS_DIR"/BUILD << _EOB
+  cat > "$KEYS_DIR"/BUILD << _EOB
 # adding an empty BUILD file fixes the A14 build error:
 # "ERROR: no such package 'keys': BUILD file not found in any of the following directories. Add a BUILD file to a directory to mark it as a package."
 # adding the filegroup "android_certificate_directory" fixes the A14 build error:
