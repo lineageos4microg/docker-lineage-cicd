@@ -121,6 +121,21 @@ ENV REPO_INIT_ARGS ""
 # Allowed values: positive, non-null integers
 ENV RETRY_FETCHES=
 
+
+# variables to control whether or not tasks are implemented
+ENV INIT_MIRROR true
+ENV SYNC_MIRROR true
+ENV RESET_VENDOR_UNDO_PATCHES true
+ENV CALL_REPO_INIT true
+ENV CALL_REPO_SYNC true
+ENV CALL_GIT_LFS_PULL false
+ENV APPLY_PATCHES true
+ENV PREPARE_BUILD_ENVIRONMENT true
+ENV CALL_BREAKFAST true
+ENV CALL_MKA true
+ENV ZIP_UP_IMAGES false
+ENV MAKE_IMG_ZIP_FILE false
+
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
 #  * before.sh, run after the syncing and patching, before starting the builds

@@ -72,7 +72,7 @@ to the LineageOS official builds, just signed with the test keys.
 When multiple branches are selected, use `DEVICE_LIST_<BRANCH_NAME>` to specify
 the list of devices for each specific branch (see [the examples](#examples)).
 
-### GMS / microG
+#### GMS / microG
 
 To include microG (or possibly the actual Google Mobile Services) in your build,
 LineageOS expects certain Makefiles in `vendor/partner_gms` and variable
@@ -90,7 +90,7 @@ official lineageos4microg builds. To include it in your build, create an XML
 </manifest>
 ```
 
-### Additional custom apps
+#### Additional custom apps
 
 If you wish to add other apps to your ROM, you can include a repository with
 source code or prebuilt APKs. For prebuilt apks, see the [android_vendor_partner_gms][android_vendor_partner_gms]
@@ -108,7 +108,7 @@ Include the repo with another manifest file like this:
 And when starting the build, set the `CUSTOM_PACKAGES` variable to a list of app names
 (defined by `LOCAL_MODULE` in `Android.mk`) separated by spaces.
 
-### Signature spoofing
+#### Signature spoofing
 
 There are two options for the [signature spoofing patch][signature-spoofing]
 required for [microG][microg]:
@@ -134,7 +134,7 @@ FAKE_SIGNATURE permission must be included in the build as system apps
 (e.g. as part of GMS or `CUSTOM_PACKAGES`)
 
 
-### Proprietary files
+#### Proprietary files
 
 Some proprietary files are needed to create a LineageOS build, but they're not
 included in the LineageOS repo for legal reasons. You can obtain these blobs in
@@ -149,7 +149,7 @@ The third way is the easiest one and is enabled by default; if you're OK with
 that just move on, otherwise set `INCLUDE_PROPRIETARY (true)` to `false` and
 manually provide the blobs (not explained in this guide).
 
-### Over the Air updates
+#### Over the Air updates
 
 To enable OTA for you builds, you need to run a server that speaks the protocol
 understood by the [LineageOS updater app][updater] and provide the URL to this
@@ -169,7 +169,7 @@ image. Follow these steps to prepare your builds for OTA:
 If you don't setup a OTA server you won't be able to update the device from the
 updater app (but you can still update it manually with the recovery of course).
 
-### Signing
+#### Signing
 
 By default, builds are signed with the Android test keys. If you want to sign
 your builds with your own keys (**highly recommended**):
@@ -177,15 +177,40 @@ your builds with your own keys (**highly recommended**):
  * `SIGN_BUILDS (false)`: set to `true` to sign the builds with the keys
     contained in `/srv/keys`; if no keys are present, a new set will be generated
 
-### Other settings
+#### Settings to control 'switchable' build steps
+
+Some of the the steps in the build process (e.g `repo sync`, `mka`) can take a long time to complete. When working on a build, it may be desirable to skip some of the steps. The following environment variables (and their default values) control whether or not each step is performed
+```
+# variables to control whether or not tasks are implemented
+ENV INIT_MIRROR true
+ENV SYNC_MIRROR true
+ENV RESET_VENDOR_UNDO_PATCHES true
+ENV CALL_REPO_INIT true
+ENV CALL_REPO_SYNC true
+ENV CALL_GIT_LFS_PULL false
+ENV APPLY_PATCHES true
+ENV PREPARE_BUILD_ENVIRONMENT true
+ENV CALL_BREAKFAST true
+ENV CALL_MKA true
+ENV ZIP_UP_IMAGES false
+ENV MAKE_IMG_ZIP_FILE false
+```
+
+To `switch` an operation, change the default value of the the variable in a `-e clause` in the `docker run` command e.g.
+` -e "CALL_REPO-SYNC=false" \`
+
+The `ZIP_UP_IMAGES` and `MAKE_IMG_ZIP_FILE` variables control how the `.img` files created by the buid are handled:
+- by default, the `img` files are copied - unzipped - to the `zips` directory
+- if `ZIP_UP_IMAGES` is set `true`, the images are zipped and the resulting `...images.zip` is copied to the `zips` directory
+- if `MAKE_IMG_ZIP_FILE` is set `true`, a flashsable `...-img.zip` file is created, which can be installed using `fastboot flash` or `fastboot update`
+
+
+#### Other settings
 
 Other useful settings are:
 
  * `CCACHE_SIZE (50G)`: change this if you want to give more (or less) space to
     ccache
- * `WITH_SU (false)`: set to `true` to embed `su` in the build (note that, even
-    when set to `false`, you can still enable root by flashing the
-    [su installable ZIP][los-extras]). This is only for lineage version 16 and below.
  * `RELEASE_TYPE (UNOFFICIAL)`: change the release type of your builds
  * `BUILD_TYPE (userdebug)`: type of your builds, see [Android docs](https://source.android.com/docs/setup/build/building#choose-a-target)
  * `BUILD_OVERLAY (false)`: normally each build is done on the source tree, then
