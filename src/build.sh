@@ -377,11 +377,16 @@ for branch in ${BRANCH_NAME//,/ }; do
         # Start the build
         echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
         build_successful=false
-        if (set +eu ; mka "${jobs_arg[@]}" bacon) &>> "$DEBUG_LOG"; then
+        if (set +eu ; mka "${jobs_arg[@]}" otapackage ) &>> "$DEBUG_LOG"; then
 
           # Move produced ZIP files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
           cd out/target/product/"$codename"
+          
+          # the zip produced by 'mka otapackage' is "lineage_$device-ota-eng.root.zip
+          # we need it to be "lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.zip"
+          mv "lineage_$codename-ota-eng.root.zip" "lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.zip"
+          
           files_to_hash=()
           for build in lineage-*.zip; do
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
