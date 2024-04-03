@@ -17,6 +17,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+do_cleanup() {
+  echo ">> [$(date)] Cleaning up" | tee -a "$DEBUG_LOG"
+
+  if [ "$BUILD_OVERLAY" = true ]; then
+    # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
+    cd "$TMP_DIR"
+    if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
+      "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" &> /dev/null || true
+    fi
+    lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null || true
+
+    while lsof | grep -q "$TMP_DIR"/merged; do
+      sleep 1
+    done
+
+    umount "$TMP_DIR/merged"
+  fi
+
+  if [ "$CLEAN_AFTER_BUILD" = true ]; then
+    echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
+    if [ "$BUILD_OVERLAY" = true ]; then
+      cd "$TMP_DIR"
+      rm -rf ./* || true
+    else
+      cd "$source_dir"
+      (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
+    fi
+  fi
+}
+
 set -eEuo pipefail
 
 repo_log="$LOGS_DIR/repo-$(date +%Y%m%d).log"
@@ -405,6 +435,7 @@ for branch in ${BRANCH_NAME//,/ }; do
               echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
               /root/userscripts/post-build.sh "$codename" false "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
             fi
+            do_cleanup
             continue
         fi
 
@@ -520,31 +551,7 @@ for branch in ${BRANCH_NAME//,/ }; do
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
-        if [ "$BUILD_OVERLAY" = true ]; then
-          # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
-          cd "$TMP_DIR"
-          if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
-            "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" &> /dev/null || true
-          fi
-          lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null || true
-
-          while lsof | grep -q "$TMP_DIR"/merged; do
-            sleep 1
-          done
-
-          umount "$TMP_DIR/merged"
-        fi
-
-        if [ "$CLEAN_AFTER_BUILD" = true ]; then
-          echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
-          if [ "$BUILD_OVERLAY" = true ]; then
-            cd "$TMP_DIR"
-            rm -rf ./* || true
-          else
-            cd "$source_dir"
-            (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
-          fi
-        fi
+        do_cleanup
     done
   fi
 done
