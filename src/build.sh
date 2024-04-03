@@ -473,9 +473,9 @@ for branch in ${BRANCH_NAME//,/ }; do
           # rename the zip produced by 'mka otapackage' from "lineage_$device-ota.zip"
           # for 21.0 and "lineage_$device-ota-eng.root.zip" for 20.0 to
           # "lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.zip"
-          for otapackage in lineage_*.zip; do
-            mv "$otapackage" "lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename".zip  &>> "$DEBUG_LOG"
-          done
+          # for otapackage in lineage_*.zip; do
+          #   mv "$otapackage" "lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename".zip  &>> "$DEBUG_LOG"
+          # done
 
           files_to_hash=()
           for build in lineage-*.zip; do
@@ -484,14 +484,14 @@ for branch in ${BRANCH_NAME//,/ }; do
             files_to_hash+=( "$build" )
           done
 
-#          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
           if [ "$ZIP_UP_IMAGES" = true ]; then
             # zipping the .img files
             echo ">> [$(date)] Zipping the .img files" | tee -a "$DEBUG_LOG"
 
             files_to_zip=()
             images_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-images.zip"
-#            cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+            # cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
 
             for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
               if [ -f "$image.img" ]; then
