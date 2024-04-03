@@ -451,7 +451,8 @@ for branch in ${BRANCH_NAME//,/ }; do
           build_successful=false
           files_to_hash=()
 
-          if (set +eu ; mka "${jobs_arg[@]}" otapackage) &>> "$DEBUG_LOG"; then
+#          if (set +eu ; mka "${jobs_arg[@]}" otapackage) &>> "$DEBUG_LOG"; then
+          if (set +eu ; brunch "$codename") &>> "$DEBUG_LOG"; then
             if [ "$MAKE_IMG_ZIP_FILE" = true ]; then
               # make the `-img.zip` file
               echo ">> [$(date)] Making -img.zip file" | tee -a "$DEBUG_LOG"
