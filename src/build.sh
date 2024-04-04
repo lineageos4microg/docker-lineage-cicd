@@ -451,7 +451,8 @@ for branch in ${BRANCH_NAME//,/ }; do
           build_successful=false
           files_to_hash=()
 
-          if (set +eu ; mka "${jobs_arg[@]}" otapackage) &>> "$DEBUG_LOG"; then
+          if (set +eu ; mka "${jobs_arg[@]}" otapackage bacon) &>> "$DEBUG_LOG"; then
+
             if [ "$MAKE_IMG_ZIP_FILE" = true ]; then
               # make the `-img.zip` file
               echo ">> [$(date)] Making -img.zip file" | tee -a "$DEBUG_LOG"
@@ -466,17 +467,10 @@ for branch in ${BRANCH_NAME//,/ }; do
               echo ">> [$(date)] Making -img.zip file disabled"
             fi
 
-          # Move the ROM zip files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
           cd out/target/product/"$codename"
 
-          # rename the zip produced by 'mka otapackage' from "lineage_$device-ota.zip"
-          # for 21.0 and "lineage_$device-ota-eng.root.zip" for 20.0 to
-          # "lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.zip"
-          for otapackage in lineage_*.zip; do
-            mv "$otapackage" "lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename".zip  &>> "$DEBUG_LOG"
-          done
-
+          # Move the ROM zip files to the main OUT directory
           files_to_hash=()
           for build in lineage-*.zip; do
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
@@ -484,14 +478,17 @@ for branch in ${BRANCH_NAME//,/ }; do
             files_to_hash+=( "$build" )
           done
 
-#          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+          # Now handle the .img files - where are they?
+          img_dir=$(find "$source_dir/out/target/product/$codename/obj/PACKAGING" -name "IMAGES")
+          if [ -d "$img_dir" ]; then
+            cd "$img_dir"
+          fi
+
           if [ "$ZIP_UP_IMAGES" = true ]; then
-            # zipping the .img files
             echo ">> [$(date)] Zipping the .img files" | tee -a "$DEBUG_LOG"
 
             files_to_zip=()
             images_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-images.zip"
-#            cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
 
             for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
               if [ -f "$image.img" ]; then
@@ -504,8 +501,9 @@ for branch in ${BRANCH_NAME//,/ }; do
             mv "$images_zip_file" "$ZIP_DIR/$zipsubdir/"
             files_to_hash+=( "$images_zip_file" )
           else
-            # just copy the mages to the zips directory
             echo ">> [$(date)] Zipping the '-img' files disabled"
+
+            # rename and copy the images to the zips directory
             for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
               if [ -f "$image.img" ]; then
                 recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
@@ -516,6 +514,7 @@ for branch in ${BRANCH_NAME//,/ }; do
             done
           fi
 
+          # create the checksum files
           cd "$ZIP_DIR/$zipsubdir"
           for f in "${files_to_hash[@]}"; do
             sha256sum "$f" > "$ZIP_DIR/$zipsubdir/$f.sha256sum"
@@ -545,6 +544,8 @@ for branch in ${BRANCH_NAME//,/ }; do
             /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 -c "$codename" "$LOGS_DIR"
           fi
         fi
+
+        # call post-build.sh
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
           /root/userscripts/post-build.sh "$codename" "$build_successful" "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
