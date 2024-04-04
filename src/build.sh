@@ -483,8 +483,10 @@ for branch in ${BRANCH_NAME//,/ }; do
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
             files_to_hash+=( "$build" )
           done
-
-          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+          img_dir=$(find "$source_dir/out/target/product/$codename/obj/PACKAGING" -name "IMAGES")
+          if [ -d "$img_dir" ]; then
+            cd "$img_dir"
+          fi
           if [ "$ZIP_UP_IMAGES" = true ]; then
             # zipping the .img files
             echo ">> [$(date)] Zipping the .img files" | tee -a "$DEBUG_LOG"
