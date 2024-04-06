@@ -17,6 +17,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+do_cleanup() {
+  echo ">> [$(date)] Cleaning up" | tee -a "$DEBUG_LOG"
+
+  if [ "$BUILD_OVERLAY" = true ]; then
+    # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
+    cd "$TMP_DIR"
+    if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
+      "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" &> /dev/null || true
+    fi
+    lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null || true
+
+    while lsof | grep -q "$TMP_DIR"/merged; do
+      sleep 1
+    done
+
+    umount "$TMP_DIR/merged"
+  fi
+
+  if [ "$CLEAN_AFTER_BUILD" = true ]; then
+    echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
+    if [ "$BUILD_OVERLAY" = true ]; then
+      cd "$TMP_DIR"
+      rm -rf ./* || true
+    else
+      cd "$source_dir"
+      (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
+    fi
+  fi
+}
+
 set -eEuo pipefail
 
 repo_log="$LOGS_DIR/repo-$(date +%Y%m%d).log"
@@ -357,9 +387,9 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     for codename in ${devices//,/ }; do
       if [ -n "$codename" ]; then
-      
+
       builddate=$(date +%Y%m%d)
-    
+
         if [ "$BUILD_OVERLAY" = true ]; then
           lowerdir=$SRC_DIR/$branch_dir
           upperdir=$TMP_DIR/device
@@ -405,6 +435,7 @@ for branch in ${BRANCH_NAME//,/ }; do
               echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
               /root/userscripts/post-build.sh "$codename" false "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
             fi
+            do_cleanup
             continue
         fi
 
@@ -420,7 +451,8 @@ for branch in ${BRANCH_NAME//,/ }; do
           build_successful=false
           files_to_hash=()
 
-          if (set +eu ; mka "${jobs_arg[@]}" bacon) &>> "$DEBUG_LOG"; then
+          if (set +eu ; mka "${jobs_arg[@]}" otapackage bacon) &>> "$DEBUG_LOG"; then
+
             if [ "$MAKE_IMG_ZIP_FILE" = true ]; then
               # make the `-img.zip` file
               echo ">> [$(date)] Making -img.zip file" | tee -a "$DEBUG_LOG"
@@ -435,24 +467,28 @@ for branch in ${BRANCH_NAME//,/ }; do
               echo ">> [$(date)] Making -img.zip file disabled"
             fi
 
-          # Move the ROM zip files to the main OUT directory
           echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
           cd out/target/product/"$codename"
 
+          # Move the ROM zip files to the main OUT directory
+          files_to_hash=()
           for build in lineage-*.zip; do
             cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
             mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
             files_to_hash+=( "$build" )
           done
 
-          cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
+          # Now handle the .img files - where are they?
+          img_dir=$(find "$source_dir/out/target/product/$codename/obj/PACKAGING" -name "IMAGES")
+          if [ -d "$img_dir" ]; then
+            cd "$img_dir"
+          fi
+
           if [ "$ZIP_UP_IMAGES" = true ]; then
-            # zipping the .img files
             echo ">> [$(date)] Zipping the .img files" | tee -a "$DEBUG_LOG"
 
             files_to_zip=()
             images_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-images.zip"
-            cd "$source_dir/out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root/IMAGES/"
 
             for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
               if [ -f "$image.img" ]; then
@@ -465,8 +501,9 @@ for branch in ${BRANCH_NAME//,/ }; do
             mv "$images_zip_file" "$ZIP_DIR/$zipsubdir/"
             files_to_hash+=( "$images_zip_file" )
           else
-            # just copy the mages to the zips directory
             echo ">> [$(date)] Zipping the '-img' files disabled"
+
+            # rename and copy the images to the zips directory
             for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
               if [ -f "$image.img" ]; then
                 recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
@@ -477,6 +514,7 @@ for branch in ${BRANCH_NAME//,/ }; do
             done
           fi
 
+          # create the checksum files
           cd "$ZIP_DIR/$zipsubdir"
           for f in "${files_to_hash[@]}"; do
             sha256sum "$f" > "$ZIP_DIR/$zipsubdir/$f.sha256sum"
@@ -506,37 +544,15 @@ for branch in ${BRANCH_NAME//,/ }; do
             /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 -c "$codename" "$LOGS_DIR"
           fi
         fi
+
+        # call post-build.sh
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
           /root/userscripts/post-build.sh "$codename" "$build_successful" "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
-        if [ "$BUILD_OVERLAY" = true ]; then
-          # The Jack server must be stopped manually, as we want to unmount $TMP_DIR/merged
-          cd "$TMP_DIR"
-          if [ -f "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin" ]; then
-            "$TMP_DIR/merged/prebuilts/sdk/tools/jack-admin kill-server" &> /dev/null || true
-          fi
-          lsof | grep "$TMP_DIR/merged" | awk '{ print $2 }' | sort -u | xargs -r kill &> /dev/null || true
-
-          while lsof | grep -q "$TMP_DIR"/merged; do
-            sleep 1
-          done
-
-          umount "$TMP_DIR/merged"
-        fi
-
-        if [ "$CLEAN_AFTER_BUILD" = true ]; then
-          echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
-          if [ "$BUILD_OVERLAY" = true ]; then
-            cd "$TMP_DIR"
-            rm -rf ./* || true
-          else
-            cd "$source_dir"
-            (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
-          fi
-        fi
+        do_cleanup
     done
   fi
 done
