@@ -94,14 +94,6 @@ ENV ZIP_SUBDIR true
 ENV LOGS_SUBDIR true
 
 # Apply the MicroG's signature spoofing patch
-# Since LineageOS 21, signature spoofing for microG is built into LineageOS
-# itself and no patches are required if you're building an userdebug or eng
-# variant. In this case, this value can be left set to "no".
-# You may set the value to "restricted" if you wish to build an user variant
-# with signature spoofing enabled; otherwise, it will be disabled in user
-# builds.
-#
-# For LineageOS 20 and older:
 # Valid values are "no", "yes" (for the original MicroG's patch) and
 # "restricted" (to grant the permission only to the system privileged apps).
 #
