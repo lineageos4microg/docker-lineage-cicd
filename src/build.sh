@@ -175,23 +175,26 @@ for branch in ${BRANCH_NAME//,/ }; do
         android_version="11"
         frameworks_base_patch="android_frameworks_base-R.patch"
         apps_permissioncontroller_patch="packages_apps_PermissionController-R.patch"
+        user_build_spoofing_patch="android_frameworks_base-user_build.patch"
         ;;
       lineage-19.1*)
         themuppets_branch="lineage-19.1"
         android_version="12"
         frameworks_base_patch="android_frameworks_base-S.patch"
         modules_permission_patch="packages_modules_Permission-S.patch"
+        user_build_spoofing_patch="android_frameworks_base-user_build.patch"
         ;;
       lineage-20.0*)
         themuppets_branch="lineage-20.0"
         android_version="13"
         frameworks_base_patch="android_frameworks_base-Android13.patch"
         modules_permission_patch="packages_modules_Permission-Android13.patch"
+        user_build_spoofing_patch="android_frameworks_base-user_build.patch"
         ;;
       lineage-21.0*)
         themuppets_branch="lineage-21.0"
         android_version="14"
-        frameworks_base_patch="android_frameworks_base-Android14.patch"
+        user_build_spoofing_patch="android_frameworks_base-user_build.patch"
         ;;
       *)
         echo ">> [$(date)] Building branch $branch is not (yet) suppported"
@@ -278,7 +281,19 @@ for branch in ${BRANCH_NAME//,/ }; do
     los_ver="$los_ver_major.$los_ver_minor"
 
     if [ "$APPLY_PATCHES" = true ]; then
-    # If needed, apply the microG's signature spoofing patch
+      # If user build variant should also enable LOS signature spoofing
+      if [ "$USER_BUILD_SPOOFING" = "yes" ]; then
+        if [ -n "$user_build_spoofing_patch" ]; then
+          cd frameworks/base
+          echo ">> [$(date)] Applying the user build variant signature spoofing patch ($user_build_spoofing_patch) to frameworks/base"
+          patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$user_build_spoofing_patch"
+          git clean -q -f
+          cd ../..
+        else
+          echo ">> [$(date)] WARNING: User build signature spoofing requested, but branch ($branch) does not support built-in signature spoofing"
+        fi
+      fi
+      # If needed, apply the microG's signature spoofing patch
       if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
         # Determine which patch should be applied to the current Android source tree
         cd frameworks/base

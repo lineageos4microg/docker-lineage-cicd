@@ -102,7 +102,15 @@ ENV LOGS_SUBDIR true
 # restricted patch and embedding the apps that requires it as system privileged
 # apps is a much secure option. See the README.md ("Custom mode") for an
 # example.
+#
+# LineageOS versions 18.1, 19.1, 20.0 and 21.0 and up include built-in
+# signature spoofing for microG, and custom patches are not required. They may
+# still, however, optionally be enabled
 ENV SIGNATURE_SPOOFING "no"
+
+# Enable the built-in signature spoofing for the user build type, not just
+# userdebug and eng
+ENV USER_BUILD_SPOOFING "no"
 
 # Delete old zips in $ZIP_DIR, keep only the N latest one (0 to disable)
 ENV DELETE_OLD_ZIPS 0
