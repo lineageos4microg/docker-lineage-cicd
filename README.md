@@ -110,8 +110,14 @@ And when starting the build, set the `CUSTOM_PACKAGES` variable to a list of app
 
 #### Signature spoofing
 
-There are two options for the [signature spoofing patch][signature-spoofing]
-required for [microG][microg]:
+For LineageOS versions 18.1, 19.1, 20.0 and 21.0, built-in support for
+signature spoofing has been added. This specifically only allows microG to
+spoof its signature; no other apps are allowed to do so. If this is fine, the
+`SIGNATURE_SPOOFING` environment variable may be left unset (defaulting to
+`no`).
+
+If not, two custom [signature spoofing patches][signature-spoofing] are
+provided:
  * "Original" [patches][signature-spoofing-patches]
  * Restricted patches
 
@@ -124,15 +130,19 @@ A more strict option is the restricted patch, where the FAKE_SIGNATURE
 permission can be obtained only by privileged system apps, embedded in the ROM
 during the build process.
 
-The signature spoofing patch can be optionally included with:
+The custom signature spoofing patch can be optionally included with:
 
  * `SIGNATURE_SPOOFING (no)`: `yes` to use the original patch, `restricted` for
-    the restricted one, `no` for none of them
+    the restricted one, `no` for none of them and to default to built-in
+    signature spoofing.
 
 If in doubt, use `restricted`: note that packages that requires the
 FAKE_SIGNATURE permission must be included in the build as system apps
 (e.g. as part of GMS or `CUSTOM_PACKAGES`)
 
+These patches are currently disabled for LineageOS 21 entirely. If you have an
+use case which requires the use of custom patches on 21,
+[please open an issue][issue-tracker].
 
 #### Proprietary files
 
@@ -409,7 +419,7 @@ The LineageOS for MicroG project is not in a position to offer much by way of te
 - the number of active volunteer maintainers / contributors is very small, and we spend what time we have trying to ensure that the process of making regular builds keeps going. We can generally investigate problems with the build tools, but not with the ROM itself;
 - we don't have access to any devices for testing / debugging
 
-The [project issue tracker](https://github.com/lineageos4microg/docker-lineage-cicd/issues) is mostly for tracking problems with the Docker build tool. It is ***not*** intended for tracking problems with ***installing*** or ***running*** the LineageOS for MicroG ROM. If you run into such problems, our advice is to work through the following steps to see if they help. (Make a backup of your user apps & data first):
+The [project issue tracker][issue-tracker] is mostly for tracking problems with the Docker build tool. It is ***not*** intended for tracking problems with ***installing*** or ***running*** the LineageOS for MicroG ROM. If you run into such problems, our advice is to work through the following steps to see if they help. (Make a backup of your user apps & data first):
 - full power off and restart
 - factory reset
 - format data partition
@@ -469,7 +479,7 @@ We build for the same devices as LineageOS using [their list of build targets](h
 
 We currently make builds monthly, starting on the first day of the month. The devices included in a build run are defined by the content of the [LOS target list](https://github.com/LineageOS/hudson/blob/master/lineage-build-targets) ***at the point the build run starts***. Our monthly build run takes 15-16 days to complete. You can see the current status of the build in [the dedicated matrix room](https://matrix.to/#/#microg-lineage-os-builds:matrix.domainepublic.net) 
 
-If builds for any devices fail during a build run, we will try the build again ***after the main build run has completed***. If you do not see a new build for your device when you expect it, please check whether the build failure was reported in the matrix room. If it was, there is no need to report it - we will deal with it! If the failure was not reported in the matrix room, then please report it in [our issue tracker](https://github.com/lineageos4microg/docker-lineage-cicd/issues) or in [the XDA Forums thread](https://xdaforums.com/t/lineageos-for-microg.3700997/)
+If builds for any devices fail during a build run, we will try the build again ***after the main build run has completed***. If you do not see a new build for your device when you expect it, please check whether the build failure was reported in the matrix room. If it was, there is no need to report it - we will deal with it! If the failure was not reported in the matrix room, then please report it in [our issue tracker][issue-tracker] or in [the XDA Forums thread](https://xdaforums.com/t/lineageos-for-microg.3700997/)
 
 
 ### Project Scope
@@ -553,3 +563,4 @@ Upstream projects have their own channels for supporting users.
 [a6000-xda]: https://xdaforums.com/t/eol-rom-8-1-0_r43-f2fs-lineageos-15-1-arm-stable-final-android-go.3733747/
 [a6000-device-tree-deps]: https://github.com/dev-harsh1998/android_device_lenovo_a6000/blob/lineage-15.1/lineage.dependencies
 [a6000-common-tree-deps]: https://github.com/dev-harsh1998/android_device_lenovo_msm8916-common/blob/lineage-15.1/lineage.dependencies
+[issue-tracker]: https://github.com/lineageos4microg/docker-lineage-cicd/issues
