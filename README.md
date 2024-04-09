@@ -133,7 +133,7 @@ during the build process.
 The custom signature spoofing patch can be optionally included with:
 
  * `SIGNATURE_SPOOFING (no)`: `yes` to use the original patch, `restricted` for
-    the restricted one, `no` for none of them to and default to built-in
+    the restricted one, `no` for none of them and to default to built-in
     signature spoofing.
 
 If in doubt, use `restricted`: note that packages that requires the
