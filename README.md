@@ -108,7 +108,8 @@ Include the repo with another manifest file like this:
 And when starting the build, set the `CUSTOM_PACKAGES` variable to a list of app names
 (defined by `LOCAL_MODULE` in `Android.mk`) separated by spaces.
 
-#### Signature spoofing
+
+#### Signature spoofing (up until LineageOS 20)
 
 There are two options for the [signature spoofing patch][signature-spoofing]
 required for [microG][microg]:
@@ -132,6 +133,21 @@ The signature spoofing patch can be optionally included with:
 If in doubt, use `restricted`: note that packages that requires the
 FAKE_SIGNATURE permission must be included in the build as system apps
 (e.g. as part of GMS or `CUSTOM_PACKAGES`)
+
+
+#### Signature spoofing (starting from LineageOS 21)
+
+LineageOS 21 introduced built-in signature spoofing specifically for microG.
+The "Original" and restricted patches applied to previous versions of LineageOS
+have been dropped in favor of the built-in functionality.
+
+This means that signature spoofing will work for microG even if the environment
+variable `SIGNATURE_SPOOFING` is set to `no`.
+
+It should be noted that by default, signature spoofing is only enabled on
+"debuggable" builds (`eng` and `userdebug` build variants). It is possible to
+enable signature spoofing on the `user` build variant as well by setting the
+`SIGNATURE_SPOOFING` variable to `restricted`.
 
 
 #### Proprietary files
