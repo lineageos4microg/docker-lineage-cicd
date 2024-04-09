@@ -293,40 +293,45 @@ for branch in ${BRANCH_NAME//,/ }; do
           echo ">> [$(date)] WARNING: User build signature spoofing requested, but branch ($branch) does not support built-in signature spoofing"
         fi
       fi
+
       # If needed, apply the microG's signature spoofing patch
       if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
-        # Determine which patch should be applied to the current Android source tree
-        cd frameworks/base
-        if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-          echo ">> [$(date)] Applying the standard signature spoofing patch ($frameworks_base_patch) to frameworks/base"
-          echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
-          patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$frameworks_base_patch"
+        if [ -n "$frameworks_base_patch" ]; then
+          echo ">> [$(date)] WARNING: Signature spoofing patches requested, but branch ($branch) does not support microG patches"
         else
-          echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $frameworks_base_patch) to frameworks/base"
-          sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$frameworks_base_patch" | patch --quiet --force -p1
-        fi
-        git clean -q -f
-        cd ../..
-
-        if [ -n "$apps_permissioncontroller_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-          cd packages/apps/PermissionController
-          echo ">> [$(date)] Applying the apps/PermissionController patch ($apps_permissioncontroller_patch) to packages/apps/PermissionController"
-          patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$apps_permissioncontroller_patch"
+          # Determine which patch should be applied to the current Android source tree
+          cd frameworks/base
+          if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+            echo ">> [$(date)] Applying the standard signature spoofing patch ($frameworks_base_patch) to frameworks/base"
+            echo ">> [$(date)] WARNING: the standard signature spoofing patch introduces a security threat"
+            patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$frameworks_base_patch"
+          else
+            echo ">> [$(date)] Applying the restricted signature spoofing patch (based on $frameworks_base_patch) to frameworks/base"
+            sed 's/android:protectionLevel="dangerous"/android:protectionLevel="signature|privileged"/' "/root/signature_spoofing_patches/$frameworks_base_patch" | patch --quiet --force -p1
+          fi
           git clean -q -f
-          cd ../../..
-        fi
+          cd ../..
 
-        if [ -n "$modules_permission_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
-          cd packages/modules/Permission
-          echo ">> [$(date)] Applying the modules/Permission patch ($modules_permission_patch) to packages/modules/Permission"
-          patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$modules_permission_patch"
-          git clean -q -f
-          cd ../../..
-        fi
+          if [ -n "$apps_permissioncontroller_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+            cd packages/apps/PermissionController
+            echo ">> [$(date)] Applying the apps/PermissionController patch ($apps_permissioncontroller_patch) to packages/apps/PermissionController"
+            patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$apps_permissioncontroller_patch"
+            git clean -q -f
+            cd ../../..
+          fi
 
-        # Override device-specific settings for the location providers
-        mkdir -p "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/"
-        cp /root/signature_spoofing_patches/frameworks_base_config.xml "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/config.xml"
+          if [ -n "$modules_permission_patch" ] && [ "$SIGNATURE_SPOOFING" = "yes" ]; then
+            cd packages/modules/Permission
+            echo ">> [$(date)] Applying the modules/Permission patch ($modules_permission_patch) to packages/modules/Permission"
+            patch --quiet --force -p1 -i "/root/signature_spoofing_patches/$modules_permission_patch"
+            git clean -q -f
+            cd ../../..
+          fi
+
+          # Override device-specific settings for the location providers
+          mkdir -p "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/"
+          cp /root/signature_spoofing_patches/frameworks_base_config.xml "vendor/$vendor/overlay/microg/frameworks/base/core/res/res/values/config.xml"
+        fi
       fi
     else
       echo ">> [$(date)] Applying patches disabled"
