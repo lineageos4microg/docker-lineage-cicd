@@ -418,6 +418,12 @@ The [project issue tracker](https://github.com/lineageos4microg/docker-lineage-c
 
 For ***any*** problems, with building, installing, or running LineageOS for MicroG, we recommend that you ask for help in [the XDA Forum thread](https://xdaforums.com/t/lineageos-for-microg.3700997/) or in device specific [XDA forum threads](https://xdaforums.com/). The LineageOS for MicroG forum thread is not maintained by us, but there are many knowledgeable contributors there, who build and run the LineageOS for MicroG ROM on a wide variety of devices.
 
+## Builds for devices no longer supported by LineageOS
+
+When LineageOS stop supporting a device the last LineageOS for MicroG build for that device is moved to a device-specific subdirectory of [https://download.lineage.microg.org/archive/](https://download.lineage.microg.org/archive/)
+
+Old builds will be kept here as long as possible, until we need to free up storage space on [the download server](https://download.lineage.microg.org)
+
 
 ## LineageOS for microG: Project Scope & Objectives
 
