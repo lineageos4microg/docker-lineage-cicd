@@ -1,32 +1,37 @@
 diff --git a/core/api/current.txt b/core/api/current.txt
-index 288ab479c0fb..2124d89c6e6f 100644
+index 9b5316fb79b5..7d93b81a590e 100644
 --- a/core/api/current.txt
 +++ b/core/api/current.txt
-@@ -95,6 +95,7 @@ package android {
+@@ -95,6 +95,8 @@ package android {
      field public static final String EXECUTE_APP_ACTION = "android.permission.EXECUTE_APP_ACTION";
      field public static final String EXPAND_STATUS_BAR = "android.permission.EXPAND_STATUS_BAR";
      field public static final String FACTORY_TEST = "android.permission.FACTORY_TEST";
-+    field public static final String FAKE_PACKAGE_SIGNATURE = "android.permission.FAKE_PACKAGE_SIGNATURE";
++    <!-- @hide -->
++    field @FlaggedApi("android.permission-group.FAKE_PACKAGE_SIGNATURE") public static final String FAKE_PACKAGE_SIGNATURE = "android.permission.FAKE_PACKAGE_SIGNATURE";
      field public static final String FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE";
      field public static final String FOREGROUND_SERVICE_CAMERA = "android.permission.FOREGROUND_SERVICE_CAMERA";
      field public static final String FOREGROUND_SERVICE_CONNECTED_DEVICE = "android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE";
-@@ -326,6 +327,7 @@ package android {
+@@ -328,6 +330,8 @@ package android {
      field public static final String CALL_LOG = "android.permission-group.CALL_LOG";
      field public static final String CAMERA = "android.permission-group.CAMERA";
      field public static final String CONTACTS = "android.permission-group.CONTACTS";
-+    field public static final String FAKE_PACKAGE = "android.permission-group.FAKE_PACKAGE";
++    <!-- @hide -->
++    field @FlaggedApi("android.permission-group.FAKE_PACKAGE") public static final String FAKE_PACKAGE = "android.permission-group.FAKE_PACKAGE";
      field public static final String LOCATION = "android.permission-group.LOCATION";
      field public static final String MICROPHONE = "android.permission-group.MICROPHONE";
      field public static final String NEARBY_DEVICES = "android.permission-group.NEARBY_DEVICES";
 diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
-index 14cb052b121f..593999bc4ef7 100644
+index 22591641cc66..f3660c30705c 100644
 --- a/core/res/AndroidManifest.xml
 +++ b/core/res/AndroidManifest.xml
-@@ -4258,6 +4258,22 @@
+@@ -4318,6 +4318,28 @@
          android:description="@string/permdesc_getPackageSize"
          android:protectionLevel="normal" />
  
-+    <!-- Dummy user-facing group for faking package signature -->
++    <!-- Dummy user-facing group for faking package signature
++        @FlaggedApi("android.permission-group.FAKE_PACKAGE") 
++        @hide 
++    -->
 +    <permission-group android:name="android.permission-group.FAKE_PACKAGE"
 +        android:label="@string/permgrouplab_fake_package_signature"
 +        android:description="@string/permgroupdesc_fake_package_signature"
@@ -34,22 +39,25 @@ index 14cb052b121f..593999bc4ef7 100644
 +        android:priority="100" />
 +
 +    <!-- Allows an application to change the package signature as
-+         seen by applications -->
++         seen by applications
++        @FlaggedApi("android.permission-group.FAKE_PACKAGE_SIGNATURE") 
++        @hide 
++    -->
 +    <permission android:name="android.permission.FAKE_PACKAGE_SIGNATURE"
 +        android:permissionGroup="android.permission-group.UNDEFINED"
 +        android:protectionLevel="dangerous"
 +        android:label="@string/permlab_fakePackageSignature"
 +        android:description="@string/permdesc_fakePackageSignature" />
 +
-+	
++
      <!-- @deprecated No longer useful, see
           {@link android.content.pm.PackageManager#addPackageToPreferred}
           for details. -->
 diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
-index 9c018c30f9e3..661297bab701 100644
+index 4596ca74bf8f..a5ce5eb28735 100644
 --- a/core/res/res/values/strings.xml
 +++ b/core/res/res/values/strings.xml
-@@ -990,6 +990,19 @@
+@@ -993,6 +993,19 @@
      <string name="dream_preview_title">Preview, <xliff:g id="dream_name" example="Clock">%1$s</xliff:g></string>
  
      <!--  Permissions -->
@@ -70,11 +78,11 @@ index 9c018c30f9e3..661297bab701 100644
      <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
      <string name="permlab_statusBar">disable or modify status bar</string>
 diff --git a/services/core/java/com/android/server/pm/ComputerEngine.java b/services/core/java/com/android/server/pm/ComputerEngine.java
-index 78f1fa60b69f..1e29d3697b89 100644
+index d8cbe9d5e7c7..827a20616ace 100644
 --- a/services/core/java/com/android/server/pm/ComputerEngine.java
 +++ b/services/core/java/com/android/server/pm/ComputerEngine.java
-@@ -1450,6 +1450,29 @@ public class ComputerEngine implements Computer {
-         return result;
+@@ -1512,6 +1512,29 @@ public class ComputerEngine implements Computer {
+         return Optional.of(fakeSignature);
      }
  
 +        private boolean requestsFakeSignature(AndroidPackage p) {
@@ -103,7 +111,7 @@ index 78f1fa60b69f..1e29d3697b89 100644
      public final PackageInfo generatePackageInfo(PackageStateInternal ps,
              @PackageManager.PackageInfoFlagsBits long flags, int userId) {
          if (!mUserManager.exists(userId)) return null;
-@@ -1483,13 +1506,15 @@ public class ComputerEngine implements Computer {
+@@ -1545,13 +1568,15 @@ public class ComputerEngine implements Computer {
                      || ArrayUtils.isEmpty(p.getPermissions())) ? Collections.emptySet()
                      : mPermissionManager.getInstalledPermissions(ps.getPackageName());
              // Compute granted permissions only if package has requested permissions
