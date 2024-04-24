@@ -279,8 +279,10 @@ for branch in ${BRANCH_NAME//,/ }; do
     los_ver="$los_ver_major.$los_ver_minor"
 
     if [ "$APPLY_PATCHES" = true ]; then
+      patches_applied=false
     # If needed, apply the microG's signature spoofing patch
       if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
+        patches_applied=true
         # Determine which patch should be applied to the current Android source tree
         cd frameworks/base
         if [ "$SIGNATURE_SPOOFING" = "yes" ]; then
@@ -446,6 +448,10 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         build_successful=true
         if [ "$CALL_MKA" = true ]; then
+          if [ "$patches_applied" = true ]; then
+            m api-stubs-docs-non-updatable-update-current-api  &>> "$DEBUG_LOG"
+          fi
+
           # Start the build
           echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
           build_successful=false
