@@ -1,36 +1,39 @@
 diff --git a/core/api/current.txt b/core/api/current.txt
-index 9b5316fb79b5..7d93b81a590e 100644
+index 9b5316fb..9e0b9558 100644
 --- a/core/api/current.txt
 +++ b/core/api/current.txt
-@@ -95,6 +95,8 @@ package android {
+@@ -95,6 +95,7 @@ package android {
      field public static final String EXECUTE_APP_ACTION = "android.permission.EXECUTE_APP_ACTION";
      field public static final String EXPAND_STATUS_BAR = "android.permission.EXPAND_STATUS_BAR";
      field public static final String FACTORY_TEST = "android.permission.FACTORY_TEST";
-+    <!-- @hide -->
-+    field @FlaggedApi("android.permission-group.FAKE_PACKAGE_SIGNATURE") public static final String FAKE_PACKAGE_SIGNATURE = "android.permission.FAKE_PACKAGE_SIGNATURE";
++    field public static final String FAKE_PACKAGE_SIGNATURE = "android.permission.FAKE_PACKAGE_SIGNATURE";
      field public static final String FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE";
      field public static final String FOREGROUND_SERVICE_CAMERA = "android.permission.FOREGROUND_SERVICE_CAMERA";
      field public static final String FOREGROUND_SERVICE_CONNECTED_DEVICE = "android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE";
-@@ -328,6 +330,8 @@ package android {
+@@ -328,6 +329,7 @@ package android {
      field public static final String CALL_LOG = "android.permission-group.CALL_LOG";
      field public static final String CAMERA = "android.permission-group.CAMERA";
      field public static final String CONTACTS = "android.permission-group.CONTACTS";
-+    <!-- @hide -->
-+    field @FlaggedApi("android.permission-group.FAKE_PACKAGE") public static final String FAKE_PACKAGE = "android.permission-group.FAKE_PACKAGE";
++    field public static final String FAKE_PACKAGE = "android.permission-group.FAKE_PACKAGE";
      field public static final String LOCATION = "android.permission-group.LOCATION";
      field public static final String MICROPHONE = "android.permission-group.MICROPHONE";
      field public static final String NEARBY_DEVICES = "android.permission-group.NEARBY_DEVICES";
+@@ -61892,4 +61894,3 @@ package org.apache.http.params {
+   }
+
+ }
+-
 diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
-index 22591641cc66..f3660c30705c 100644
+index 22591641..f3660c30 100644
 --- a/core/res/AndroidManifest.xml
 +++ b/core/res/AndroidManifest.xml
 @@ -4318,6 +4318,28 @@
          android:description="@string/permdesc_getPackageSize"
          android:protectionLevel="normal" />
- 
+
 +    <!-- Dummy user-facing group for faking package signature
-+        @FlaggedApi("android.permission-group.FAKE_PACKAGE") 
-+        @hide 
++        @FlaggedApi("android.permission-group.FAKE_PACKAGE")
++        @hide
 +    -->
 +    <permission-group android:name="android.permission-group.FAKE_PACKAGE"
 +        android:label="@string/permgrouplab_fake_package_signature"
@@ -40,8 +43,8 @@ index 22591641cc66..f3660c30705c 100644
 +
 +    <!-- Allows an application to change the package signature as
 +         seen by applications
-+        @FlaggedApi("android.permission-group.FAKE_PACKAGE_SIGNATURE") 
-+        @hide 
++        @FlaggedApi("android.permission-group.FAKE_PACKAGE_SIGNATURE")
++        @hide
 +    -->
 +    <permission android:name="android.permission.FAKE_PACKAGE_SIGNATURE"
 +        android:permissionGroup="android.permission-group.UNDEFINED"
@@ -54,14 +57,14 @@ index 22591641cc66..f3660c30705c 100644
           {@link android.content.pm.PackageManager#addPackageToPreferred}
           for details. -->
 diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
-index 4596ca74bf8f..a5ce5eb28735 100644
+index 4596ca74..a5ce5eb2 100644
 --- a/core/res/res/values/strings.xml
 +++ b/core/res/res/values/strings.xml
 @@ -993,6 +993,19 @@
      <string name="dream_preview_title">Preview, <xliff:g id="dream_name" example="Clock">%1$s</xliff:g></string>
- 
+
      <!--  Permissions -->
-+    
++
 +    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
 +    <string name="permlab_fakePackageSignature">Spoof package signature</string>
 +    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
@@ -74,17 +77,17 @@ index 4596ca74bf8f..a5ce5eb28735 100644
 +    <string name="permgrouprequest_fake_package_signature">Allow
 +        &lt;b><xliff:g id="app_name" example="Gmail">%1$s</xliff:g>&lt;/b> to spoof package signature?</string>
 +
- 
+
      <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
      <string name="permlab_statusBar">disable or modify status bar</string>
 diff --git a/services/core/java/com/android/server/pm/ComputerEngine.java b/services/core/java/com/android/server/pm/ComputerEngine.java
-index d8cbe9d5e7c7..827a20616ace 100644
+index d8cbe9d5..827a2061 100644
 --- a/services/core/java/com/android/server/pm/ComputerEngine.java
 +++ b/services/core/java/com/android/server/pm/ComputerEngine.java
 @@ -1512,6 +1512,29 @@ public class ComputerEngine implements Computer {
          return Optional.of(fakeSignature);
      }
- 
+
 +        private boolean requestsFakeSignature(AndroidPackage p) {
 +        return p.getMetaData() != null &&
 +                p.getMetaData().getString("fake-signature") != null;
@@ -120,13 +123,13 @@ index d8cbe9d5e7c7..827a20616ace 100644
 +                        && !requestsFakeSignature(p))
                      || ArrayUtils.isEmpty(p.getRequestedPermissions())) ? Collections.emptySet()
                      : mPermissionManager.getGrantedPermissions(ps.getPackageName(), userId);
- 
+
 -            PackageInfo packageInfo = PackageInfoUtils.generate(p, gids, flags,
 +            PackageInfo packageInfo = mayFakeSignature(p, PackageInfoUtils.generate(p, gids, flags,
                      state.getFirstInstallTimeMillis(), ps.getLastUpdateTime(), installedPermissions,
 -                    grantedPermissions, state, userId, ps);
 +                    grantedPermissions, state, userId, ps),
 +		    grantedPermissions);
- 
+
              if (packageInfo == null) {
                  return null;
