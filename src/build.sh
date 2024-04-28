@@ -285,8 +285,9 @@ for branch in ${BRANCH_NAME//,/ }; do
     patches_applied=false
     if [ "$APPLY_PATCHES" = true ]; then
 
-      # If user build variant should also enable LOS signature spoofing
       if [ "$USER_BUILD_SPOOFING" = "yes" ]; then
+        # For user builds, we need to patch the LOS signature spoofing code
+        # which were disabled for user builds
         if [ -n "$user_build_spoofing_patch" ]; then
           cd frameworks/base
           echo ">> [$(date)] Applying the user build variant signature spoofing patch ($user_build_spoofing_patch) to frameworks/base"
