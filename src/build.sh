@@ -302,7 +302,7 @@ for branch in ${BRANCH_NAME//,/ }; do
       # If needed, apply the microG's signature spoofing patch
       if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
         patches_applied=true
-        if [ -n "$frameworks_base_patch" ]; then
+        if [ -z "$frameworks_base_patch" ]; then
           echo ">> [$(date)] WARNING: Signature spoofing patches requested, but branch ($branch) does not support microG patches"
         else
           # Determine which patch should be applied to the current Android source tree
