@@ -1,0 +1,27 @@
+From d467f4bdb09f16988965a44d6a42f0f180f7e6d7 Mon Sep 17 00:00:00 2001
+From: Rasmus Moorats <xx@nns.ee>
+Date: Tue, 9 Apr 2024 13:18:17 +0300
+Subject: [PATCH] Remove the check to isDebuggable()
+
+This makes the microG signature spoofing work in regular user builds.
+---
+ services/core/java/com/android/server/pm/ComputerEngine.java | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/services/core/java/com/android/server/pm/ComputerEngine.java b/services/core/java/com/android/server/pm/ComputerEngine.java
+index d8cbe9d5..13af78f5 100644
+--- a/services/core/java/com/android/server/pm/ComputerEngine.java
++++ b/services/core/java/com/android/server/pm/ComputerEngine.java
+@@ -1472,10 +1472,6 @@ public class ComputerEngine implements Computer {
+     private static native boolean isDebuggable();
+ 
+     public static boolean isMicrogSigned(AndroidPackage p) {
+-        if (!isDebuggable()) {
+-            return false;
+-        }
+-
+         // Allowlist the following apps:
+         // * com.android.vending - microG Companion
+         // * com.google.android.gms - microG Services
+--
+2.44.0
