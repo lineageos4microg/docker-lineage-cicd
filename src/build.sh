@@ -282,9 +282,12 @@ for branch in ${BRANCH_NAME//,/ }; do
     los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
     los_ver="$los_ver_major.$los_ver_minor"
 
+    patches_applied=false
     if [ "$APPLY_PATCHES" = true ]; then
-      # If user build variant should also enable LOS signature spoofing
+
       if [ "$USER_BUILD_SPOOFING" = "yes" ]; then
+        # For user builds, we need to patch the LOS signature spoofing code
+        # which were disabled for user builds
         if [ -n "$user_build_spoofing_patch" ]; then
           cd frameworks/base
           echo ">> [$(date)] Applying the user build variant signature spoofing patch ($user_build_spoofing_patch) to frameworks/base"
@@ -298,7 +301,8 @@ for branch in ${BRANCH_NAME//,/ }; do
 
       # If needed, apply the microG's signature spoofing patch
       if [ "$SIGNATURE_SPOOFING" = "yes" ] || [ "$SIGNATURE_SPOOFING" = "restricted" ]; then
-        if [ -n "$frameworks_base_patch" ]; then
+        patches_applied=true
+        if [ -z "$frameworks_base_patch" ]; then
           echo ">> [$(date)] WARNING: Signature spoofing patches requested, but branch ($branch) does not support microG patches"
         else
           # Determine which patch should be applied to the current Android source tree
@@ -467,6 +471,11 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         build_successful=true
         if [ "$CALL_MKA" = true ]; then
+          if [ "$patches_applied" = true ]; then
+            # we changed the api - need to regenerate current.txt
+            m api-stubs-docs-non-updatable-update-current-api  &>> "$DEBUG_LOG"
+          fi
+
           # Start the build
           echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
           build_successful=false
