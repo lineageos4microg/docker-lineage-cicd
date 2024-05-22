@@ -486,13 +486,18 @@ for branch in ${BRANCH_NAME//,/ }; do
             if [ "$MAKE_IMG_ZIP_FILE" = true ]; then
               # make the `-img.zip` file
               echo ">> [$(date)] Making -img.zip file" | tee -a "$DEBUG_LOG"
-              infile="out/target/product/$codename/obj/PACKAGING/target_files_intermediates/lineage_$codename-target_files-eng.root.zip"
-              img_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-img.zip"
-              img_from_target_files "$infile" "$img_zip_file"  &>> "$DEBUG_LOG"
-
-              # move it to the zips directory
-              mv "$img_zip_file" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
-              files_to_hash+=( "$img_zip_file" )
+ 
+              infile=$(find "$source_dir" -name "lineage_$codename-target_files*.zip")
+              if [ -z "$infile" ]; then
+                echo ">> [$(date)] $infile does not exist"  | tee -a "$DEBUG_LOG"
+              else
+                img_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-img.zip"
+                img_from_target_files "$infile" "$img_zip_file"  &>> "$DEBUG_LOG"
+              
+                # move img_zip_file to the zips directory
+                mv "$img_zip_file" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
+                files_to_hash+=( "$img_zip_file" )
+              fi
             else
               echo ">> [$(date)] Making -img.zip file disabled"
             fi
