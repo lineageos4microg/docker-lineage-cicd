@@ -35,7 +35,7 @@ git config --global user.name "$USER_NAME"
 git config --global user.email "$USER_MAIL"
 
 if [ "$SIGN_BUILDS" = true ]; then
-  for c in bluetooth cyngn-app media networkstack nfc platform releasekey sdk_sandbox shared testcert testkey verity ; do
+  for c in bluetooth media networkstack nfc platform releasekey sdk_sandbox shared testcert verity ; do
     if [ ! -f "$KEYS_DIR/$c.pk8" ]; then
       echo ">> [$(date)]  Generating $c..."
       /root/make_key "$KEYS_DIR/$c" "$KEYS_SUBJECT" <<< '' &> /dev/null
