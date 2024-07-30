@@ -432,7 +432,9 @@ For ***any*** problems, with building, installing, or running LineageOS for Micr
 
 When LineageOS stop supporting a device the last LineageOS for MicroG build for that device is moved to a device-specific subdirectory of [https://download.lineage.microg.org/archive/](https://download.lineage.microg.org/archive/)
 
-Old builds will be kept here as long as possible, until we need to free up storage space on [the download server](https://download.lineage.microg.org)
+~Old builds will be kept here as long as possible, until we need to free up storage space on [the download server](https://download.lineage.microg.org)~
+
+Due to lack of disk space, we have had to move these old builds to storage which is not publicly visible. If you need to download an old build, then please post in [our XDA Forum thread](https://xdaforums.com/t/lineageos-for-microg.3700997/) and we will find a way of making it available to you.
 
 
 ## LineageOS for microG: Project Scope & Objectives
