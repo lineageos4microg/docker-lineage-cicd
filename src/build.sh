@@ -56,7 +56,7 @@ cd "$SRC_DIR"
 
 if [ -f /root/userscripts/begin.sh ]; then
   echo ">> [$(date)] Running begin.sh"
-  /root/userscripts/begin.sh || echo ">> [$(date)] Warning: begin.sh failed!"
+  /root/userscripts/begin.sh || { echo ">> [$(date)] Error: begin.sh failed!"; exit 1; }
 fi
 
 # If requested, clean the OUT dir in order to avoid clutter
@@ -137,6 +137,8 @@ if [ "$LOCAL_MIRROR" = true ]; then
     echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
   fi
 fi
+
+userscriptfail=false
 
 for branch in ${BRANCH_NAME//,/ }; do
   branch_dir=${branch//[^[:alnum:]]/_}
@@ -407,7 +409,7 @@ for branch in ${BRANCH_NAME//,/ }; do
 
     if [ -f /root/userscripts/before.sh ]; then
       echo ">> [$(date)] Running before.sh"
-      /root/userscripts/before.sh || echo ">> [$(date)] Warning: before.sh failed!"
+      /root/userscripts/before.sh || { echo ">> [$(date)] Error: before.sh failed for $branch!"; userscriptfail=true; continue; }
     fi
 
     for codename in ${devices//,/ }; do
@@ -466,7 +468,8 @@ for branch in ${BRANCH_NAME//,/ }; do
 
         if [ -f /root/userscripts/pre-build.sh ]; then
           echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: pre-build.sh failed!"
+          /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG" || {
+            echo ">> [$(date)] Error: pre-build.sh failed for $codename on $branch!"; userscriptfail=true; continue; }
         fi
 
         build_successful=true
@@ -583,7 +586,8 @@ for branch in ${BRANCH_NAME//,/ }; do
         # call post-build.sh
         if [ -f /root/userscripts/post-build.sh ]; then
           echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
-          /root/userscripts/post-build.sh "$codename" "$build_successful" "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+          /root/userscripts/post-build.sh "$codename" "$build_successful" "$branch" &>> "$DEBUG_LOG" || {
+            echo ">> [$(date)] Error: post-build.sh failed for $codename on $branch!"; userscriptfail=true; }
         fi
         echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
@@ -598,5 +602,10 @@ fi
 
 if [ -f /root/userscripts/end.sh ]; then
   echo ">> [$(date)] Running end.sh"
-  /root/userscripts/end.sh || echo ">> [$(date)] Warning: end.sh failed!"
+  /root/userscripts/end.sh || { echo ">> [$(date)] Error: end.sh failed!"; userscriptfail=true; }
+fi
+
+if [ $userscriptfail = true ]; then
+  echo ">> [$(date)] One or more userscripts failed!"
+  exit 1
 fi
