@@ -412,6 +412,15 @@ In both these cases, problems may be encountered with app permissions, both for 
 
 If you are 'dirty' flashing, it is a good idea to backup your user-installed apps and data in case the 'dirty' flash fails.
 
+### Ugrade to a higher Android / LineageOS version
+
+Upgrading from one version of LineageOS to a higher version (e.g. LineageOS 20.0, based on Android 13, to LineageOS 21.0 , based on Android 14) cannot be done by the Updater app. The new version will hav eto be installed manually. The instructions vary between devices, so find your device in the [LineageOS Devices Wiki page]() and follow the links to the upgrade instrcutions for that device. 
+
+For some devices, the upgrade instructions specify that a factory reset / data wipe or format is required. If that is true for your device, ***do not ignore the requirement*** (in the hope that you won't lose your user-installed apps and data): if you do not perform the factory reset, your device will probably fail to boot after the upgrade. If you want to keep your user-installed apps and data and your device requres a factory reset, then checkout the solutions in [this wiki page](https://github.com/lineageos4microg/docker-lineage-cicd/wiki/Backup-Migrate-Downgrade). They won't backup 'EVERYTHING' , but they are the best I've found. 
+
+### Downgrading 
+Downgrading from one version of LineageOS for microG to an ealier or lower version, is generally ***not*** possible, even if they are the same Android version. If you want to do that, you will have to format your data partition and perform a clean installation. If you need to go down that path, then checkout the backup options descibed in the previous section.
+
 ## Troubleshooting and support
 
 The LineageOS for MicroG project is not in a position to offer much by way of technical support:
