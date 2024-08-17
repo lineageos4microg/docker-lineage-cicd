@@ -486,14 +486,14 @@ for branch in ${BRANCH_NAME//,/ }; do
             if [ "$MAKE_IMG_ZIP_FILE" = true ]; then
               # make the `-img.zip` file
               echo ">> [$(date)] Making -img.zip file" | tee -a "$DEBUG_LOG"
- 
+
               infile=$(find "$source_dir" -name "lineage_$codename-target_files*.zip")
               if [ -z "$infile" ]; then
                 echo ">> [$(date)] $infile does not exist"  | tee -a "$DEBUG_LOG"
               else
                 img_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-img.zip"
                 img_from_target_files "$infile" "$img_zip_file"  &>> "$DEBUG_LOG"
-              
+
                 # move img_zip_file to the zips directory
                 mv "$img_zip_file" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
                 files_to_hash+=( "$img_zip_file" )
@@ -525,7 +525,7 @@ for branch in ${BRANCH_NAME//,/ }; do
             files_to_zip=()
             images_zip_file="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-images.zip"
 
-            for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
+            for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot init_boot; do
               if [ -f "$image.img" ]; then
                 echo ">> [$(date)] Adding $image.img" to "$images_zip_file" | tee -a "$DEBUG_LOG"
                 files_to_zip+=( "$image.img" )
@@ -539,7 +539,7 @@ for branch in ${BRANCH_NAME//,/ }; do
             echo ">> [$(date)] Zipping the '-img' files disabled"
 
             # rename and copy the images to the zips directory
-            for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot; do
+            for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot init_boot; do
               if [ -f "$image.img" ]; then
                 recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
                 echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
