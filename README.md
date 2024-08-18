@@ -421,6 +421,14 @@ For some devices, the upgrade instructions specify that a factory reset / data w
 ### Downgrading 
 Downgrading from one version of LineageOS for microG to an ealier or lower version, is generally ***not*** possible, even if they are the same Android version. If you want to do that, you will have to format your data partition and perform a clean installation. If you need to go down that path, then checkout the backup options descibed in the previous section.
 
+### Failed updates and 'boot loops'
+Sometimes - up to now, pretty rarely - an update, either manual or OTA, may cause the phone to 'boot loop' (i.e. the phone repeatedly restarts without successfully loading the operating system), or to keep rebooting to recovery rather than the phone OS. The usual way to fix a boot loop, is to factory reset, by wiping or formatting the phone's data partiition which, as mentioned above, will delete all your user-installed apps and data. 
+
+So there is no easy way to fix a boot loop, without losing you user-installed apps and data, because re-installing an earlier, working version also usually requires a factory reset. If you don't have a backup of your user-installed apps and data, then you can try the following:
+- wait for a new, fixed build to be made and published, and manually install it;
+- ***try*** installing an earlier working build (you may also have to flash an earlier recovery, as recovery will usually not install a ROM that it older than the recovery). This ***may*** work, but probably won't:
+- try flashing the latest LineageOS build from `https://download.lineageos.org/devices/<your-device-name>/builds`. You won't have a fully-working installation of LineageOS for microG, but you may be able to backup your user-installed apps and data.
+
 ## Troubleshooting and support
 
 The LineageOS for MicroG project is not in a position to offer much by way of technical support:
