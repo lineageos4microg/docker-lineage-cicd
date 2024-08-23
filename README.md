@@ -22,7 +22,7 @@ The official Docker guides are well-written:
  * [Windows 10/Windows Server 2016 64bit][docker-win]
  * [Mac OS El Capitan 10.11 or newer][docker-mac]
 
-Life is considerably easier if you setup Dcker to allow execution by non-root users: see ['Run the Docker daemon as a non-root user'](https://docs.docker.com/engine/security/rootless/)
+Life is considerably easier if you setup Docker to allow execution by non-root users: see ['Run the Docker daemon as a non-root user'](https://docs.docker.com/engine/security/rootless/)
 
 If your Windows or Mac system doesn't satisfy the requirements (or if you have
 Oracle VirtualBox installed, you can use [Docker Toolbox][docker-toolbox].
