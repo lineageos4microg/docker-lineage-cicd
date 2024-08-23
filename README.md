@@ -34,9 +34,11 @@ start!
 
 ## What does Docker build
 
-Docker will produce two files in the `zips` directory:
-1. The main ROM zip file e.g. `lineage-20.0-20230702-microG-<device-name>.zip`. This file can be flashed from recovery as described in the next section.
-2. A `-image.zip` file e.g. `lineage-20.0-20230702-microG-<device-name>-images.zip`, containing a custom recovery image and any other images needed or mentioned in the LineageOS installation instructions.
+Docker will produce the following files in the `zips` directory:
+- the main ROM zip file e.g. `lineage-20.0-20230702-microG-<device-name>.zip`. This file can be flashed from recovery as described in the next section
+- a custom recovery image (e.g. `lineage-20.0-20230702-microG-<device-name>-recovery.img` or `lineage-20.0-20230702-microG-<device-name>-boot.img`) and any other images needed or mentioned in the LineageOS installation instructions;
+  - if the `ZIP_UP_IMAGES` environment variable is set `true`, these images will be zipped up into an `-images.zip` file e.g. `lineage-20.0-20230702-microG-<device-name>-images.zip`
+  - else, if the `MAKE_IMG_ZIP_FILE` environment variable is set `true` the images are zipped into a flashable `...-img.zip` file (e.g. `lineage-20.0-20230702-microG-<device-name>-img.zip`) which can be installed using `fastboot flash` or `fastboot update`
 
 ## How can I build LineageOS?
 
@@ -416,15 +418,15 @@ If you are 'dirty' flashing, it is a good idea to backup your user-installed app
 
 ### Ugrade to a higher Android / LineageOS version
 
-Upgrading from one version of LineageOS to a higher version (e.g. LineageOS 20.0, based on Android 13, to LineageOS 21.0 , based on Android 14) cannot be done by the Updater app. The new version will hav eto be installed manually. The instructions vary between devices, so find your device in the [LineageOS Devices Wiki page]() and follow the links to the upgrade instrcutions for that device. 
+Upgrading from one version of LineageOS to a higher version (e.g. LineageOS 20.0, based on Android 13, to LineageOS 21.0 , based on Android 14) cannot be done by the Updater app. The new version will hav eto be installed manually. The instructions vary between devices, so find your device in the [LineageOS Devices Wiki page]() and follow the links to the upgrade instrcutions for that device.
 
-For some devices, the upgrade instructions specify that a factory reset / data wipe or format is required. If that is true for your device, ***do not ignore the requirement*** (in the hope that you won't lose your user-installed apps and data): if you do not perform the factory reset, your device will probably fail to boot after the upgrade. If you want to keep your user-installed apps and data and your device requres a factory reset, then checkout the solutions in [this wiki page](https://github.com/lineageos4microg/docker-lineage-cicd/wiki/Backup-Migrate-Downgrade). They won't backup 'EVERYTHING' , but they are the best I've found. 
+For some devices, the upgrade instructions specify that a factory reset / data wipe or format is required. If that is true for your device, ***do not ignore the requirement*** (in the hope that you won't lose your user-installed apps and data): if you do not perform the factory reset, your device will probably fail to boot after the upgrade. If you want to keep your user-installed apps and data and your device requres a factory reset, then checkout the solutions in [this wiki page](https://github.com/lineageos4microg/docker-lineage-cicd/wiki/Backup-Migrate-Downgrade). They won't backup 'EVERYTHING' , but they are the best I've found.
 
-### Downgrading 
+### Downgrading
 Downgrading from one version of LineageOS for microG to an ealier or lower version, is generally ***not*** possible, even if they are the same Android version. If you want to do that, you will have to format your data partition and perform a clean installation. If you need to go down that path, then checkout the backup options descibed in the previous section.
 
 ### Failed updates and 'boot loops'
-Sometimes - up to now, pretty rarely - an update, either manual or OTA, may cause the phone to 'boot loop' (i.e. the phone repeatedly restarts without successfully loading the operating system), or to keep rebooting to recovery rather than the phone OS. The usual way to fix a boot loop, is to factory reset, by wiping or formatting the phone's data partiition which, as mentioned above, will delete all your user-installed apps and data. 
+Sometimes - up to now, pretty rarely - an update, either manual or OTA, may cause the phone to 'boot loop' (i.e. the phone repeatedly restarts without successfully loading the operating system), or to keep rebooting to recovery rather than the phone OS. The usual way to fix a boot loop, is to factory reset, by wiping or formatting the phone's data partiition which, as mentioned above, will delete all your user-installed apps and data.
 
 So there is no easy way to fix a boot loop, without losing you user-installed apps and data, because re-installing an earlier, working version also usually requires a factory reset. If you don't have a backup of your user-installed apps and data, then you can try the following:
 - wait for a new, fixed build to be made and published, and manually install it;
@@ -504,7 +506,7 @@ The Docker image is pushed to [DockerHub](https://hub.docker.com/r/lineageos4mic
 
 We build for the same devices as LineageOS using [their list of build targets](https://github.com/LineageOS/hudson/blob/main/lineage-build-targets) as the input to our build run.
 
-We currently make builds monthly, starting on the first day of the month. The devices included in a build run are defined by the content of the [LOS target list](https://github.com/LineageOS/hudson/blob/main/lineage-build-targets) ***at the point the build run starts***. Our monthly build run takes 15-16 days to complete. You can see the current status of the build in [the dedicated matrix room](https://matrix.to/#/#microg-lineage-os-builds:matrix.domainepublic.net) 
+We currently make builds monthly, starting on the first day of the month. The devices included in a build run are defined by the content of the [LOS target list](https://github.com/LineageOS/hudson/blob/main/lineage-build-targets) ***at the point the build run starts***. Our monthly build run takes 15-16 days to complete. You can see the current status of the build in [the dedicated matrix room](https://matrix.to/#/#microg-lineage-os-builds:matrix.domainepublic.net)
 
 If builds for any devices fail during a build run, we will try the build again ***after the main build run has completed***. If you do not see a new build for your device when you expect it, please check whether the build failure was reported in the matrix room. If it was, there is no need to report it - we will deal with it! If the failure was not reported in the matrix room, then please report it in [our issue tracker][issue-tracker] or in [the XDA Forums thread](https://xdaforums.com/t/lineageos-for-microg.3700997/)
 
