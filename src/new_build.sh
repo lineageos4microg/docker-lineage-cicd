@@ -188,9 +188,32 @@ fi
 #    For each device in `$DEVICE_LIST`
 for codename in ${devices//,/ }; do
   if [ -n "$codename" ]; then
+    builddate=$(date +%Y%m%d)
   # - `repo init`
   # - `repo sync`
-  # - setup our overlays
+  # Setup our overlays
+    if [ "$BUILD_OVERLAY" = true ]; then
+      lowerdir=$SRC_DIR/$branch_dir
+      upperdir=$TMP_DIR/device
+      workdir=$TMP_DIR/workdir
+      merged=$TMP_DIR/merged
+      mkdir -p "$upperdir" "$workdir" "$merged"
+      mount -t overlay overlay -o lowerdir="$lowerdir",upperdir="$upperdir",workdir="$workdir" "$merged"
+      source_dir="$TMP_DIR/merged"
+    else
+      source_dir="$SRC_DIR/$branch_dir"
+    fi
+
+    mkdir -p "vendor/$vendor/overlay/microg/"
+    sed -i "1s;^;PRODUCT_PACKAGE_OVERLAYS := vendor/$vendor/overlay/microg\n;" "vendor/$vendor/config/common.mk"
+
+    makefile_containing_version="vendor/$vendor/config/common.mk"
+    if [ -f "vendor/$vendor/config/version.mk" ]; then
+      makefile_containing_version="vendor/$vendor/config/version.mk"
+    fi
+    los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "$makefile_containing_version")
+    los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
+    los_ver="$los_ver_major.$los_ver_minor"
     
   fi
 
