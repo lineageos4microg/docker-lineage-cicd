@@ -28,7 +28,8 @@
 # - handle local manifests
 # - Sync mirror if we're using one
 # - Branch-specific stuff
-# -  main sync and build loop For each device in `$DEVICE_LIST`
+# -  main sync and build loop
+#    For each device in `$DEVICE_LIST`
 #     - setup build overlay
 #     - `repo init`
 #     - `repo sync`
@@ -182,3 +183,17 @@ if [ -n "$branch" ] && [ -n "$devices" ]; then
     mkdir -p "$SRC_DIR/$branch_dir"
     cd "$SRC_DIR/$branch_dir"
 fi
+
+# -  main sync and build loop
+#    For each device in `$DEVICE_LIST`
+for codename in ${devices//,/ }; do
+  if [ -n "$codename" ]; then
+  # - `repo init`
+  # - `repo sync`
+  # - setup our overlays
+    
+  fi
+
+# More stuff to do
+
+done
