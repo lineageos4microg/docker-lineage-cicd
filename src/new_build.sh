@@ -31,12 +31,12 @@
 # -  main sync and build loop
 #    For each device in `$DEVICE_LIST`
 #     - setup subdirectories
+#     - `repo init`
+#     - `repo sync`
 #     - setup our overlays
 #     - Add custom packages to be installed
 #     - Handle keys
 #     - Prepare the environment
-#     - `repo init`
-#     - `repo sync`
 #     - Call `before.sh`
 #     - `breakfast` - in case of failure, call
 #         - `post-build.sh`
@@ -296,6 +296,14 @@ for codename in ${devices//,/ }; do
       set -eu
     else
       echo ">> [$(date)] Preparing build environment disabled"
+    fi
+
+    # Call `before.sh`
+    if [ -f /root/userscripts/before.sh ]; then
+      echo ">> [$(date)] Running before.sh"
+      echo "before.sh is now called *after* repo sync."
+      echo "In previous versions, iot was called *before* repo sync"
+      /root/userscripts/before.sh || { echo ">> [$(date)] Error: before.sh failed for $branch!"; userscriptfail=true; continue; }
     fi
 
 
