@@ -76,3 +76,17 @@ do_cleanup() {
     fi
   fi
 }
+
+# Build script
+
+set -eEuo pipefail
+repo_log="$LOGS_DIR/repo-$(date +%Y%m%d).log"
+
+# cd to working directory
+cd "$SRC_DIR"
+
+# Call `begin.sh`
+if [ -f /root/userscripts/begin.sh ]; then
+  echo ">> [$(date)] Running begin.sh"
+  /root/userscripts/begin.sh || { echo ">> [$(date)] Error: begin.sh failed!"; exit 1; }
+fi
