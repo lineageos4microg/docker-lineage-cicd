@@ -328,6 +328,13 @@ for codename in ${devices//,/ }; do
         continue
     fi
 
+    # Call pre-build.sh
+    if [ -f /root/userscripts/pre-build.sh ]; then
+      echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
+      /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG" || {
+        echo ">> [$(date)] Error: pre-build.sh failed for $codename on $branch!"; userscriptfail=true; continue; }
+    fi
+
   fi
 
 # More stuff to do
