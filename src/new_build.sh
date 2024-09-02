@@ -410,7 +410,7 @@ for codename in ${devices//,/ }; do
     echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
 
     do_cleanup
-    if [ $userscriptfail = true ]; then
+    if [ "$userscriptfail" = true ]; then
       echo ">> [$(date)] One or more userscripts failed!"
       exit 1
     fi
