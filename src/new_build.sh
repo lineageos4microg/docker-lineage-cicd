@@ -31,13 +31,17 @@
 # -  main sync and build loop
 #    For each device in `$DEVICE_LIST`
 #     - setup subdirectories
-#     - setup build overlay
+#     - setup our overlays
+#     - Add custom packages to be installed
+#     - Handle keys
+#     - Prepare the environment
 #     - `repo init`
 #     - `repo sync`
 #     - Call `before.sh`
 #     - `breakfast` - in case of failure, call
 #         - `post-build.sh`
 #         - `do_cleanup`
+#     - Call `pre-build.sh`
 #     - `mka`
 #     - move artefacts to `ZIPDIR`
 #         - ROM zip file
@@ -238,7 +242,7 @@ for codename in ${devices//,/ }; do
     echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
     exit 1
   fi
-  
+
   # Setup our overlays
     if [ "$BUILD_OVERLAY" = true ]; then
       lowerdir=$SRC_DIR/$branch_dir
@@ -262,6 +266,38 @@ for codename in ${devices//,/ }; do
     los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "$makefile_containing_version")
     los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
     los_ver="$los_ver_major.$los_ver_minor"
+
+    # Add custom packages to be installed
+    if [ -n "$CUSTOM_PACKAGES" ]; then
+      echo ">> [$(date)] Adding custom packages ($CUSTOM_PACKAGES)"
+      sed -i "1s;^;PRODUCT_PACKAGES += $CUSTOM_PACKAGES\n\n;" "vendor/$vendor/config/common.mk"
+    fi
+
+    # Handle keys
+    if [ "$SIGN_BUILDS" = true ]; then
+      echo ">> [$(date)] Adding keys path ($KEYS_DIR)"
+      # Soong (Android 9+) complains if the signing keys are outside the build path
+      ln -sf "$KEYS_DIR" user-keys
+      if [ "$android_version_major" -lt "10" ]; then
+        sed -i "1s;^;PRODUCT_DEFAULT_DEV_CERTIFICATE := user-keys/releasekey\nPRODUCT_OTA_PUBLIC_KEYS := user-keys/releasekey\nPRODUCT_EXTRA_RECOVERY_KEYS := user-keys/releasekey\n\n;" "vendor/$vendor/config/common.mk"
+      fi
+
+      if [ "$android_version_major" -ge "10" ]; then
+        sed -i "1s;^;PRODUCT_DEFAULT_DEV_CERTIFICATE := user-keys/releasekey\nPRODUCT_OTA_PUBLIC_KEYS := user-keys/releasekey\n\n;" "vendor/$vendor/config/common.mk"
+      fi
+    fi
+
+    # Prepare the environment
+    if [ "$PREPARE_BUILD_ENVIRONMENT" = true ]; then
+      echo ">> [$(date)] Preparing build environment"
+      set +eu
+      # shellcheck source=/dev/null
+      source build/envsetup.sh > /dev/null
+      set -eu
+    else
+      echo ">> [$(date)] Preparing build environment disabled"
+    fi
+
 
   fi
 
