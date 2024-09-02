@@ -207,6 +207,18 @@ for codename in ${devices//,/ }; do
     DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
   # - `repo init`
+  # ToDo: do we need to add REPO_VERSION - see https://github.com/lineageos-infra/build-config/commit/312e3242d04db35945ce815ab35864a86b14b866
+  if [ "$CALL_REPO_INIT" = true ]; then
+    echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
+    if [ "$LOCAL_MIRROR" = true ]; then
+      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" -g default,-darwin,-muppets,muppets_${DEVICE} --git-lfs &>> "$repo_log"
+    else
+      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" -g default,-darwin,-muppets,muppets_${DEVICE} --git-lfs &>> "$repo_log"
+    fi
+  else
+    echo ">> [$(date)] Calling repo init disabled"
+  fi
+
   # - `repo sync`
   # Setup our overlays
     if [ "$BUILD_OVERLAY" = true ]; then
