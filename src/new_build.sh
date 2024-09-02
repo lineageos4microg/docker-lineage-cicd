@@ -381,6 +381,22 @@ for codename in ${devices//,/ }; do
       else
         echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
       fi
+
+      # Remove old zips and logs
+      if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
+        if [ "$ZIP_SUBDIR" = true ]; then
+          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$los_ver" -N 1 "$ZIP_DIR/$zipsubdir"
+        else
+          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$los_ver" -N 1 -c "$codename" "$ZIP_DIR"
+        fi
+      fi
+      if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
+        if [ "$LOGS_SUBDIR" = true ]; then
+          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 "$LOGS_DIR/$logsubdir"
+        else
+          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 -c "$codename" "$LOGS_DIR"
+        fi
+      fi
     else
       echo ">> [$(date)] Calling mka for $codename, $branch branch disabled"
     fi
