@@ -90,3 +90,14 @@ if [ -f /root/userscripts/begin.sh ]; then
   echo ">> [$(date)] Running begin.sh"
   /root/userscripts/begin.sh || { echo ">> [$(date)] Error: begin.sh failed!"; exit 1; }
 fi
+
+# Handle parameters and environment variables
+## CLEAN_OUTDIR
+if [ "$CLEAN_OUTDIR" = true ]; then
+ echo ">> [$(date)] Cleaning '$ZIP_DIR'"
+ rm -rf "${ZIP_DIR:?}/"*
+fi
+
+## PARALLEL_JOBS
+
+## RETRY_FETCHES
