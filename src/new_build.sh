@@ -26,7 +26,7 @@
 #      -  PARALLEL_JOBS
 #      -  RETRY_FETCHES
 # - handle local manifests
-# - Sync mirror
+# - Sync mirror if we're using one
 # - Branch-specific stuff
 # -  main sync and build loop For each device in `$DEVICE_LIST`
 #     - setup build overlay
@@ -132,4 +132,24 @@ if [ "$INCLUDE_PROPRIETARY" = true ]; then
   wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
   /root/build_manifest.py --remote "https://gitlab.com" --remotename "gitlab_https" \
     "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
+fi
+
+# Sync mirror if we're using one
+if [ "$LOCAL_MIRROR" = true ]; then
+
+  cd "$MIRROR_DIR"
+  if [ "$INIT_MIRROR" = true ]; then
+    if [ ! -d .repo ]; then
+      echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
+      ( yes||: ) | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
+    fi
+  else
+    echo ">> [$(date)] Initializing mirror repository disabled" | tee -a "$repo_log"
+  fi
+  if [ "$SYNC_MIRROR" = true ]; then
+    echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
+    repo sync "${jobs_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+  else
+    echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
+  fi
 fi
