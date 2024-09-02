@@ -138,6 +138,9 @@ fi
 branch_dir=${branch//[^[:alnum:]]/_}
 branch_dir=${branch_dir^^}
 
+mkdir -p "$SRC_DIR/$branch_dir"
+cd "$SRC_DIR/$branch_dir"
+
 if [ -n "$branch" ] && [ -n "$devices" ]; then
   case "$branch" in
     lineage-21.0*)
@@ -150,9 +153,6 @@ if [ -n "$branch" ] && [ -n "$devices" ]; then
       ;;
     esac
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
-
-    mkdir -p "$SRC_DIR/$branch_dir"
-    cd "$SRC_DIR/$branch_dir"
 fi
 
 # Handle local manifests
