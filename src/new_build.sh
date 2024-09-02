@@ -206,7 +206,7 @@ for codename in ${devices//,/ }; do
     fi
     DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
-  # - `repo init`
+  # `repo init`
   # ToDo: do we need to add REPO_VERSION - see https://github.com/lineageos-infra/build-config/commit/312e3242d04db35945ce815ab35864a86b14b866
   if [ "$CALL_REPO_INIT" = true ]; then
     echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
@@ -219,7 +219,26 @@ for codename in ${devices//,/ }; do
     echo ">> [$(date)] Calling repo init disabled"
   fi
 
-  # - `repo sync`
+  # `repo sync`
+  if [ "$CALL_REPO_SYNC" = true ]; then
+    echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
+    repo sync "${jobs_arg[@]}" -c --force-sync &>> "$repo_log"
+  else
+    echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
+  fi
+
+  if [ "$CALL_GIT_LFS_PULL" = true ]; then
+    echo ">> [$(date)] Calling git lfs pull" | tee -a "$repo_log"
+    repo forall -v -c git lfs pull &>> "$repo_log"
+  else
+    echo ">> [$(date)] Calling git lfs pull disabled" | tee -a "$repo_log"
+  fi
+
+  if [ ! -d "vendor/$vendor" ]; then
+    echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
+    exit 1
+  fi
+  
   # Setup our overlays
     if [ "$BUILD_OVERLAY" = true ]; then
       lowerdir=$SRC_DIR/$branch_dir
