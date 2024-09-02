@@ -153,3 +153,31 @@ if [ "$LOCAL_MIRROR" = true ]; then
     echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
   fi
 fi
+
+# Branch-specific stuff
+branch=$BRANCH_NAME
+branch_dir=${branch//[^[:alnum:]]/_}
+branch_dir=${branch_dir^^}
+echo ">> [$(date)] Branch:  $branch"
+
+vendor=lineage
+
+devices=$DEVICE_LIST
+echo ">> [$(date)] Devices: $devices"
+
+if [ -n "$branch" ] && [ -n "$devices" ]; then
+  case "$branch" in
+    lineage-21.0*)
+      themuppets_branch="lineage-21.0"
+      android_version="14"
+      ;;
+    *)
+      echo ">> [$(date)] Building branch $branch is not (yet) suppported"
+      exit 1
+      ;;
+    esac
+    android_version_major=$(cut -d '.' -f 1 <<< $android_version)
+
+    mkdir -p "$SRC_DIR/$branch_dir"
+    cd "$SRC_DIR/$branch_dir"
+fi
