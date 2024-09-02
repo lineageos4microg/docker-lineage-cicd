@@ -42,7 +42,7 @@
 #         - `post-build.sh`
 #         - `do_cleanup`
 #     - Call `pre-build.sh`
-#     - `mka`
+#     - Call `mka`
 #     - move artefacts to `ZIPDIR`
 #         - ROM zip file
 #         - `.img` files
@@ -333,6 +333,56 @@ for codename in ${devices//,/ }; do
       echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
       /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG" || {
         echo ">> [$(date)] Error: pre-build.sh failed for $codename on $branch!"; userscriptfail=true; continue; }
+    fi
+
+    # Call mka
+    build_successful=true
+    if [ "$CALL_MKA" = true ]; then
+      # Start the build
+      echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+      build_successful=false
+      files_to_hash=()
+
+      if (set +eu ; mka "${jobs_arg[@]}" target-files-package bacon) &>> "$DEBUG_LOG"; then
+        echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
+
+        # Move the ROM zip files to the main OUT directory
+        cd out/target/product/"$codename"
+        files_to_hash=()
+        for build in lineage-*.zip; do
+          cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
+          mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
+          files_to_hash+=( "$build" )
+        done
+
+        # Now handle the .img files - where are they?
+        img_dir=$(find "$source_dir/out/target/product/$codename/obj/PACKAGING" -name "IMAGES")
+        if [ -d "$img_dir" ]; then
+          cd "$img_dir"
+        fi
+
+        # rename and copy the images to the zips directory
+        for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot init_boot; do
+          if [ -f "$image.img" ]; then
+            recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
+            echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
+            cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
+            files_to_hash+=( "$recovery_name" )
+          fi
+        done
+
+        # create the checksum files
+        cd "$ZIP_DIR/$zipsubdir"
+        for f in "${files_to_hash[@]}"; do
+          sha256sum "$f" > "$ZIP_DIR/$zipsubdir/$f.sha256sum"
+        done
+        cd "$source_dir"
+        build_successful=true
+      else
+        echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
+      fi
+    else
+      echo ">> [$(date)] Calling mka for $codename, $branch branch disabled"
     fi
 
   fi
