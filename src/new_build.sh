@@ -209,7 +209,6 @@ for codename in ${devices//,/ }; do
     else
       logsubdir=
     fi
-    DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
   # `repo init`
   # ToDo: do we need to add REPO_VERSION - see https://github.com/lineageos-infra/build-config/commit/312e3242d04db35945ce815ab35864a86b14b866
@@ -267,6 +266,8 @@ for codename in ${devices//,/ }; do
     los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "$makefile_containing_version")
     los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
     los_ver="$los_ver_major.$los_ver_minor"
+
+    DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
     # Add custom packages to be installed
     if [ -n "$CUSTOM_PACKAGES" ]; then
