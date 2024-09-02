@@ -401,8 +401,13 @@ for codename in ${devices//,/ }; do
       echo ">> [$(date)] Calling mka for $codename, $branch branch disabled"
     fi
 
+    # call post-build.sh
+    if [ -f /root/userscripts/post-build.sh ]; then
+      echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
+      /root/userscripts/post-build.sh "$codename" "$build_successful" "$branch" &>> "$DEBUG_LOG" || {
+        echo ">> [$(date)] Error: post-build.sh failed for $codename on $branch!"; userscriptfail=true; }
+    fi
+    echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
+    do_cleanup
   fi
-
-# More stuff to do
-
 done
