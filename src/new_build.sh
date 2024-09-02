@@ -30,6 +30,7 @@
 # - Branch-specific stuff
 # -  main sync and build loop
 #    For each device in `$DEVICE_LIST`
+#     - setup subdirectories
 #     - setup build overlay
 #     - `repo init`
 #     - `repo sync`
@@ -189,6 +190,22 @@ fi
 for codename in ${devices//,/ }; do
   if [ -n "$codename" ]; then
     builddate=$(date +%Y%m%d)
+
+    # setup subdirectories
+    if [ "$ZIP_SUBDIR" = true ]; then
+      zipsubdir=$codename
+      mkdir -p "$ZIP_DIR/$zipsubdir"
+    else
+      zipsubdir=
+    fi
+    if [ "$LOGS_SUBDIR" = true ]; then
+      logsubdir=$codename
+      mkdir -p "$LOGS_DIR/$logsubdir"
+    else
+      logsubdir=
+    fi
+    DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
+
   # - `repo init`
   # - `repo sync`
   # Setup our overlays
@@ -214,7 +231,7 @@ for codename in ${devices//,/ }; do
     los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "$makefile_containing_version")
     los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
     los_ver="$los_ver_major.$los_ver_minor"
-    
+
   fi
 
 # More stuff to do
