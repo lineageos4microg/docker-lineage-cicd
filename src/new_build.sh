@@ -416,3 +416,8 @@ for codename in ${devices//,/ }; do
     fi
   fi
 done
+
+if [ -f /root/userscripts/end.sh ]; then
+  echo ">> [$(date)] Running end.sh"
+  /root/userscripts/end.sh || echo ">> [$(date)] Error: end.sh failed!"
+fi
