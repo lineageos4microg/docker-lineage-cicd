@@ -306,6 +306,27 @@ for codename in ${devices//,/ }; do
       /root/userscripts/before.sh || { echo ">> [$(date)] Error: before.sh failed for $branch!"; userscriptfail=true; continue; }
     fi
 
+    # Call breakfast
+    breakfast_returncode=0
+    if [ "$CALL_BREAKFAST" = true ]; then
+      set +eu
+      breakfast "$codename" "$BUILD_TYPE" &>> "$DEBUG_LOG"
+      breakfast_returncode=$?
+      set -eu
+    else
+      echo ">> [$(date)] Calling breakfast disabled"
+    fi
+
+    if [ $breakfast_returncode -ne 0 ]; then
+        echo ">> [$(date)] breakfast failed for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+        # call post-build.sh so the failure is logged in a way that is more visible
+        if [ -f /root/userscripts/post-build.sh ]; then
+          echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
+          /root/userscripts/post-build.sh "$codename" false "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+        fi
+        do_cleanup
+        continue
+    fi
 
   fi
 
