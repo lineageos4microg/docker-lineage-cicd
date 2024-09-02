@@ -299,7 +299,9 @@ for codename in ${devices//,/ }; do
     else
       echo ">> [$(date)] Preparing build environment disabled"
     fi
-
+    
+    userscriptfail=false
+    
     # Call `before.sh`
     if [ -f /root/userscripts/before.sh ]; then
       echo ">> [$(date)] Running before.sh"
