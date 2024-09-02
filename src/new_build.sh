@@ -17,3 +17,31 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+
+# Outline
+# - Call `begin.sh`
+# - Handle parameters and environment variables
+#      -  CLEAN_OUTDIR
+#      -  PARALLEL_JOBS
+#      -  RETRY_FETCHES
+# - handle manifests
+# - Sync mirror
+# - Branch-specific stuff
+# -  main sync and build loop For each device in `$DEVICE_LIST`
+#     - setup build overlay
+#     - `repo init`
+#     - `repo sync`
+#     - Call `before.sh`
+#     - `breakfast` - in case of failure, call
+#         - `post-build.sh`
+#         - `do_cleanup`
+#     - `mka`
+#     - move artefacts to `ZIPDIR`
+#         - ROM zip file
+#         - `.img` files
+#         - create the checksum files
+#         - Remove old zips and logs
+#     - call `post-build.sh`
+#     - call `do_cleanup`
+# - call `end.sh`
