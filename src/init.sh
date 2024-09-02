@@ -65,14 +65,19 @@ visibility = ["//visibility:public"],
 )
 _EOB
 
+build_file="build.sh"
+if [ "$BRANCH_NAME" = "lineage-21.0" ]; then
+  build_file="new_build.sh"
+fi
+
 if [ "$CRONTAB_TIME" = "now" ]; then
-  /root/build.sh
+  /root/$build_file
 else
   # Initialize the cronjob
   cronFile=/tmp/buildcron
   printf "SHELL=/bin/bash\n" > $cronFile
   printenv -0 | sed -e 's/=\x0/=""\n/g'  | sed -e 's/\x0/\n/g' | sed -e "s/_=/PRINTENV=/g" >> $cronFile
-  printf '\n%s /usr/bin/flock -n /var/lock/build.lock /root/build.sh >> /var/log/docker.log 2>&1\n' "$CRONTAB_TIME" >> $cronFile
+  printf "\n%s /usr/bin/flock -n /var/lock/build.lock /root/$build_file >> /var/log/docker.log 2>&1\n" "$CRONTAB_TIME" >> $cronFile
   crontab $cronFile
   rm $cronFile
 
