@@ -25,9 +25,9 @@
 #      -  CLEAN_OUTDIR
 #      -  PARALLEL_JOBS
 #      -  RETRY_FETCHES
+# - Branch-specific stuff
 # - handle local manifests
 # - Sync mirror if we're using one
-# - Branch-specific stuff
 # -  main sync and build loop
 #    For each device in `$DEVICE_LIST`
 #     - setup subdirectories
@@ -134,6 +134,27 @@ if [ -n "${RETRY_FETCHES-}" ]; then
   fi
 fi
 
+# Branch-specific stuff
+branch_dir=${branch//[^[:alnum:]]/_}
+branch_dir=${branch_dir^^}
+
+if [ -n "$branch" ] && [ -n "$devices" ]; then
+  case "$branch" in
+    lineage-21.0*)
+      themuppets_branch="lineage-21.0"
+      android_version="14"
+      ;;
+    *)
+      echo ">> [$(date)] Building branch $branch is not (yet) suppported"
+      exit 1
+      ;;
+    esac
+    android_version_major=$(cut -d '.' -f 1 <<< $android_version)
+
+    mkdir -p "$SRC_DIR/$branch_dir"
+    cd "$SRC_DIR/$branch_dir"
+fi
+
 # Handle local manifests
 ## Copy local manifests
 echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
@@ -168,26 +189,6 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
 fi
 
-# Branch-specific stuff
-branch_dir=${branch//[^[:alnum:]]/_}
-branch_dir=${branch_dir^^}
-
-if [ -n "$branch" ] && [ -n "$devices" ]; then
-  case "$branch" in
-    lineage-21.0*)
-      themuppets_branch="lineage-21.0"
-      android_version="14"
-      ;;
-    *)
-      echo ">> [$(date)] Building branch $branch is not (yet) suppported"
-      exit 1
-      ;;
-    esac
-    android_version_major=$(cut -d '.' -f 1 <<< $android_version)
-
-    mkdir -p "$SRC_DIR/$branch_dir"
-    cd "$SRC_DIR/$branch_dir"
-fi
 
 # -  main sync and build loop
 #    For each device in `$DEVICE_LIST`
