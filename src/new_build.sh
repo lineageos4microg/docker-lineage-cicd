@@ -92,6 +92,14 @@ if [ -f /root/userscripts/begin.sh ]; then
 fi
 
 # Handle parameters and environment variables
+branch=$BRANCH_NAME
+echo ">> [$(date)] Branch:  $branch"
+
+devices=$DEVICE_LIST
+echo ">> [$(date)] Devices: $devices"
+
+vendor=lineage
+
 ## CLEAN_OUTDIR
 if [ "$CLEAN_OUTDIR" = true ]; then
  echo ">> [$(date)] Cleaning '$ZIP_DIR'"
@@ -155,15 +163,8 @@ if [ "$LOCAL_MIRROR" = true ]; then
 fi
 
 # Branch-specific stuff
-branch=$BRANCH_NAME
 branch_dir=${branch//[^[:alnum:]]/_}
 branch_dir=${branch_dir^^}
-echo ">> [$(date)] Branch:  $branch"
-
-vendor=lineage
-
-devices=$DEVICE_LIST
-echo ">> [$(date)] Devices: $devices"
 
 if [ -n "$branch" ] && [ -n "$devices" ]; then
   case "$branch" in
