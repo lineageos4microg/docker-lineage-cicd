@@ -408,6 +408,11 @@ for codename in ${devices//,/ }; do
         echo ">> [$(date)] Error: post-build.sh failed for $codename on $branch!"; userscriptfail=true; }
     fi
     echo ">> [$(date)] Finishing build for $codename" | tee -a "$DEBUG_LOG"
+
     do_cleanup
+    if [ $userscriptfail = true ]; then
+      echo ">> [$(date)] One or more userscripts failed!"
+      exit 1
+    fi
   fi
 done
