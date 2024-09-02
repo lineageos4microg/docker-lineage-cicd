@@ -183,7 +183,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
   if [ "$SYNC_MIRROR" = true ]; then
     echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-    repo sync "${jobs_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+    repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
   else
     echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
   fi
@@ -226,7 +226,7 @@ for codename in ${devices//,/ }; do
   # `repo sync`
   if [ "$CALL_REPO_SYNC" = true ]; then
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-    repo sync "${jobs_arg[@]}" -c --force-sync &>> "$repo_log"
+    repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --current-branch --force-sync &>> "$repo_log"
   else
     echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
   fi
@@ -299,9 +299,9 @@ for codename in ${devices//,/ }; do
     else
       echo ">> [$(date)] Preparing build environment disabled"
     fi
-    
+
     userscriptfail=false
-    
+
     # Call `before.sh`
     if [ -f /root/userscripts/before.sh ]; then
       echo ">> [$(date)] Running before.sh"
