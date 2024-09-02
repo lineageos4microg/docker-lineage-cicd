@@ -99,5 +99,23 @@ if [ "$CLEAN_OUTDIR" = true ]; then
 fi
 
 ## PARALLEL_JOBS
+jobs_arg=()
+if [ -n "${PARALLEL_JOBS-}" ]; then
+  if [[ "$PARALLEL_JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    jobs_arg+=( "-j$PARALLEL_JOBS" )
+  else
+    echo "PARALLEL_JOBS is not a positive number: $PARALLEL_JOBS"
+    exit 1
+  fi
+fi
 
 ## RETRY_FETCHES
+retry_fetches_arg=()
+if [ -n "${RETRY_FETCHES-}" ]; then
+  if [[ "$RETRY_FETCHES" =~ ^[1-9][0-9]*$ ]]; then
+    retry_fetches_arg+=( "--retry-fetches=$RETRY_FETCHES" )
+  else
+    echo "RETRY_FETCHES is not a positive number: $RETRY_FETCHES"
+    exit 1
+  fi
+fi
