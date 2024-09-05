@@ -211,7 +211,6 @@ for codename in ${devices//,/ }; do
     fi
 
   # `repo init`
-  # ToDo: do we need to add REPO_VERSION - see https://github.com/lineageos-infra/build-config/commit/312e3242d04db35945ce815ab35864a86b14b866
   if [ "$CALL_REPO_INIT" = true ]; then
     echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
     if [ "$LOCAL_MIRROR" = true ]; then
