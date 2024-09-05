@@ -34,6 +34,7 @@
 #     - `repo init`
 #     - `repo sync`
 #     - setup our overlays
+#     - Set RELEASE_TYPE
 #     - Add custom packages to be installed
 #     - Handle keys
 #     - Prepare the environment
@@ -271,6 +272,11 @@ for codename in ${devices//,/ }; do
     los_ver="$los_ver_major.$los_ver_minor"
 
     DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
+
+    # Set RELEASE_TYPE
+    echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
+    sed -i "/\$(filter .*\$(${vendor^^}_BUILDTYPE)/,/endif/d" "$makefile_containing_version"
+
 
     # Add custom packages to be installed
     if [ -n "$CUSTOM_PACKAGES" ]; then
