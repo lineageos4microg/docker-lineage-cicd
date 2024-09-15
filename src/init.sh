@@ -65,10 +65,14 @@ visibility = ["//visibility:public"],
 )
 _EOB
 
-build_file="build.sh"
-if [ "$BRANCH_NAME" = "lineage-21.0" ]; then
-  build_file="new_build.sh"
-fi
+case "$BRANCH_NAME" in
+  "lineage-20.0" | "lineage-21.0" )
+    build_file="new_build.sh"
+    ;;
+  * )
+    build_file="build.sh"
+    ;;
+esac
 
 if [ "$CRONTAB_TIME" = "now" ]; then
   /root/$build_file
