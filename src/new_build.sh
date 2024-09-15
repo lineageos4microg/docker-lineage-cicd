@@ -108,6 +108,17 @@ echo ">> [$(date)] Devices: $devices"
 
 vendor=lineage
 
+## Check for non-working environment variable values
+if [ "$LOCAL_MIRROR" = true ]; then
+  echo "Using LOCAL_MIRROR is not yet working"
+  exit 1
+fi
+
+if [ "$BUILD_OVERLAY" = true ]; then
+  echo "Using BUILD_OVERLAY is not yet working"
+  exit 1
+fi
+
 ## CLEAN_OUTDIR
 if [ "$CLEAN_OUTDIR" = true ]; then
  echo ">> [$(date)] Cleaning '$ZIP_DIR'"
