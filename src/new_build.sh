@@ -253,6 +253,7 @@ for codename in ${devices//,/ }; do
   # Setup our overlays
     if [ "$BUILD_OVERLAY" = true ]; then
       echo "Using BUILD_OVERLAY is not yet working"
+      exit 1
 
       # lowerdir=$SRC_DIR/$branch_dir
       # upperdir=$TMP_DIR/device
