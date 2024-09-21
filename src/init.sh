@@ -70,7 +70,7 @@ case "$BRANCH_NAME" in
     build_file="new_build.sh"
     ;;
   * )
-    build_file="build.sh"
+    build_file="legacy-build.sh"
     ;;
 esac
 
