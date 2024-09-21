@@ -156,6 +156,10 @@ cd "$SRC_DIR/$branch_dir"
 
 if [ -n "$branch" ] && [ -n "$devices" ]; then
   case "$branch" in
+    lineage-19.1*)
+      themuppets_branch="lineage-19.1"
+      android_version="12"
+      ;;
     lineage-20.0*)
       themuppets_branch="lineage-20.0"
       android_version="13"
