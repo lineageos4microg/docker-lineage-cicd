@@ -246,11 +246,26 @@ for codename in ${devices//,/ }; do
   fi
 
   # `repo sync`
+  repo_sync_returncode=0
   if [ "$CALL_REPO_SYNC" = true ]; then
+    set +eu
     echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
     repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --current-branch --force-sync &>> "$repo_log"
+    repo_sync_returncode=$?
+    set -eu
   else
     echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
+  fi
+
+  if [ $repo_sync_returncode -ne 0 ]; then
+      echo ">> [$(date)] repo sync failed for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+      # call post-build.sh so the failure is logged in a way that is more visible
+      if [ -f /root/userscripts/post-build.sh ]; then
+        echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
+        /root/userscripts/post-build.sh "$codename" false "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+      fi
+      do_cleanup
+      continue
   fi
 
   if [ "$CALL_GIT_LFS_PULL" = true ]; then
