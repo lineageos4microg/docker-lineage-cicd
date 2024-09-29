@@ -81,6 +81,7 @@ do_cleanup() {
     else
       cd "$source_dir"
       (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
+      rm -rf vendor/* || true
     fi
   fi
 }
