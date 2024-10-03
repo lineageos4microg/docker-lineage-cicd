@@ -234,6 +234,9 @@ for codename in ${devices//,/ }; do
       logsubdir=
     fi
 
+    # Set device specific logfils
+   DEBUG_LOG="$LOGS_DIR/$logsubdir/$branch-$builddate-$RELEASE_TYPE-$codename.log"
+
   # `repo init`
   if [ "$CALL_REPO_INIT" = true ]; then
     echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
@@ -308,7 +311,7 @@ for codename in ${devices//,/ }; do
     los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
     los_ver="$los_ver_major.$los_ver_minor"
 
-    DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
+#    DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
     # Set RELEASE_TYPE
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
