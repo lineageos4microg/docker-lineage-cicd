@@ -82,6 +82,7 @@ do_cleanup() {
       cd "$source_dir"
       (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
       rm -rf vendor/* || true
+      rm -rf kernel/* || true
     fi
   fi
 }
