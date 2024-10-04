@@ -83,6 +83,7 @@ do_cleanup() {
       (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
       rm -rf vendor/* || true
       rm -rf kernel/* || true
+      rm -rf device/* || true
     fi
   fi
 }
