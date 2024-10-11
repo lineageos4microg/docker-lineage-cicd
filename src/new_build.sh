@@ -76,13 +76,17 @@ do_cleanup() {
   if [ "$CLEAN_AFTER_BUILD" = true ]; then
     echo ">> [$(date)] Cleaning source dir for device $codename" | tee -a "$DEBUG_LOG"
     if [ "$BUILD_OVERLAY" = true ]; then
+      echo ">> [$(date)] Removing $TMP_DIR for device $codename" | tee -a "$DEBUG_LOG"
       cd "$TMP_DIR"
       rm -rf ./* || true
     else
       cd "$source_dir"
       (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
+      echo ">> [$(date)] Removing $PWD/vendor for device $codename" | tee -a "$DEBUG_LOG"
       rm -rf vendor/* || true
+      echo ">> [$(date)] Removing $PWD/kernel for device $codename" | tee -a "$DEBUG_LOG"
       rm -rf kernel/* || true
+      echo ">> [$(date)] Removing $PWD/device for device $codename" | tee -a "$DEBUG_LOG"
       rm -rf device/* || true
     fi
   fi
