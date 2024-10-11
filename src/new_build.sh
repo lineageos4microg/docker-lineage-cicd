@@ -82,8 +82,8 @@ do_cleanup() {
     else
       cd "$source_dir"
       (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
-      # echo ">> [$(date)] Removing $PWD/vendor" | tee -a "$DEBUG_LOG"
-      # rm -rf vendor/* || true
+      echo ">> [$(date)] Removing $PWD/vendor" | tee -a "$DEBUG_LOG"
+      rm -rf vendor/* || true
       # echo ">> [$(date)] Removing $PWD/kernel" | tee -a "$DEBUG_LOG"
       # rm -rf kernel/* || true
       # echo ">> [$(date)] Removing $PWD/device" | tee -a "$DEBUG_LOG"
