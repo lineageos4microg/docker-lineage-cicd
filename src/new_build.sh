@@ -160,7 +160,8 @@ fi
 branch_dir=${branch//[^[:alnum:]]/_}
 branch_dir=${branch_dir^^}
 
-mkdir -p "$SRC_DIR/$branch_dir"
+source_dir="$SRC_DIR/$branch_dir"
+mkdir -p "$source_dir"
 cd "$SRC_DIR/$branch_dir"
 
 if [ -n "$branch" ] && [ -n "$devices" ]; then
