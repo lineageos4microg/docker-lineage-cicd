@@ -82,12 +82,14 @@ do_cleanup() {
     else
       cd "$source_dir"
       (set +eu ; mka "${jobs_arg[@]}" clean) &>> "$DEBUG_LOG"
-      echo ">> [$(date)] Removing $PWD/vendor for device $codename" | tee -a "$DEBUG_LOG"
-      rm -rf vendor/* || true
-      echo ">> [$(date)] Removing $PWD/kernel for device $codename" | tee -a "$DEBUG_LOG"
-      rm -rf kernel/* || true
-      echo ">> [$(date)] Removing $PWD/device for device $codename" | tee -a "$DEBUG_LOG"
-      rm -rf device/* || true
+      # echo ">> [$(date)] Removing $PWD/vendor" | tee -a "$DEBUG_LOG"
+      # rm -rf vendor/* || true
+      # echo ">> [$(date)] Removing $PWD/kernel" | tee -a "$DEBUG_LOG"
+      # rm -rf kernel/* || true
+      # echo ">> [$(date)] Removing $PWD/device" | tee -a "$DEBUG_LOG"
+      # rm -rf device/* || true
+      echo ">> [$(date)] Removing $PWD/.repo/local_manifests/roomservice.xml" | tee -a "$DEBUG_LOG"
+      rm -f .repo/local_manifests/roomservice.xml
     fi
   fi
 }
@@ -183,7 +185,7 @@ if [ -n "$branch" ] && [ -n "$devices" ]; then
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 fi
 
-# Handle local manifests
+# Handle local ts
 ## Copy local manifests
 echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
 mkdir -p .repo/local_manifests
