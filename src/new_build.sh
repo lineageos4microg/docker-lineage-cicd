@@ -192,14 +192,6 @@ echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
 mkdir -p .repo/local_manifests
 rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_manifests/
 
-## Pick up TheMuppets manifest if required
-rm -f .repo/local_manifests/proprietary.xml
-if [ "$INCLUDE_PROPRIETARY" = true ]; then
-  wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
-  /root/build_manifest.py --remote "https://gitlab.com" --remotename "gitlab_https" \
-    "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
-fi
-
 # Sync mirror if we're using one
 if [ "$LOCAL_MIRROR" = true ]; then
   echo "Using LOCAL_MIRROR is not yet working"
@@ -244,7 +236,14 @@ for codename in ${devices//,/ }; do
     fi
 
     # Set device specific logfils
-   DEBUG_LOG="$LOGS_DIR/$logsubdir/$branch-$builddate-$RELEASE_TYPE-$codename.log"
+    DEBUG_LOG="$LOGS_DIR/$logsubdir/$branch-$builddate-$RELEASE_TYPE-$codename.log"
+    ## Pick up TheMuppets manifest if required
+    rm -f .repo/local_manifests/proprietary.xml
+    if [ "$INCLUDE_PROPRIETARY" = true ]; then
+      wget -q -O .repo/local_manifests/proprietary.xml "https://raw.githubusercontent.com/TheMuppets/manifests/$themuppets_branch/muppets.xml"
+      /root/build_manifest.py --remote "https://gitlab.com" --remotename "gitlab_https" \
+        "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
+    fi
 
   # `repo init`
   if [ "$CALL_REPO_INIT" = true ]; then
