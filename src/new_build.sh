@@ -253,7 +253,42 @@ for codename in ${devices//,/ }; do
       echo ">> [$(date)] Calling repo init disabled"
     fi
 
-    # Setup our overlays
+    # `repo sync`
+    repo_sync_returncode=0
+    if [ "$CALL_REPO_SYNC" = true ]; then
+      set +eu
+      echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
+      repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --current-branch --force-sync &>> "$repo_log"
+      repo_sync_returncode=$?
+      set -eu
+    else
+      echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
+    fi
+
+    if [ $repo_sync_returncode -ne 0 ]; then
+        echo ">> [$(date)] repo sync failed for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+        # call post-build.sh so the failure is logged in a way that is more visible
+        if [ -f /root/userscripts/post-build.sh ]; then
+          echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
+          /root/userscripts/post-build.sh "$codename" false "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+        fi
+        do_cleanup
+        continue
+    fi
+
+    if [ "$CALL_GIT_LFS_PULL" = true ]; then
+      echo ">> [$(date)] Calling git lfs pull" | tee -a "$repo_log"
+      repo forall -v -c git lfs pull &>> "$repo_log"
+    else
+      echo ">> [$(date)] Calling git lfs pull disabled" | tee -a "$repo_log"
+    fi
+
+    if [ ! -d "vendor/$vendor" ]; then
+      echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
+      exit 1
+    fi
+
+  # Setup our overlays
     if [ "$BUILD_OVERLAY" = true ]; then
       echo "Using BUILD_OVERLAY is not yet working"
       exit 1
@@ -279,6 +314,8 @@ for codename in ${devices//,/ }; do
     los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "$makefile_containing_version")
     los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
     los_ver="$los_ver_major.$los_ver_minor"
+
+#    DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
     # Set RELEASE_TYPE
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
