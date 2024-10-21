@@ -241,52 +241,52 @@ for codename in ${devices//,/ }; do
         "https://gitlab.com/the-muppets/manifest/raw/$themuppets_branch/muppets.xml" .repo/local_manifests/proprietary_gitlab.xml
     fi
 
-  # `repo init`
-  if [ "$CALL_REPO_INIT" = true ]; then
-    echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
-    if [ "$LOCAL_MIRROR" = true ]; then
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" -g default,-darwin,-muppets,muppets_"${codename}" --git-lfs &>> "$repo_log"
-    else
-      ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" -g default,-darwin,-muppets,muppets_"${codename}" --git-lfs &>> "$repo_log"
-    fi
-  else
-    echo ">> [$(date)] Calling repo init disabled"
-  fi
-
-  # `repo sync`
-  repo_sync_returncode=0
-  if [ "$CALL_REPO_SYNC" = true ]; then
-    set +eu
-    echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-    repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --current-branch --force-sync &>> "$repo_log"
-    repo_sync_returncode=$?
-    set -eu
-  else
-    echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
-  fi
-
-  if [ $repo_sync_returncode -ne 0 ]; then
-      echo ">> [$(date)] repo sync failed for $codename, $branch branch" | tee -a "$DEBUG_LOG"
-      # call post-build.sh so the failure is logged in a way that is more visible
-      if [ -f /root/userscripts/post-build.sh ]; then
-        echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
-        /root/userscripts/post-build.sh "$codename" false "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+    # `repo init`
+    if [ "$CALL_REPO_INIT" = true ]; then
+      echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
+      if [ "$LOCAL_MIRROR" = true ]; then
+        ( yes||: ) | repo init -u https://github.com/LineageOS/android.git --reference "$MIRROR_DIR" -b "$branch" -g default,-darwin,-muppets,muppets_"${codename}" --git-lfs &>> "$repo_log"
+      else
+        ( yes||: ) | repo init -u https://github.com/LineageOS/android.git -b "$branch" -g default,-darwin,-muppets,muppets_"${codename}" --git-lfs &>> "$repo_log"
       fi
-      do_cleanup
-      continue
-  fi
+    else
+      echo ">> [$(date)] Calling repo init disabled"
+    fi
 
-  if [ "$CALL_GIT_LFS_PULL" = true ]; then
-    echo ">> [$(date)] Calling git lfs pull" | tee -a "$repo_log"
-    repo forall -v -c git lfs pull &>> "$repo_log"
-  else
-    echo ">> [$(date)] Calling git lfs pull disabled" | tee -a "$repo_log"
-  fi
+    # `repo sync`
+    repo_sync_returncode=0
+    if [ "$CALL_REPO_SYNC" = true ]; then
+      set +eu
+      echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
+      repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --current-branch --force-sync &>> "$repo_log"
+      repo_sync_returncode=$?
+      set -eu
+    else
+      echo ">> [$(date)] Syncing branch repository disabled" | tee -a "$repo_log"
+    fi
 
-  if [ ! -d "vendor/$vendor" ]; then
-    echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
-    exit 1
-  fi
+    if [ $repo_sync_returncode -ne 0 ]; then
+        echo ">> [$(date)] repo sync failed for $codename, $branch branch" | tee -a "$DEBUG_LOG"
+        # call post-build.sh so the failure is logged in a way that is more visible
+        if [ -f /root/userscripts/post-build.sh ]; then
+          echo ">> [$(date)] Running post-build.sh for $codename" >> "$DEBUG_LOG"
+          /root/userscripts/post-build.sh "$codename" false "$branch" &>> "$DEBUG_LOG" || echo ">> [$(date)] Warning: post-build.sh failed!"
+        fi
+        do_cleanup
+        continue
+    fi
+
+    if [ "$CALL_GIT_LFS_PULL" = true ]; then
+      echo ">> [$(date)] Calling git lfs pull" | tee -a "$repo_log"
+      repo forall -v -c git lfs pull &>> "$repo_log"
+    else
+      echo ">> [$(date)] Calling git lfs pull disabled" | tee -a "$repo_log"
+    fi
+
+    if [ ! -d "vendor/$vendor" ]; then
+      echo ">> [$(date)] Missing \"vendor/$vendor\", aborting"
+      exit 1
+    fi
 
   # Setup our overlays
     if [ "$BUILD_OVERLAY" = true ]; then
