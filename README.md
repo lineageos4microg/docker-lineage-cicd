@@ -241,6 +241,8 @@ Other useful settings are:
    cores on your machine. Reducing this number can help keeping it responsive for other tasks.
  * `RETRY_FETCHES`: Set the number of retries for the fetch during `repo sync`. By default, this value is unset (default `repo sync` retry behavior).
    Positive values greater than 0 are allowed.
+ * `USER (root)`, `UID (0)`, `GID (0)`: Change this in unix like systems to match the docker volume owner your host
+   owner.
 
 The full list of settings, including the less interesting ones not mentioned in
 this guide, can be found in the [Dockerfile][dockerfile].

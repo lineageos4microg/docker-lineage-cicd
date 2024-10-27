@@ -15,7 +15,6 @@ ENV LOGS_DIR /srv/logs
 ENV USERSCRIPTS_DIR /srv/userscripts
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV USER root
 
 # Configurable environment variables
 ####################################
@@ -129,6 +128,14 @@ ENV REPO_INIT_ARGS ""
 # Allowed values: positive, non-null integers
 ENV RETRY_FETCHES=
 
+# You can specify the user name, user id and group id of the linux user inside the docker container executing the build.
+# In windows environments docker maps volume folders / files for the current windows user to the root inside the docker container.
+# In *nix like environments the uid and gid of the volume folders / files will be identical on the host and inside the container.
+# You can use these settings in such environments to match the volume folder / file owners your user on the host.
+# If you use 0 as UID it is mandatory to also use the root USER, otherwise the USER name can be arbitrary and does not need to match the host.
+ENV USER root
+ENV UID 0
+ENV GID 0
 
 # variables to control whether or not tasks are implemented
 ENV INIT_MIRROR true
@@ -204,4 +211,4 @@ RUN ln -sf /proc/1/fd/1 /var/log/docker.log
 
 # Set the entry point to init.sh
 ################################
-ENTRYPOINT /root/init.sh
+ENTRYPOINT /root/root_init.sh
