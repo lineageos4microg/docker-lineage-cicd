@@ -17,13 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-echo "Preparing user: ${USER} with UID: ${UID}, GID: ${GID}"
+USER=$(id -nu "${UID}" 2>/dev/null)
 
-if ! id -u "$USER" >/dev/null 2>&1 && [ ! -z "${UID}" ] && [ "${UID}" != "0" ]; then \
-  groupadd -g ${GID} -o ${USER} && \
-  useradd -m -u ${UID} -g ${GID} -o -s /bin/bash ${USER}; \
+if [ -n "${USER}" ]; then 
+  echo "Executing with existing user ${USER}, UID: ${UID}"
+else
+  USER="lineageos"
+  groupadd -g "${UID}" -o "${USER}" && \
+  useradd -m -u "${UID}" -g "${UID}" -o -s /bin/bash "${USER}"; \
+  echo "Executing with new user ${USER}, UID: ${UID}"
 fi
 
-chown -R ${USER}:${USER} /root
-
-exec su -c /root/init.sh ${USER}
+chown -R "${USER}":"${USER}" /root
+exec su -c /root/init.sh "${USER}"

@@ -128,14 +128,13 @@ ENV REPO_INIT_ARGS ""
 # Allowed values: positive, non-null integers
 ENV RETRY_FETCHES=
 
-# You can specify the user name, user id and group id of the linux user inside the docker container executing the build.
+# You can specify the user id of the linux user inside the docker container executing the build.
+# Defaults to 0. If the UID does not exist in the container a user with GID == UID will be created and used.
 # In windows environments docker maps volume folders / files for the current windows user to the root inside the docker container.
 # In *nix like environments the uid and gid of the volume folders / files will be identical on the host and inside the container.
 # You can use these settings in such environments to match the volume folder / file owners your user on the host.
-# If you use 0 as UID it is mandatory to also use the root USER, otherwise the USER name can be arbitrary and does not need to match the host.
-ENV USER root
+# Beware that all volume mounts which are not mapped, will be created by docker under the root user by default.
 ENV UID 0
-ENV GID 0
 
 # variables to control whether or not tasks are implemented
 ENV INIT_MIRROR true
@@ -211,4 +210,4 @@ RUN ln -sf /proc/1/fd/1 /var/log/docker.log
 
 # Set the entry point to init.sh
 ################################
-ENTRYPOINT /root/root_init.sh
+ENTRYPOINT ["/root/root_init.sh"]
