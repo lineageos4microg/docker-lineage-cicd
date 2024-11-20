@@ -131,9 +131,13 @@ ENV RETRY_FETCHES=
 # You can specify the user id of the linux user inside the docker container executing the build.
 # Defaults to 0. If the UID does not exist in the container a user with GID == UID will be created and used.
 # In windows environments docker maps volume folders / files for the current windows user to the root inside the docker container.
-# In *nix like environments the uid and gid of the volume folders / files will be identical on the host and inside the container.
+# In *nix like environments, using the standard rooted docker setup,
+# the uid and gid of the volume folders / files will be identical on the host and inside the container.
 # You can use these settings in such environments to match the volume folder / file owners your user on the host.
-# Beware that all volume mounts which are not mapped, will be created by docker under the root user by default.
+# Beware that all volume mount directories which are not mapped, will be created by docker under the root user inside the
+# docker container by default.
+# In a rootless docker setup, the UID 0 in the container, will be mapped to the host user's UID.
+# Any UID >= 0 inside the container will then map to host UID + container UID on the host.
 ENV UID 0
 
 # variables to control whether or not tasks are implemented
