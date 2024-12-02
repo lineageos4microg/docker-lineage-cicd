@@ -66,7 +66,7 @@ visibility = ["//visibility:public"],
 _EOB
 
 case "$BRANCH_NAME" in
-  "lineage-19.1" | "lineage-20.0" | "lineage-21.0" )
+  "lineage-19.1" | "lineage-20.0" | "lineage-21.0" | "lineage-22.0" )
     build_file="new_build.sh"
     ;;
   * )
