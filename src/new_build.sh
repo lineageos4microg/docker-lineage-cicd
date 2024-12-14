@@ -114,12 +114,6 @@ echo ">> [$(date)] Devices: $devices"
 
 vendor=lineage
 
-## Check for non-working environment variable values
-if [ "$LOCAL_MIRROR" = true ]; then
-  echo "Using LOCAL_MIRROR is not yet working"
-  exit 1
-fi
-
 if [ "$BUILD_OVERLAY" = true ]; then
   echo "Using BUILD_OVERLAY is not yet working"
   exit 1
@@ -187,7 +181,7 @@ if [ -n "$branch" ] && [ -n "$devices" ]; then
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 fi
 
-# Handle local ts
+# Handle local manifests
 ## Copy local manifests
 echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
 mkdir -p .repo/local_manifests
@@ -195,24 +189,24 @@ rsync -a --delete --include '*.xml' --exclude '*' "$LMANIFEST_DIR/" .repo/local_
 
 # Sync mirror if we're using one
 if [ "$LOCAL_MIRROR" = true ]; then
-  echo "Using LOCAL_MIRROR is not yet working"
 
-  # cd "$MIRROR_DIR"
-  # if [ "$INIT_MIRROR" = true ]; then
-  #   if [ ! -d .repo ]; then
-  #     echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
-  #     ( yes||: ) | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
-  #   fi
-  # else
-  #   echo ">> [$(date)] Initializing mirror repository disabled" | tee -a "$repo_log"
-  # fi
-  # if [ "$SYNC_MIRROR" = true ]; then
-  #   echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-  #   repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
-  #
-  # else
-  #   echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
-  # fi
+  cd "$MIRROR_DIR"
+  if [ "$INIT_MIRROR" = true ]; then
+    if [ ! -d .repo ]; then
+      echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
+      ( yes||: ) | repo init -u https://github.com/LineageOS/mirror --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
+    fi
+  else
+    echo ">> [$(date)] Initializing mirror repository disabled" | tee -a "$repo_log"
+  fi
+  if [ "$SYNC_MIRROR" = true ]; then
+    echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
+    repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+
+  else
+    echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
+  fi
+  cd "$source_dir"
 fi
 
 
