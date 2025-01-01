@@ -105,6 +105,21 @@ if [ -f /root/userscripts/begin.sh ]; then
   /root/userscripts/begin.sh || { echo ">> [$(date)] Error: begin.sh failed!"; exit 1; }
 fi
 
+# Product specific parameters
+case "$PRODUCT" in
+  "lineage")
+    ;;
+  "iodeOS")
+    PRODUCT_PREFIX="iode"
+    SRC_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
+    MIRROR_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
+    ;;
+  *)
+    echo ">> [$(date)] Building product $PRODUCT is not (yet) suppported"
+    exit 1
+    ;;
+esac
+
 # Handle parameters and environment variables
 branch=$BRANCH_NAME
 echo ">> [$(date)] Branch:  $branch"
@@ -230,7 +245,7 @@ for codename in ${devices//,/ }; do
       logsubdir=
     fi
 
-    # Set device specific logfile 
+    # Set device specific logfile
     DEBUG_LOG="$LOGS_DIR/$logsubdir/$PRODUCT_PREFIX-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
     ## Pick up TheMuppets manifest if required
     rm -f .repo/local_manifests/proprietary.xml
@@ -244,9 +259,9 @@ for codename in ${devices//,/ }; do
     if [ "$CALL_REPO_INIT" = true ]; then
       echo ">> [$(date)] (Re)initializing branch repository" | tee -a "$repo_log"
       if [ "$LOCAL_MIRROR" = true ]; then
-        ( yes||: ) | repo init -u "$SRC_REPO" --reference "$MIRROR_DIR" -b "$branch" -g default,-darwin,-muppets,muppets_"${codename}" --git-lfs &>> "$repo_log"
+        ( yes||: ) | repo init -u "$SRC_URL" --reference "$MIRROR_DIR" -b "$branch" -g default,-darwin,-muppets,muppets_"${codename}" --git-lfs &>> "$repo_log"
       else
-        ( yes||: ) | repo init -u "$SRC_REPO" -b "$branch" -g default,-darwin,-muppets,muppets_"${codename}" --git-lfs &>> "$repo_log"
+        ( yes||: ) | repo init -u "$SRC_URL" -b "$branch" -g default,-darwin,-muppets,muppets_"${codename}" --git-lfs &>> "$repo_log"
       fi
     else
       echo ">> [$(date)] Calling repo init disabled"

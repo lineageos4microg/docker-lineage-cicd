@@ -78,9 +78,6 @@ case "$PRODUCT" in
     ;;
   "iodeOS")
     build_file="new_build.sh"
-    PRODUCT_PREFIX="iode"
-    SRC_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
-    MIRROR_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
     ;;
   *)
     echo ">> [$(date)] Building product $PRODUCT is not (yet) suppported"
