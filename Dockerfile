@@ -147,6 +147,14 @@ ENV CALL_MKA true
 ENV ZIP_UP_IMAGES false
 ENV MAKE_IMG_ZIP_FILE false
 
+# Product-specific values
+# lineage, iodeOS
+ENV PRODUCT lineage
+ENV PRODUCT_PREFIX lineage
+ENV SRC_URL https://github.com/LineageOS/android.git
+ENV MIRROR_URL https://github.com/LineageOS/mirror
+
+
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
 #  * before.sh, run after the syncing and patching, before starting the builds

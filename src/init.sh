@@ -65,12 +65,26 @@ visibility = ["//visibility:public"],
 )
 _EOB
 
-case "$BRANCH_NAME" in
-  "lineage-19.1" | "lineage-20.0" | "lineage-21.0" | "lineage-22.1" )
-    build_file="new_build.sh"
+case "$PRODUCT" in
+  "lineage")
+    case "$BRANCH_NAME" in
+      "lineage-19.1" | "lineage-20.0" | "lineage-21.0" | "lineage-22.1" )
+        build_file="new_build.sh"
+        ;;
+    * )
+      build_file="legacy-build.sh"
+      ;;
+    esac
     ;;
-  * )
-    build_file="legacy-build.sh"
+  "iodeOS")
+    build_file="new_build.sh"
+    PRODUCT_PREFIX="iode"
+    SRC_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
+    MIRROR_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
+    ;;
+  *)
+    echo ">> [$(date)] Building product $PRODUCT is not (yet) suppported"
+    exit 1
     ;;
 esac
 
