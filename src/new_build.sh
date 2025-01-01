@@ -209,7 +209,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
   if [ "$INIT_MIRROR" = true ]; then
     if [ ! -d .repo ]; then
       echo ">> [$(date)] Initializing mirror repository" | tee -a "$repo_log"
-      ( yes||: ) | repo init -u "$MIRROR_REPO" --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
+      ( yes||: ) | repo init -u "$MIRROR_URL" --mirror --no-clone-bundle -p linux --git-lfs &>> "$repo_log"
     fi
   else
     echo ">> [$(date)] Initializing mirror repository disabled" | tee -a "$repo_log"
