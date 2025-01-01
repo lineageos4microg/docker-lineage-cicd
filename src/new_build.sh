@@ -230,8 +230,8 @@ for codename in ${devices//,/ }; do
       logsubdir=
     fi
 
-    # Set device specific logfils
-    DEBUG_LOG="$LOGS_DIR/$logsubdir/$branch-$builddate-$RELEASE_TYPE-$codename.log"
+    # Set device specific logfile 
+    DEBUG_LOG="$LOGS_DIR/$logsubdir/$PRODUCT_PREFIX-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
     ## Pick up TheMuppets manifest if required
     rm -f .repo/local_manifests/proprietary.xml
     if [ "$INCLUDE_PROPRIETARY" = true ]; then
@@ -440,7 +440,7 @@ for codename in ${devices//,/ }; do
         # Move the ROM zip files to the main OUT directory
         cd out/target/product/"$codename"
         files_to_hash=()
-        for build in lineage-*.zip; do
+        for build in "$PRODUCT_PREFIX"-*.zip; do
           cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
           mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
           files_to_hash+=( "$build" )
@@ -455,7 +455,7 @@ for codename in ${devices//,/ }; do
         # rename and copy the images to the zips directory
         for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot init_boot; do
           if [ -f "$image.img" ]; then
-            recovery_name="lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
+            recovery_name="$PRODUCT_PREFIX-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
             echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
             cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
             files_to_hash+=( "$recovery_name" )
