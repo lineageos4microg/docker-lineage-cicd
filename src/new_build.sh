@@ -246,7 +246,8 @@ for codename in ${devices//,/ }; do
     fi
 
     # Set device specific logfile
-    DEBUG_LOG="$LOGS_DIR/$logsubdir/$PRODUCT_PREFIX-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
+#    DEBUG_LOG="$LOGS_DIR/$logsubdir/$PRODUCT_PREFIX-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
+    DEBUG_LOG="$LOGS_DIR/$logsubdir/$PRODUCT_PREFIX-$BRANCH_NAME-$builddate-$RELEASE_TYPE-$codename.log"
     ## Pick up TheMuppets manifest if required
     rm -f .repo/local_manifests/proprietary.xml
     if [ "$INCLUDE_PROPRIETARY" = true ]; then
