@@ -181,6 +181,21 @@ if [ -n "$branch" ] && [ -n "$devices" ]; then
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 fi
 
+if [ "$RESET_VENDOR_UNDO_PATCHES" = true ]; then
+  # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
+  # TODO: maybe reset everything using https://source.android.com/setup/develop/repo#forall
+  for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController" "packages/modules/Permission"; do
+    if [ -d "$path" ]; then
+      cd "$path"
+      git reset -q --hard
+      git clean -q -fd
+      cd "$SRC_DIR/$branch_dir"
+    fi
+  done
+else
+  echo ">> [$(date)] Resetting vendor and undoing patches disabled" | tee -a "$repo_log"
+fi
+
 # Handle local manifests
 ## Copy local manifests
 echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
@@ -208,7 +223,6 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
   cd "$source_dir"
 fi
-
 
 # -  main sync and build loop
 #    For each device in `$DEVICE_LIST`
