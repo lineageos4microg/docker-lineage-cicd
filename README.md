@@ -396,42 +396,8 @@ docker run \
 The following should be published on [the LineageOS for microG website](https://lineage.microg.org/). It is included here until the website can be updated
 
 
-## How do I install the LineageOS for MicroG ROM
-
-Follow the LineageOS installation instructions for your device, which can be accessed from the [LineageOS Devices wiki pages](https://wiki.lineageos.org/devices/). If the LineageOS installation instructions require or refer to any `.img` files, these images can be obtained by unzipping the `-images.zip` file mentioned in the previous section.
-
-### 'Clean' and 'dirty' flashing
-
-A 'clean' flash is when the data partition is wiped and/or formatted before the ROM is installed. This will remove all user-installed apps and data. It is sometimes referred to as a 'fresh installation'.
-
-A 'dirty flash' is when the data partition ***is not*** wiped and/or formatted before the ROM is installed. Normally this will result in all user-installed apps and data still being present after the installation.
-
-Newer versions of the LineageOS for MicroG ROM can usually be 'dirty flashed' over older versions ***with the same Android version***.
-
-Dirty flashing is ***sometimes*** possible over
-- older versions of the LineageOS for MicroG ROM ***with an earlier** Android version***;
-- the official LineageOS ROM (without microG)
-
-In both these cases, problems may be encountered with app permissions, both for user-installed apps and for the pre-installed apps. These problems can sometimes be fixed by manually changing the app permissions.
-
-If you are 'dirty' flashing, it is a good idea to backup your user-installed apps and data in case the 'dirty' flash fails.
-
-### Ugrade to a higher Android / LineageOS version
-
-Upgrading from one version of LineageOS to a higher version (e.g. LineageOS 20.0, based on Android 13, to LineageOS 21.0 , based on Android 14) cannot be done by the Updater app. The new version will hav eto be installed manually. The instructions vary between devices, so find your device in the [LineageOS Devices Wiki page]() and follow the links to the upgrade instrcutions for that device.
-
-For some devices, the upgrade instructions specify that a factory reset / data wipe or format is required. If that is true for your device, ***do not ignore the requirement*** (in the hope that you won't lose your user-installed apps and data): if you do not perform the factory reset, your device will probably fail to boot after the upgrade. If you want to keep your user-installed apps and data and your device requres a factory reset, then checkout the solutions in [this wiki page](https://github.com/lineageos4microg/docker-lineage-cicd/wiki/Backup-Migrate-Downgrade). They won't backup 'EVERYTHING' , but they are the best I've found.
-
-### Downgrading
-Downgrading from one version of LineageOS for microG to an ealier or lower version, is generally ***not*** possible, even if they are the same Android version. If you want to do that, you will have to format your data partition and perform a clean installation. If you need to go down that path, then checkout the backup options descibed in the previous section.
-
-### Failed updates and 'boot loops'
-Sometimes - up to now, pretty rarely - an update, either manual or OTA, may cause the phone to 'boot loop' (i.e. the phone repeatedly restarts without successfully loading the operating system), or to keep rebooting to recovery rather than the phone OS. The usual way to fix a boot loop, is to factory reset, by wiping or formatting the phone's data partiition which, as mentioned above, will delete all your user-installed apps and data.
-
-So there is no easy way to fix a boot loop, without losing you user-installed apps and data, because re-installing an earlier, working version also usually requires a factory reset. If you don't have a backup of your user-installed apps and data, then you can try the following:
-- wait for a new, fixed build to be made and published, and manually install it;
-- ***try*** installing an earlier working build (you may also have to flash an earlier recovery, as recovery will usually not install a ROM that it older than the recovery). This ***may*** work, but probably won't:
-- try flashing the latest LineageOS build from `https://download.lineageos.org/devices/<your-device-name>/builds`. You won't have a fully-working installation of LineageOS for microG, but you may be able to backup your user-installed apps and data.
+## How do I install the LineageOS for MicroG ROM?
+See https://github.com/lineageos4microg/l4m-wiki/wiki/Installation
 
 ## Troubleshooting and support
 
