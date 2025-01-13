@@ -2,43 +2,8 @@
 
 Docker microservice for LineageOS Continuous Integration and Continuous Deployment
 
-## Why Docker?
+See [the wiki](https://github.com/lineageos4microg/docker-lineage-cicd/wiki) for updated documentation
 
-A fair number of dependencies is needed to build LineageOS, plus a Linux system
-(and a discrete knowledge of it). With Docker we give you a minimal Linux build
-system with all the tools and scripts already integrated, easing considerably
-the creation of your own LineageOS build.
-
-Moreover Docker runs also on Microsoft Windows and Mac OS, which means that
-LineageOS can be built on such platforms without requiring a dual boot system
-or a manual set up of a Virtual Machine.
-
-## How do I install Docker?
-
-The official Docker guides are well-written:
- * Linux ([Ubuntu][docker-ubuntu], [Debian][docker-debian],
-    [CentOS][docker-centos] and [Fedora][docker-fedora] are officially
-    supported)
- * [Windows 10/Windows Server 2016 64bit][docker-win]
- * [Mac OS El Capitan 10.11 or newer][docker-mac]
-
-Life is considerably easier if you setup Docker to allow execution by non-root users: see ['Run the Docker daemon as a non-root user'](https://docs.docker.com/engine/security/rootless/)
-
-If your Windows or Mac system doesn't satisfy the requirements (or if you have
-Oracle VirtualBox installed, you can use [Docker Toolbox][docker-toolbox].
-Docker Toolbox is not described in this guide, but it should be very similar to
-the standard Docker installation.
-
-Once you can run the [`hello-world` image][docker-helloworld] you're ready to
-start!
-
-## What does Docker build
-
-Docker will produce the following files in the `zips` directory:
-- the main ROM zip file e.g. `lineage-20.0-20230702-microG-<device-name>.zip`. This file can be flashed from recovery as described in the next section
-- a custom recovery image (e.g. `lineage-20.0-20230702-microG-<device-name>-recovery.img` or `lineage-20.0-20230702-microG-<device-name>-boot.img`) and any other images needed or mentioned in the LineageOS installation instructions;
-  - if the `ZIP_UP_IMAGES` environment variable is set `true`, these images will be zipped up into an `-images.zip` file e.g. `lineage-20.0-20230702-microG-<device-name>-images.zip`
-  - else, if the `MAKE_IMG_ZIP_FILE` environment variable is set `true` the images are zipped into a flashable `...-img.zip` file (e.g. `lineage-20.0-20230702-microG-<device-name>-img.zip`) which can be installed using `fastboot flash` or `fastboot update`
 
 ## How can I build LineageOS?
 
