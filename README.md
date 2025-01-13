@@ -14,19 +14,9 @@ See https://github.com/lineageos4microg/l4m-wiki/wiki/Installation
 
 ## Troubleshooting and support
 
-The LineageOS for MicroG project is not in a position to offer much by way of technical support:
+For problems with using the Docker image, or with the progress of our monthly builds, please use [the issue tracker for this repository](https://github.com/lineageos4microg/docker-lineage-cicd/issues)
 
-- the number of active volunteer maintainers / contributors is very small, and we spend what time we have trying to ensure that the process of making regular builds keeps going. We can generally investigate problems with the build tools, but not with the ROM itself;
-- we don't have access to any devices for testing / debugging
-
-The [project issue tracker][issue-tracker] is mostly for tracking problems with the Docker build tool. It is ***not*** intended for tracking problems with ***installing*** or ***running*** the LineageOS for MicroG ROM. If you run into such problems, our advice is to work through the following steps to see if they help. (Make a backup of your user apps & data first):
-- full power off and restart
-- factory reset
-- format data partition
-- install the most recent LineageOS for MicroG build for your device, from [here](https://download.lineage.microg.org/) following the [LOS installation instructions](https://wiki.lineageos.org/devices/).
-- install the latest official LineageOS build from [here](https://download.lineageos.org/devices/)
-
-For ***any*** problems, with building, installing, or running LineageOS for MicroG, we recommend that you ask for help in [the XDA Forum thread](https://xdaforums.com/t/lineageos-for-microg.3700997/) or in device specific [XDA forum threads](https://xdaforums.com/). The LineageOS for MicroG forum thread is not maintained by us, but there are many knowledgeable contributors there, who build and run the LineageOS for MicroG ROM on a wide variety of devices.
+For problems with _**using**_ the builds on specific devices, plese see the [Troubleshooting and Support' section in the main wiki](https://github.com/lineageos4microg/l4m-wiki/wiki/Troubleshooting-and-Support)
 
 ## Builds for devices no longer supported by LineageOS
 
