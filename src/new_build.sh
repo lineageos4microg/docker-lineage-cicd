@@ -408,7 +408,7 @@ for codename in ${devices//,/ }; do
       echo ">> [$(date)] Running before.sh"
       echo "before.sh is now called *after* repo sync."
       echo "In previous versions, iot was called *before* repo sync"
-      /root/userscripts/before.sh || { echo ">> [$(date)] Error: before.sh failed for $branch!"; userscriptfail=true; continue; }
+      /root/userscripts/before.sh "$branch" || { echo ">> [$(date)] Error: before.sh failed for $branch!"; userscriptfail=true; continue; }
     fi
 
     # Call breakfast
@@ -436,7 +436,7 @@ for codename in ${devices//,/ }; do
     # Call pre-build.sh
     if [ -f /root/userscripts/pre-build.sh ]; then
       echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
-      /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG" || {
+      /root/userscripts/pre-build.sh "$codename" "$branch" &>> "$DEBUG_LOG" || {
         echo ">> [$(date)] Error: pre-build.sh failed for $codename on $branch!"; userscriptfail=true; continue; }
     fi
 
