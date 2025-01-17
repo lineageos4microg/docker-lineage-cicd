@@ -291,13 +291,6 @@ for codename in ${devices//,/ }; do
         continue
     fi
 
-    if [ "$WITH_GMS" = true ]; then
-      echo ">> [$(date)] Populating vendor/partner_gms-tv/products" | tee -a "$repo_log"
-      rm -rf "$source_dir/vendor/partner_gms-tv" || true
-      mkdir -p  "$source_dir/vendor/partner_gms-tv/products"
-      cp  -r "$source_dir/vendor/partner_gms/products/"  "$source_dir/vendor/partner_gms-tv/" | tee -a "$DEBUG_LOG"
-    fi
-
     if [ "$CALL_GIT_LFS_PULL" = true ]; then
       echo ">> [$(date)] Calling git lfs pull" | tee -a "$repo_log"
       repo forall -v -c git lfs pull &>> "$repo_log"
