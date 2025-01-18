@@ -35,9 +35,9 @@ ENV CCACHE_SIZE 50G
 # We need to specify the ccache binary since it is no longer packaged along with AOSP
 ENV CCACHE_EXEC /usr/bin/ccache
 
-# Environment for the LineageOS branches name
-# See https://github.com/LineageOS/android/branches for possible options
-ENV BRANCH_NAME 'lineage-16.0'
+# Environment for the IodeOS branches name
+# https://gitlab.iode.tech/os/public/manifests/android/-/branches for possible options
+ENV BRANCH_NAME 'v5-staging'
 
 # Environment for the device list (separate by comma if more than one)
 # eg. DEVICE_LIST=hammerhead,bullhead,angler
