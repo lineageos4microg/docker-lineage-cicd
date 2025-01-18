@@ -67,14 +67,7 @@ _EOB
 
 case "$PRODUCT" in
   "lineage")
-    case "$BRANCH_NAME" in
-      "lineage-19.1" | "lineage-20.0" | "lineage-21.0" | "lineage-22.1" )
-        build_file="new_build.sh"
-        ;;
-    * )
-      build_file="legacy-build.sh"
-      ;;
-    esac
+    build_file="new_build.sh"
     ;;
   "iodeOS")
     build_file="new_build.sh"
