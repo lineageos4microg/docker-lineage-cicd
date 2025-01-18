@@ -199,6 +199,21 @@ if [ -n "$branch" ] && [ -n "$devices" ]; then
     android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 fi
 
+if [ "$RESET_VENDOR_UNDO_PATCHES" = true ]; then
+  # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
+  # TODO: maybe reset everything using https://source.android.com/setup/develop/repo#forall
+  for path in "vendor/cm" "vendor/lineage" "frameworks/base" "packages/apps/PermissionController" "packages/modules/Permission"; do
+    if [ -d "$path" ]; then
+      cd "$path"
+      git reset -q --hard
+      git clean -q -fd
+      cd "$SRC_DIR/$branch_dir"
+    fi
+  done
+else
+  echo ">> [$(date)] Resetting vendor and undoing patches disabled" | tee -a "$repo_log"
+fi
+
 # Handle local manifests
 ## Copy local manifests
 echo ">> [$(date)] Copying '$LMANIFEST_DIR/*.xml' to '.repo/local_manifests/'"
@@ -226,7 +241,6 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
   cd "$source_dir"
 fi
-
 
 # -  main sync and build loop
 #    For each device in `$DEVICE_LIST`
@@ -406,7 +420,7 @@ for codename in ${devices//,/ }; do
       echo ">> [$(date)] Running before.sh"
       echo "before.sh is now called *after* repo sync."
       echo "In previous versions, iot was called *before* repo sync"
-      /root/userscripts/before.sh || { echo ">> [$(date)] Error: before.sh failed for $branch!"; userscriptfail=true; continue; }
+      /root/userscripts/before.sh "$branch" || { echo ">> [$(date)] Error: before.sh failed for $branch!"; userscriptfail=true; continue; }
     fi
 
     # Call breakfast
@@ -434,7 +448,7 @@ for codename in ${devices//,/ }; do
     # Call pre-build.sh
     if [ -f /root/userscripts/pre-build.sh ]; then
       echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
-      /root/userscripts/pre-build.sh "$codename" &>> "$DEBUG_LOG" || {
+      /root/userscripts/pre-build.sh "$codename" "$branch" &>> "$DEBUG_LOG" || {
         echo ">> [$(date)] Error: pre-build.sh failed for $codename on $branch!"; userscriptfail=true; continue; }
     fi
 
