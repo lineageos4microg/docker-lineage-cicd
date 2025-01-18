@@ -108,6 +108,9 @@ fi
 # Product specific parameters
 case "$PRODUCT" in
   "lineage")
+    PRODUCT_PREFIX="lineage"
+    SRC_URL="https://github.com/LineageOS/android.git"
+    MIRROR_URL="https://github.com/LineageOS/mirror"
     ;;
   "iodeOS")
     PRODUCT_PREFIX="iode"

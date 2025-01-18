@@ -75,12 +75,6 @@ ENV CRONTAB_TIME 'now'
 # Clean artifacts output after each build
 ENV CLEAN_AFTER_BUILD true
 
-# Provide root capabilities builtin inside the ROM (see http://lineageos.org/Update-and-Build-Prep/)
-ENV WITH_SU false
-
-# Provide a default JACK configuration in order to avoid out-of-memory issues
-ENV ANDROID_JACK_VM_ARGS "-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
-
 # Custom packages to be installed
 ENV CUSTOM_PACKAGES ''
 
@@ -95,25 +89,6 @@ ENV ZIP_SUBDIR true
 
 # Write the verbose logs to $LOGS_DIR/$codename instead of $LOGS_DIR/
 ENV LOGS_SUBDIR true
-
-# Apply the MicroG's signature spoofing patch
-# Valid values are "no", "yes" (for the original MicroG's patch) and
-# "restricted" (to grant the permission only to the system privileged apps).
-#
-# The original ("yes") patch allows user apps to gain the ability to spoof
-# themselves as other apps, which can be a major security threat. Using the
-# restricted patch and embedding the apps that requires it as system privileged
-# apps is a much secure option. See the README.md ("Custom mode") for an
-# example.
-#
-# LineageOS versions 18.1, 19.1, 20.0 and 21.0 and up include built-in
-# signature spoofing for microG, and custom patches are not required. They may
-# still, however, optionally be enabled
-ENV SIGNATURE_SPOOFING "no"
-
-# Enable the built-in signature spoofing for the user build type, not just
-# userdebug and eng
-ENV USER_BUILD_SPOOFING "no"
 
 # Delete old zips in $ZIP_DIR, keep only the N latest one (0 to disable)
 ENV DELETE_OLD_ZIPS 0
@@ -132,7 +107,6 @@ ENV REPO_INIT_ARGS ""
 # Allowed values: positive, non-null integers
 ENV RETRY_FETCHES=
 
-
 # variables to control whether or not tasks are implemented
 ENV INIT_MIRROR true
 ENV SYNC_MIRROR true
@@ -149,9 +123,9 @@ ENV MAKE_IMG_ZIP_FILE false
 
 # Product-specific values
 # lineage, iodeOS
-ENV PRODUCT lineage
-ENV PRODUCT_PREFIX lineage
-ENV SRC_URL https://github.com/LineageOS/android.git
+ENV PRODUCT iodeOS
+ENV PRODUCT_PREFIX iode
+ENV SRC_URL https://gitlab.iode.tech/os/public/manifests/android.git
 ENV MIRROR_URL https://github.com/LineageOS/mirror
 
 
