@@ -37,7 +37,7 @@ ENV CCACHE_EXEC /usr/bin/ccache
 
 # Environment for the IodeOS branches name
 # https://gitlab.iode.tech/os/public/manifests/android/-/branches for possible options
-ENV BRANCH_NAME 'v5-staging'
+ENV BRANCH_NAME 'v6-staging'
 
 # Environment for the device list (separate by comma if more than one)
 # eg. DEVICE_LIST=hammerhead,bullhead,angler
