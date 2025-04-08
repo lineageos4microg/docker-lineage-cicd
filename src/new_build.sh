@@ -173,6 +173,22 @@ if [ -n "$branch" ] && [ -n "$devices" ]; then
       themuppets_branch="lineage-22.1"
       android_version="15"
       ;;
+    lineage-22.2*)
+      themuppets_branch="lineage-22.2"
+      android_version="15"
+      ;;
+    lineage-23.0*)
+      themuppets_branch="lineage-23.0"
+      android_version="16"
+      ;;
+    lineage-23.1*)
+      themuppets_branch="lineage-23.1"
+      android_version="16"
+      ;;
+    lineage-23.2*)
+      themuppets_branch="lineage-23.2"
+      android_version="16"
+      ;;
     *)
       echo ">> [$(date)] Building branch $branch is not (yet) suppported"
       exit 1
