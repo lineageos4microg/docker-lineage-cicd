@@ -156,7 +156,7 @@ mkdir -p "$source_dir"
 cd "$SRC_DIR/$branch_dir"
 
 # select branch and android version without maintaining a list
-branch_num = ${branch##*-}
+branch_num=${branch##*-}
 themuppets_branch=$branch
 android_version=$(echo "($branch_num - 7) / 1" | bc)
 android_version_major=$(cut -d '.' -f 1 <<< $android_version)
