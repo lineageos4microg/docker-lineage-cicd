@@ -161,49 +161,6 @@ themuppets_branch=$branch
 android_version=$(echo "($branch_num - 7) / 1" | bc)
 android_version_major=$(cut -d '.' -f 1 <<< $android_version)
 
-# old behaviour
-#if [ -n "$branch" ] && [ -n "$devices" ]; then
-#  case "$branch" in
-#    lineage-19.1*)
-#      themuppets_branch="lineage-19.1"
-#      android_version="12"
-#      ;;
-#    lineage-20.0*)
-#      themuppets_branch="lineage-20.0"
-#      android_version="13"
-#      ;;
-#    lineage-21.0*)
-#      themuppets_branch="lineage-21.0"
-#      android_version="14"
-#      ;;
-#    lineage-22.1*)
-#      themuppets_branch="lineage-22.1"
-#      android_version="15"
-#      ;;
-#    lineage-22.2*)
-#      themuppets_branch="lineage-22.2"
-#      android_version="15"
-#      ;;
-#    lineage-23.0*)
-#      themuppets_branch="lineage-23.0"
-#      android_version="16"
-#      ;;
-#    lineage-23.1*)
-#      themuppets_branch="lineage-23.1"
-#      android_version="16"
-#      ;;
-#    lineage-23.2*)
-#      themuppets_branch="lineage-23.2"
-#      android_version="16"
-#      ;;
-#    *)
-#      echo ">> [$(date)] Building branch $branch is not (yet) suppported"
-#      exit 1
-#      ;;
-#    esac
-#    android_version_major=$(cut -d '.' -f 1 <<< $android_version)
-#fi
-
 if [ "$RESET_VENDOR_UNDO_PATCHES" = true ]; then
   # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
   # TODO: maybe reset everything using https://source.android.com/setup/develop/repo#forall
