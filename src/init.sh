@@ -66,8 +66,7 @@ visibility = ["//visibility:public"],
 _EOB
 
 # select legacy or new build script
-BRANCH_NUM=${BRANCH_NAME##*-}
-if (( $(echo "$BRANCH_NUM < 19.1" |bc -l) )); then
+if (( $(echo "${BRANCH_NAME##*-} < 19.1" |bc -l) )); then
   build_file="legacy-build.sh"
 else
   build_file="new_build.sh"
