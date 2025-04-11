@@ -65,14 +65,12 @@ visibility = ["//visibility:public"],
 )
 _EOB
 
-case "$BRANCH_NAME" in
-  "lineage-19.1" | "lineage-20.0" | "lineage-21.0" | "lineage-22.1" )
-    build_file="new_build.sh"
-    ;;
-  * )
-    build_file="legacy-build.sh"
-    ;;
-esac
+# select legacy or new build script
+if (( $(echo "${BRANCH_NAME##*-} < 19.1" |bc -l) )); then
+  build_file="legacy-build.sh"
+else
+  build_file="new_build.sh"
+fi
 
 if [ "$CRONTAB_TIME" = "now" ]; then
   /root/$build_file

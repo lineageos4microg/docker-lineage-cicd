@@ -155,31 +155,12 @@ source_dir="$SRC_DIR/$branch_dir"
 mkdir -p "$source_dir"
 cd "$SRC_DIR/$branch_dir"
 
-if [ -n "$branch" ] && [ -n "$devices" ]; then
-  case "$branch" in
-    lineage-19.1*)
-      themuppets_branch="lineage-19.1"
-      android_version="12"
-      ;;
-    lineage-20.0*)
-      themuppets_branch="lineage-20.0"
-      android_version="13"
-      ;;
-    lineage-21.0*)
-      themuppets_branch="lineage-21.0"
-      android_version="14"
-      ;;
-    lineage-22.1*)
-      themuppets_branch="lineage-22.1"
-      android_version="15"
-      ;;
-    *)
-      echo ">> [$(date)] Building branch $branch is not (yet) suppported"
-      exit 1
-      ;;
-    esac
-    android_version_major=$(cut -d '.' -f 1 <<< $android_version)
-fi
+# select branch and android version without maintaining a list
+branch_num=${branch##*-}
+themuppets_branch=$branch
+# This will strip off the minor version as well. Remove the '/ 1' part to get a version like 12.1
+android_version=$(echo "($branch_num - 7) / 1" | bc)
+android_version_major=$(echo "($branch_num - 7) / 1" | bc)
 
 if [ "$RESET_VENDOR_UNDO_PATCHES" = true ]; then
   # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
