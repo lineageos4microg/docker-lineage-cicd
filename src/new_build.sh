@@ -158,8 +158,8 @@ cd "$SRC_DIR/$branch_dir"
 # select branch and android version without maintaining a list
 branch_num=${branch##*-}
 themuppets_branch=$branch
-# This will strip off the minor version as well. Remove the '/ 1' part to get a version like 12.1
-android_version=$(echo "($branch_num - 7) / 1" | bc)
+android_version=$(echo "($branch_num - 7)" | bc)
+echo ">> [$(date)] Android version: $android_version"
 android_version_major=$(echo "($branch_num - 7) / 1" | bc)
 
 if [ "$RESET_VENDOR_UNDO_PATCHES" = true ]; then
