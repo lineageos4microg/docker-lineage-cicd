@@ -40,7 +40,7 @@ ENV CCACHE_EXEC /usr/bin/ccache
 ENV BRANCH_NAME 'v5-staging'
 
 # Environment for the device list (separate by comma if more than one)
-# eg. DEVICE_LIST=hammerhead,bullhead,angler
+# eg. DEVICE_LIST=axolotl,barbet,beckham
 ENV DEVICE_LIST ''
 
 # Release type string
