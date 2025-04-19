@@ -139,19 +139,19 @@ case "$PRODUCT" in
 
     case "$branch" in
       v3*)
-        themuppets_branch="lineage19.1"
+        themuppets_branch="lineage-19.1"
         android_version=12
         ;;
       v4*)
-        themuppets_branch="lineage20.0"
+        themuppets_branch="lineage-20.0"
         android_version=13
         ;;
       v5*)
-        themuppets_branch="lineage21.0"
+        themuppets_branch="lineage-21.0"
         android_version=14
         ;;
       v6*)
-        themuppets_branch="lineage22.1"
+        themuppets_branch="lineage-22.1"
         android_version=15
         ;;
       *)
