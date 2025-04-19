@@ -105,30 +105,71 @@ if [ -f /root/userscripts/begin.sh ]; then
   /root/userscripts/begin.sh || { echo ">> [$(date)] Error: begin.sh failed!"; exit 1; }
 fi
 
-# Product specific parameters
-case "$PRODUCT" in
-  "lineage")
-    PRODUCT_PREFIX="lineage"
-    SRC_URL="https://github.com/LineageOS/android.git"
-    MIRROR_URL="https://github.com/LineageOS/mirror"
-    ;;
-  "iodeOS")
-    PRODUCT_PREFIX="iode"
-    SRC_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
-    MIRROR_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
-    ;;
-  *)
-    echo ">> [$(date)] Building product $PRODUCT is not (yet) suppported"
-    exit 1
-    ;;
-esac
-
 # Handle parameters and environment variables
 branch=$BRANCH_NAME
 echo ">> [$(date)] Branch:  $branch"
 
 devices=$DEVICE_LIST
 echo ">> [$(date)] Devices: $devices"
+
+# Product specific parameters including determine android version
+case "$PRODUCT" in
+  "lineage")
+    PRODUCT_PREFIX="lineage"
+    SRC_URL="https://github.com/LineageOS/android.git"
+    MIRROR_URL="https://github.com/LineageOS/mirror"
+    branch_num=${branch##*-}
+    themuppets_branch=$branch
+    android_version=$(echo "($branch_num - 7)" | bc)
+    ;;
+
+  "iodeOS")
+    PRODUCT_PREFIX="iode"
+    SRC_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
+    MIRROR_URL="https://gitlab.iode.tech/os/public/manifests/android.git"
+
+    # rik: since we need to manually set themuppets_branch will just manually set
+    #   android_version here as well, but leaving a programmatic approach below
+    #   if in the future we don't need to manually set themuppets_branch
+    #
+    # get number after starting "v", non-numeric ending will be removed
+    #   branch_num=$(echo $branch | sed 's@^v\([0-9.]*\).*@\1@')
+    # iode major version is 9 smaller than android major version
+    #   android_version_major=$(echo "($branch_num + 9) / 1" | bc)
+
+    case "$branch" in
+      v6*)
+        themuppets_branch="lineage22.1"
+        android_version=15
+        ;;
+      v5*)
+        themuppets_branch="lineage21.0"
+        android_version=14
+        ;;
+      v4*)
+        themuppets_branch="lineage20.0"
+        android_version=13
+        ;;
+      v3*)
+        themuppets_branch="lineage19.1"
+        android_version=12
+        ;;
+      *)
+        echo ">> [$(date)] Building iodeOS branch $branch is not (yet) suppported"
+        exit 1
+        ;;
+    esac
+
+  *)
+    echo ">> [$(date)] Building product $PRODUCT is not (yet) suppported"
+    exit 1
+    ;;
+esac
+
+echo ">> [$(date)] Android version: $android_version"
+
+# "mod" (/1) to get major version
+android_version_major=$(echo "($android_version) / 1" | bc)
 
 vendor=lineage
 
@@ -172,13 +213,6 @@ branch_dir=${branch_dir^^}
 source_dir="$SRC_DIR/$branch_dir"
 mkdir -p "$source_dir"
 cd "$SRC_DIR/$branch_dir"
-
-# select branch and android version without maintaining a list
-branch_num=${branch##*-}
-themuppets_branch=$branch
-android_version=$(echo "($branch_num - 7)" | bc)
-echo ">> [$(date)] Android version: $android_version"
-android_version_major=$(echo "($branch_num - 7) / 1" | bc)
 
 if [ "$RESET_VENDOR_UNDO_PATCHES" = true ]; then
   # Remove previous changes of vendor/cm, vendor/lineage and frameworks/base (if they exist)
