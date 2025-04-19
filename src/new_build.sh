@@ -159,6 +159,7 @@ case "$PRODUCT" in
         exit 1
         ;;
     esac
+    ;;
 
   *)
     echo ">> [$(date)] Building product $PRODUCT is not (yet) suppported"
