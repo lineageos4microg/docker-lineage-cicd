@@ -138,21 +138,21 @@ case "$PRODUCT" in
     #   android_version_major=$(echo "($branch_num + 9) / 1" | bc)
 
     case "$branch" in
-      v6*)
-        themuppets_branch="lineage22.1"
-        android_version=15
-        ;;
-      v5*)
-        themuppets_branch="lineage21.0"
-        android_version=14
+      v3*)
+        themuppets_branch="lineage19.1"
+        android_version=12
         ;;
       v4*)
         themuppets_branch="lineage20.0"
         android_version=13
         ;;
-      v3*)
-        themuppets_branch="lineage19.1"
-        android_version=12
+      v5*)
+        themuppets_branch="lineage21.0"
+        android_version=14
+        ;;
+      v6*)
+        themuppets_branch="lineage22.1"
+        android_version=15
         ;;
       *)
         echo ">> [$(date)] Building iodeOS branch $branch is not (yet) suppported"
@@ -160,7 +160,6 @@ case "$PRODUCT" in
         ;;
     esac
     ;;
-
   *)
     echo ">> [$(date)] Building product $PRODUCT is not (yet) suppported"
     exit 1
