@@ -87,6 +87,11 @@ do_cleanup() {
       rm -rf vendor/* || true
       echo ">> [$(date)] Removing $PWD/.repo/local_manifests/roomservice.xml" | tee -a "$DEBUG_LOG"
       rm -f .repo/local_manifests/roomservice.xml
+      echo ">> [$(date)] Cleaning system/core" | tee -a "$DEBUG_LOG"
+      cd system/core
+      git reset -q --hard
+      git clean -q -fd
+      cd ../..
     fi
   fi
 }
@@ -412,6 +417,16 @@ for codename in ${devices//,/ }; do
         fi
         do_cleanup
         continue
+    fi
+
+    # Apply the PlayIntegrity patch if it is present in the userscripts directory
+    if [ -f /root/userscripts/0001-Pass-SafetyNet.patch ]; then
+      echo ">> [$(date)] Applying the PlayIntegrity patch for $codename" >> "$DEBUG_LOG"
+      cd system/core
+      git reset --hard
+      git apply /root/userscripts/0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
+        echo ">> [$(date)] Error: Applying the PlayIntegrity patch failed for $codename on $branch!"; userscriptfail=true; continue; }
+      cd ../..
     fi
 
     # Call pre-build.sh
