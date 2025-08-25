@@ -419,14 +419,19 @@ for codename in ${devices//,/ }; do
         continue
     fi
 
-    # Apply the PlayIntegrity patch if it is present in the userscripts directory
-    if [ -f /root/userscripts/0001-Pass-SafetyNet.patch ]; then
+    # Apply the PlayIntegrity patch if the APPLY_PI_PATCH is set
+    if [ "$APPLY_PI_PATCH" = true ]; then
       echo ">> [$(date)] Applying the PlayIntegrity patch for $codename" >> "$DEBUG_LOG"
       cd system/core
+
       git reset --hard
-      git apply /root/userscripts/0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
+      git clean -q -fd
+      wget -q https://git.disroot.org/flame-0/android_vendor_extra/raw/branch/main/patches/system_core/0001-Pass-SafetyNet.patch
+      git apply 0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
         echo ">> [$(date)] Error: Applying the PlayIntegrity patch failed for $codename on $branch!"; userscriptfail=true; continue; }
       cd ../..
+    else
+      echo ">> [$(date)] Applying PlayIntegrity patch disabled" | tee -a "$repo_log"
     fi
 
     # Call pre-build.sh
