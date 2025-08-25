@@ -87,6 +87,11 @@ do_cleanup() {
       rm -rf vendor/* || true
       echo ">> [$(date)] Removing $PWD/.repo/local_manifests/roomservice.xml" | tee -a "$DEBUG_LOG"
       rm -f .repo/local_manifests/roomservice.xml
+      echo ">> [$(date)] Cleaning system/core" | tee -a "$DEBUG_LOG"
+      cd system/core
+      git reset -q --hard
+      git clean -q -fd
+      cd ../..
     fi
   fi
 }
@@ -412,6 +417,21 @@ for codename in ${devices//,/ }; do
         fi
         do_cleanup
         continue
+    fi
+
+    # Apply the PlayIntegrity patch if the APPLY_PI_PATCH is set
+    if [ "$APPLY_PI_PATCH" = true ]; then
+      echo ">> [$(date)] Applying the PlayIntegrity patch for $codename" >> "$DEBUG_LOG"
+      cd system/core
+
+      git reset --hard
+      git clean -q -fd
+      wget -q https://git.disroot.org/flame-0/android_vendor_extra/raw/branch/main/patches/system_core/0001-Pass-SafetyNet.patch
+      git apply 0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
+        echo ">> [$(date)] Error: Applying the PlayIntegrity patch failed for $codename on $branch!"; userscriptfail=true; continue; }
+      cd ../..
+    else
+      echo ">> [$(date)] Applying PlayIntegrity patch disabled" | tee -a "$repo_log"
     fi
 
     # Call pre-build.sh
