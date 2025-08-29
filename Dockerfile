@@ -4,97 +4,97 @@ LABEL maintainer="Nicola Corna <nicola@corna.info>"
 # Environment variables
 #######################
 
-ENV MIRROR_DIR /srv/mirror
-ENV SRC_DIR /srv/src
-ENV TMP_DIR /srv/tmp
-ENV CCACHE_DIR /srv/ccache
-ENV ZIP_DIR /srv/zips
-ENV LMANIFEST_DIR /srv/local_manifests
-ENV KEYS_DIR /srv/keys
-ENV LOGS_DIR /srv/logs
-ENV USERSCRIPTS_DIR /srv/userscripts
+ENV MIRROR_DIR=/srv/mirror
+ENV SRC_DIR=/srv/src
+ENV TMP_DIR=/srv/tmp
+ENV CCACHE_DIR=/srv/ccache
+ENV ZIP_DIR=/srv/zips
+ENV LMANIFEST_DIR=/srv/local_manifests
+ENV KEYS_DIR=/srv/keys
+ENV LOGS_DIR=/srv/logs
+ENV USERSCRIPTS_DIR=/srv/userscripts
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV USER root
+ENV DEBIAN_FRONTEND=noninteractive
+ENV USER=root
 
 # Configurable environment variables
 ####################################
 
 # By default we want to use CCACHE, you can disable this
 # WARNING: disabling this may slow down a lot your builds!
-ENV USE_CCACHE 1
+ENV USE_CCACHE=1
 
 # By default we won't include the components from vendor/partner-gms
-ENV WITH_GMS false
+ENV WITH_GMS=false
 
 # ccache maximum size. It should be a number followed by an optional suffix: k,
 # M, G, T (decimal), Ki, Mi, Gi or Ti (binary). The default suffix is G. Use 0
 # for no limit.
-ENV CCACHE_SIZE 50G
+ENV CCACHE_SIZE=50G
 
 # We need to specify the ccache binary since it is no longer packaged along with AOSP
-ENV CCACHE_EXEC /usr/bin/ccache
+ENV CCACHE_EXEC=/usr/bin/ccache
 
 # Environment for the LineageOS branches name
 # See https://github.com/LineageOS/android/branches for possible options
-ENV BRANCH_NAME 'lineage-22.1'
+ENV BRANCH_NAME='lineage-22.1'
 
 # Environment for the device list (separate by comma if more than one)
 # eg. DEVICE_LIST=axolotl,barbet,beckham
-ENV DEVICE_LIST ''
+ENV DEVICE_LIST=''
 
 # Release type string
-ENV RELEASE_TYPE 'UNOFFICIAL'
+ENV RELEASE_TYPE='UNOFFICIAL'
 
 # OTA URL that will be used inside CMUpdater
 # Use this in combination with LineageOTA to make sure your device can auto-update itself from this buildbot
-ENV OTA_URL ''
+ENV OTA_URL=''
 
 # User identity
-ENV USER_NAME 'LineageOS Buildbot'
-ENV USER_MAIL 'lineageos-buildbot@docker.host'
+ENV USER_NAME='LineageOS Buildbot'
+ENV USER_MAIL='lineageos-buildbot@docker.host'
 
 # Include proprietary files, downloaded automatically from github.com/TheMuppets/ and gitlab.com/the-muppets/
 # Only some branches are supported
-ENV INCLUDE_PROPRIETARY true
+ENV INCLUDE_PROPRIETARY=true
 
 # Mount an overlay filesystem over the source dir to do each build on a clean source
-ENV BUILD_OVERLAY false
+ENV BUILD_OVERLAY=false
 
 # Clone the full LineageOS mirror (> 200 GB)
-ENV LOCAL_MIRROR false
+ENV LOCAL_MIRROR=false
 
 # If you want to preserve old ZIPs set this to 'false'
-ENV CLEAN_OUTDIR false
+ENV CLEAN_OUTDIR=false
 
 # Change this cron rule to what fits best for you
 # Use 'now' to start the build immediately
 # For example, '0 10 * * *' means 'Every day at 10:00 UTC'
-ENV CRONTAB_TIME 'now'
+ENV CRONTAB_TIME='now'
 
 # Clean artifacts output after each build
-ENV CLEAN_AFTER_BUILD true
+ENV CLEAN_AFTER_BUILD=true
 
 # Provide root capabilities builtin inside the ROM (see http://lineageos.org/Update-and-Build-Prep/)
-ENV WITH_SU false
+ENV WITH_SU=false
 
 # Provide a default JACK configuration in order to avoid out-of-memory issues
-ENV ANDROID_JACK_VM_ARGS "-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
+ENV ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
 
 # Custom packages to be installed
-ENV CUSTOM_PACKAGES ''
+ENV CUSTOM_PACKAGES=''
 
 # Sign the builds with the keys in $KEYS_DIR
-ENV SIGN_BUILDS false
+ENV SIGN_BUILDS=false
 
 # When SIGN_BUILDS = true but no keys have been provided, generate a new set with this subject
-ENV KEYS_SUBJECT '/C=US/ST=California/L=Mountain View/O=Android/OU=Android/CN=Android/emailAddress=android@android.com'
+ENV KEYS_SUBJECT='/C=US/ST=California/L=Mountain View/O=Android/OU=Android/CN=Android/emailAddress=android@android.com'
 
 # Move the resulting zips to $ZIP_DIR/$codename instead of $ZIP_DIR/
-ENV ZIP_SUBDIR true
+ENV ZIP_SUBDIR=true
 
 # Write the verbose logs to $LOGS_DIR/$codename instead of $LOGS_DIR/
-ENV LOGS_SUBDIR true
+ENV LOGS_SUBDIR=true
 
 # Apply the MicroG's signature spoofing patch
 # Valid values are "no", "yes" (for the original MicroG's patch) and
@@ -109,23 +109,23 @@ ENV LOGS_SUBDIR true
 # LineageOS versions 18.1, 19.1, 20.0 and 21.0 and up include built-in
 # signature spoofing for microG, and custom patches are not required. They may
 # still, however, optionally be enabled
-ENV SIGNATURE_SPOOFING "no"
+ENV SIGNATURE_SPOOFING="no"
 
 # Enable the built-in signature spoofing for the user build type, not just
 # userdebug and eng
-ENV USER_BUILD_SPOOFING "no"
+ENV USER_BUILD_SPOOFING="no"
 
 # Delete old zips in $ZIP_DIR, keep only the N latest one (0 to disable)
-ENV DELETE_OLD_ZIPS 0
+ENV DELETE_OLD_ZIPS=0
 
 # Delete old logs in $LOGS_DIR, keep only the N latest one (0 to disable)
-ENV DELETE_OLD_LOGS 0
+ENV DELETE_OLD_LOGS=0
 
 # build type of your builds (user|userdebug|eng)
-ENV BUILD_TYPE "userdebug"
+ENV BUILD_TYPE="userdebug"
 
 # we can use --depth=1 here
-ENV REPO_INIT_ARGS ""
+ENV REPO_INIT_ARGS=""
 
 # You can specify the number of retries for repo sync here. This is useful if you get connection errors during repo sync. The value will be directly forwarded to the repo command
 # Default: unset; repo uses default retry mechanism
@@ -134,18 +134,19 @@ ENV RETRY_FETCHES=
 
 
 # variables to control whether or not tasks are implemented
-ENV INIT_MIRROR true
-ENV SYNC_MIRROR true
-ENV RESET_VENDOR_UNDO_PATCHES true
-ENV CALL_REPO_INIT true
-ENV CALL_REPO_SYNC true
-ENV CALL_GIT_LFS_PULL false
-ENV APPLY_PATCHES true
-ENV PREPARE_BUILD_ENVIRONMENT true
-ENV CALL_BREAKFAST true
-ENV CALL_MKA true
-ENV ZIP_UP_IMAGES false
-ENV MAKE_IMG_ZIP_FILE false
+ENV INIT_MIRROR=true
+ENV SYNC_MIRROR=true
+ENV RESET_VENDOR_UNDO_PATCHES=true
+ENV CALL_REPO_INIT=true
+ENV CALL_REPO_SYNC=true
+ENV CALL_GIT_LFS_PULL=false
+ENV APPLY_PATCHES=true
+ENV PREPARE_BUILD_ENVIRONMENT=true
+ENV CALL_BREAKFAST=true
+ENV CALL_MKA=true
+ENV ZIP_UP_IMAGES=false
+ENV MAKE_IMG_ZIP_FILE=false
+ENV APPLY_PI_PATCH=true
 
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
