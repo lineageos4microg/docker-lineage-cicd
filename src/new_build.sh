@@ -22,6 +22,7 @@
 # Outline
 # - Call `begin.sh`
 # - Handle parameters and environment variables
+#      -  ENABLE_EXTENDROM & EXTEND_ROM_PACKAGES
 #      -  CLEAN_OUTDIR
 #      -  PARALLEL_JOBS
 #      -  RETRY_FETCHES
@@ -38,6 +39,7 @@
 #     - Handle OTA_URL
 #     - Add custom packages to be installed
 #     - Handle keys
+#     - Setup / enable EXTENDROM
 #     - Prepare the environment
 #     - Call `before.sh`
 #     - `breakfast` - in case of failure, call
