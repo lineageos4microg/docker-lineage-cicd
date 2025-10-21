@@ -27,6 +27,10 @@ ENV USE_CCACHE=1
 # By default we won't include the components from vendor/partner-gms
 ENV WITH_GMS=false
 
+# and we won't include them from extendrom either
+ENV ENABLE_EXTENDROM=false
+ENV EXTENDROM_PACKAGES=''
+
 # ccache maximum size. It should be a number followed by an optional suffix: k,
 # M, G, T (decimal), Ki, Mi, Gi or Ti (binary). The default suffix is G. Use 0
 # for no limit.
