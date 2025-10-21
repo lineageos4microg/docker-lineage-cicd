@@ -393,8 +393,6 @@ for codename in ${devices//,/ }; do
 
     # Enable EXTENDROM in `config/common.mk`
     if [ "$ENABLE_EXTENDROM" = true ]  ; then
-        EXTENDROM_PACKAGES="$EXTENDROM_PACKAGES FDroid FakeStore_GH MicrogGmsCore_GH_PRERELEASE GsfProxy_GH"
-        echo "Including EXTEND_ROM_PACKAGES $EXTENDROM_PACKAGES"
         if grep -q 'inherit-product, vendor/extendrom/config/common.mk' "$PWD/vendor/$vendor/config/common.mk" ; then
           echo "extendrom already enabled in /vendor/$vendor/config/common.mk"
         else
