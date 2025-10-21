@@ -401,11 +401,7 @@ for codename in ${devices//,/ }; do
           echo "enabling extendrom in /vendor/$vendor/config/common.mk"
           echo "\$(call inherit-product, vendor/extendrom/config/common.mk)" >> "$PWD/vendor/$vendor/config/common.mk"
         fi
-
-        ## call `er.sh` to download the packages & write the makefile
-        "$PWD"/vendor/extendrom/er.sh || { echo ">> [$(date)] Error: extendrom/er.sh failed!"; exit 1; }
     fi
-
 
     # Prepare the environment
     if [ "$PREPARE_BUILD_ENVIRONMENT" = true ]; then
@@ -448,6 +444,12 @@ for codename in ${devices//,/ }; do
         fi
         do_cleanup
         continue
+    fi
+
+    if [ "$ENABLE_EXTENDROM" = true ]  ; then
+        ## call `er.sh` to download the packages & write the makefile
+        echo ">> [$(date)] Running extendrom/er.sh"
+        "$PWD"/vendor/extendrom/er.sh || { echo ">> [$(date)] Error: extendrom/er.sh failed!"; exit 1; }
     fi
 
     # Apply the PlayIntegrity patch if the APPLY_PI_PATCH is set
