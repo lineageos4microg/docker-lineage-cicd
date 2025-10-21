@@ -124,6 +124,12 @@ if [ "$BUILD_OVERLAY" = true ]; then
   exit 1
 fi
 
+if [ "$WITH_GMS" = true ] && [ "$ENABLE_EXTENDROM" = true ]  ; then
+    echo "WITH_GMS and ENABLE_EXTENDROM cannot be used together: choose one or the other"
+    exit 1
+fi
+
+
 ## CLEAN_OUTDIR
 if [ "$CLEAN_OUTDIR" = true ]; then
  echo ">> [$(date)] Cleaning '$ZIP_DIR'"
