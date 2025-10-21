@@ -391,17 +391,21 @@ for codename in ${devices//,/ }; do
       fi
     fi
 
-    # Setup EXTENDROM
-    ## Enable it in `config/common.mk`
-    if grep -q 'inherit-product, vendor/extendrom/config/common.mk' "$PWD/vendor/$vendor/config/common.mk" ; then
-      echo "extendrom already enabled in /vendor/$vendor/config/common.mk"
-    else
-      echo "enabling extendrom in /vendor/$vendor/config/common.mk"
-      echo "\$(call inherit-product, vendor/extendrom/config/common.mk)" >> "$PWD/vendor/$vendor/config/common.mk"
+    # Enable EXTENDROM in `config/common.mk`
+    if [ "$ENABLE_EXTENDROM" = true ]  ; then
+        EXTENDROM_PACKAGES="$EXTENDROM_PACKAGES FDroid FakeStore_GH MicrogGmsCore_GH_PRERELEASE GsfProxy_GH"
+        echo "Including EXTEND_ROM_PACKAGES $EXTENDROM_PACKAGES"
+        if grep -q 'inherit-product, vendor/extendrom/config/common.mk' "$PWD/vendor/$vendor/config/common.mk" ; then
+          echo "extendrom already enabled in /vendor/$vendor/config/common.mk"
+        else
+          echo "enabling extendrom in /vendor/$vendor/config/common.mk"
+          echo "\$(call inherit-product, vendor/extendrom/config/common.mk)" >> "$PWD/vendor/$vendor/config/common.mk"
+        fi
+
+        ## call `er.sh` to download the packages & write the makefile
+        "$PWD"/vendor/extendrom/er.sh || { echo ">> [$(date)] Error: extendrom/er.sh failed!"; exit 1; }
     fi
 
-    ## call `er.sh` to download the packages & write the makefile
-    "$PWD"/vendor/extendrom/er.sh || { echo ">> [$(date)] Error: extendrom/er.sh failed!"; exit 1; }
 
     # Prepare the environment
     if [ "$PREPARE_BUILD_ENVIRONMENT" = true ]; then
