@@ -393,7 +393,7 @@ for codename in ${devices//,/ }; do
 
     # Setup EXTENDROM
     ## Enable it in `config/common.mk`
-    if grep -q 'inherit-product, vendor/extendrom/config/common.mk' "$PWD/vendor/$vendor/lineage/config/common.mk" ; then
+    if grep -q 'inherit-product, vendor/extendrom/config/common.mk' "$PWD/vendor/$vendor/config/common.mk" ; then
       echo "extendrom already enabled in /vendor/$vendor/config/common.mk"
     else
       echo "enabling extendrom in /vendor/$vendor/config/common.mk"
