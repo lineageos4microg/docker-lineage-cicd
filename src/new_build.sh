@@ -447,7 +447,7 @@ for codename in ${devices//,/ }; do
     if [ "$ENABLE_EXTENDROM" = true ]  ; then
         ## call `er.sh` to download the packages & write the makefile
         echo ">> [$(date)] Running extendrom/er.sh"
-        "$PWD"/vendor/extendrom/er.sh || { echo ">> [$(date)] Error: extendrom/er.sh failed!"; exit 1; }
+        "$PWD"/vendor/extendrom/er.sh &>> "$DEBUG_LOG"|| { echo ">> [$(date)] Error: extendrom/er.sh failed!"; exit 1; }
     fi
 
     # Apply the PlayIntegrity patch if the APPLY_PI_PATCH is set
