@@ -129,6 +129,11 @@ if [ "$WITH_GMS" = true ] && [ "$ENABLE_EXTENDROM" = true ]  ; then
     exit 1
 fi
 
+## ENABLE_EXTENDROM
+if [ "$ENABLE_EXTENDROM" = true ]  ; then
+    EXTEND_ROM_PACKAGES="$EXTEND_ROM_PACKAGES FDroid FakeStore_GH MicrogGmsCore_GH_PRERELEASE GsfProxy_GH"
+    echo "Including EXTEND_ROM_PACKAGES $EXTEND_ROM_PACKAGES"
+fi
 
 ## CLEAN_OUTDIR
 if [ "$CLEAN_OUTDIR" = true ]; then
