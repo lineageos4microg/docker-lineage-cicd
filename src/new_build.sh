@@ -136,7 +136,7 @@ fi
 ## ENABLE_EXTENDROM
 if [ "$ENABLE_EXTENDROM" = true ]  ; then
     ### ToDo: add FakeStore_GH when extendrom issue #51 is fixed
-    EXTENDROM_PACKAGES="$EXTENDROM_PACKAGES F-Droid MicrogGmsCore_GH_v037 GsfProxy_GH"
+    EXTENDROM_PACKAGES="$EXTENDROM_PACKAGES F-Droid MicrogGmsCore_GH_v037 FakeStore_GH GsfProxy_GH"
     echo "Including EXTEND_ROM_PACKAGES $EXTENDROM_PACKAGES"
 fi
 
