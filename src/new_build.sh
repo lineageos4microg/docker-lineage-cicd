@@ -81,6 +81,7 @@ do_cleanup() {
       echo ">> [$(date)] Removing $TMP_DIR for device $codename" | tee -a "$DEBUG_LOG"
       cd "$TMP_DIR"
       rm -rf ./* || true
+      cd "$source_dir"
     else
       cd "$source_dir"
       echo ">> [$(date)] Removing $PWD/out" | tee -a "$DEBUG_LOG"
