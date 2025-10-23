@@ -135,7 +135,6 @@ fi
 
 ## ENABLE_EXTENDROM
 if [ "$ENABLE_EXTENDROM" = true ]  ; then
-    ### ToDo: add FakeStore_GH when extendrom issue #51 is fixed
     EXTENDROM_PACKAGES="$EXTENDROM_PACKAGES F-Droid MicrogGmsCore_GH_v037 FakeStore_GH GsfProxy_GH"
     echo "Including EXTEND_ROM_PACKAGES $EXTENDROM_PACKAGES"
 fi
@@ -558,4 +557,9 @@ done
 if [ -f /root/userscripts/end.sh ]; then
   echo ">> [$(date)] Running end.sh"
   /root/userscripts/end.sh || echo ">> [$(date)] Error: end.sh failed!"
+fi
+
+if [ "$CLEAN_AFTER_BUILD" = true ]; then
+    echo ">> [$(date)] Removing $PWD/vendor/extendrom)" | tee -a "$DEBUG_LOG"
+    rm -rf vendor/extendrom || true
 fi
