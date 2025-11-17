@@ -420,7 +420,8 @@ for codename in ${devices//,/ }; do
     fi
 
     # Apply the PlayIntegrity patch if the APPLY_PI_PATCH is set
-    if [ "$APPLY_PI_PATCH" = true ]; then
+    # but not for `gta4l` & gta4lwifi
+    if [ "$APPLY_PI_PATCH" = true ] && [ "$codename" != gta4l ] && [ "$codename" != gta4lwifi ]; then
       echo ">> [$(date)] Applying the PlayIntegrity patch for $codename" >> "$DEBUG_LOG"
       cd system/core
 
@@ -431,7 +432,7 @@ for codename in ${devices//,/ }; do
         echo ">> [$(date)] Error: Applying the PlayIntegrity patch failed for $codename on $branch!"; userscriptfail=true; continue; }
       cd ../..
     else
-      echo ">> [$(date)] Applying PlayIntegrity patch disabled" | tee -a "$repo_log"
+      echo ">> [$(date)] Applying PlayIntegrity patch disabled"  >> "$DEBUG_LOG"
     fi
 
     # Call pre-build.sh
