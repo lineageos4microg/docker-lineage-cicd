@@ -154,6 +154,10 @@ case "$PRODUCT" in
         themuppets_branch="lineage-22.2"
         android_version=15
         ;;
+      v7*)
+        themuppets_branch="lineage-23.0"
+        android_version=16
+        ;;
       *)
         echo ">> [$(date)] Building iodeOS branch $branch is not (yet) suppported"
         exit 1
