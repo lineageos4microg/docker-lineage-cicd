@@ -136,7 +136,7 @@ fi
 
 ## ENABLE_EXTENDROM
 if [ "$ENABLE_EXTENDROM" = true ]  ; then
-    EXTENDROM_PACKAGES="$EXTENDROM_PACKAGES F-Droid MicrogGmsCore_PRESIGNED FakeStore GsfProxy"
+    EXTENDROM_PACKAGES="$EXTENDROM_PACKAGES F-Droid FakeStore GsfProxy"
     echo "Including EXTEND_ROM_PACKAGES $EXTENDROM_PACKAGES"
     # extendrom needs the `requests` python module
     /usr/bin/python -m pip install requests &> /dev/null
