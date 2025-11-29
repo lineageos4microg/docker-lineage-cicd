@@ -83,8 +83,10 @@ do_cleanup() {
       cd "$source_dir"
       echo ">> [$(date)] Removing $PWD/out" | tee -a "$DEBUG_LOG"
       rm -rf out || true
-      echo ">> [$(date)] Removing $PWD/vendor" | tee -a "$DEBUG_LOG"
-      rm -rf vendor/* || true
+      echo ">> [$(date)] Removing $PWD/vendor(except extendrom)" | tee -a "$DEBUG_LOG"
+      cd vendor
+      find . -maxdepth 1 -type d -not -name "extendrom" -exec rm -rf {} \; || true
+      cd ..
       echo ">> [$(date)] Removing $PWD/.repo/local_manifests/roomservice.xml" | tee -a "$DEBUG_LOG"
       rm -f .repo/local_manifests/roomservice.xml
       echo ">> [$(date)] Cleaning system/core" | tee -a "$DEBUG_LOG"
