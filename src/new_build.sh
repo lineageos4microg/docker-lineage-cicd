@@ -437,6 +437,13 @@ for codename in ${devices//,/ }; do
       echo ">> [$(date)] Applying PlayIntegrity patch disabled"  >> "$DEBUG_LOG"
     fi
 
+    # Are we making a migration build?
+    # ToDo
+    # need or select the correct commit for the repopick
+    #
+    echo ">> [$(date)] NOT Applying migration build repopick 399285"
+    repopick -f 399285
+
     # Call pre-build.sh
     if [ -f /root/userscripts/pre-build.sh ]; then
       echo ">> [$(date)] Running pre-build.sh for $codename" >> "$DEBUG_LOG"
