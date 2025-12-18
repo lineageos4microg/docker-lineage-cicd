@@ -57,6 +57,9 @@ if [[ "$#" -eq 2 || "${3}" = "rsa" ]]; then
 elif [ "${3}" = "ec" ]; then
   ( openssl ecparam -name prime256v1 -genkey -noout | tee "${one}" > "${two}" ) &
   hash="-sha256"
+elif [ "${3}" = "apex" ]; then
+    ( openssl genrsa -f4 4096 | tee "${one}" > "${two}" ) &
+    hash="-sha256"
 else
   echo "Only accepts RSA or EC keytypes."
   exit 1
