@@ -526,6 +526,12 @@ for codename in ${devices//,/ }; do
   fi
 done
 
+if [ "$CLEAN_AFTER_BUILD" = true ]; then
+    # Now we can cleanup vendor/partner_gms)
+    echo ">> [$(date)] Removing $PWD/vendor/partner_gms" | tee -a "$DEBUG_LOG"
+    rm -rf vendor/partner_gms || true
+fi
+
 if [ -f /root/userscripts/end.sh ]; then
   echo ">> [$(date)] Running end.sh"
   /root/userscripts/end.sh || echo ">> [$(date)] Error: end.sh failed!"
