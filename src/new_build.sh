@@ -370,7 +370,18 @@ for codename in ${devices//,/ }; do
 
     # Set RELEASE_TYPE
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
+
+    echo "###RIK before sed hackery: $(grep "LINEAGE_VERSION_SUFFIX :=" "$makefile_containing_version")"
+
     sed -i "/\$(filter .*\$(${vendor^^}_BUILDTYPE)/,/endif/d" "$makefile_containing_version"
+
+    echo "###RIK after sed hackery: $(grep "LINEAGE_VERSION_SUFFIX :=" "$makefile_containing_version")"
+
+    # rik hack to re-add $(LINEAGE_BUILDTYPE) (which is set to $RELEASE_TYPE) to LINEAGE_VERSION_SUFFIX (maybe iode removed it?)
+    # this is needed to add RELEASE_TYPE to outputted .zip which in turn is needed for OTA compatibility
+    sed -i -e 's@\($(LINEAGE_BUILD_DATE)\)-\($(LINEAGE_BUILD)\)@\1-$(LINEAGE_BUILDTYPE)-\2@' "$makefile_containing_version"
+
+    echo "###RIK final: $(grep "LINEAGE_VERSION_SUFFIX :=" "$makefile_containing_version")"
 
     # Set a custom updater URI if a OTA URL is provided
     echo ">> [$(date)] Adding OTA URL overlay (for custom URL $OTA_URL)"
