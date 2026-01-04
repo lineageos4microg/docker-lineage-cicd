@@ -379,7 +379,7 @@ for codename in ${devices//,/ }; do
 
     # rik hack to re-add $(LINEAGE_BUILDTYPE) (which is set to $RELEASE_TYPE) to LINEAGE_VERSION_SUFFIX (maybe iode removed it?)
     # this is needed to add RELEASE_TYPE to outputted .zip which in turn is needed for OTA compatibility
-    sed -i -e "s@\($(LINEAGE_BUILD_DATE)\)-\($(LINEAGE_BUILD)\)@\1-$(LINEAGE_BUILDTYPE)-\2@" "$makefile_containing_version"
+    sed -i -e "s@\(\$(LINEAGE_BUILD_DATE)\)-\(\$(LINEAGE_BUILD)\)@\1-\$(LINEAGE_BUILDTYPE)-\2@" "$makefile_containing_version"
 
     echo "###RIK final: $(grep "LINEAGE_VERSION_SUFFIX :=" "$makefile_containing_version")"
 
