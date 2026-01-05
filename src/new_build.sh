@@ -395,7 +395,7 @@ for codename in ${devices//,/ }; do
     if [ -f /root/userscripts/before.sh ]; then
       echo ">> [$(date)] Running before.sh"
       echo "before.sh is now called *after* repo sync."
-      echo "In previous versions, iot was called *before* repo sync"
+      echo "In previous versions, it was called *before* repo sync"
       /root/userscripts/before.sh "$branch" || { echo ">> [$(date)] Error: before.sh failed for $branch!"; userscriptfail=true; continue; }
     fi
 
