@@ -362,14 +362,23 @@ for codename in ${devices//,/ }; do
     if [ -f "vendor/$vendor/config/version.mk" ]; then
       makefile_containing_version="vendor/$vendor/config/version.mk"
     fi
-    los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "$makefile_containing_version")
-    los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
-    los_ver="$los_ver_major.$los_ver_minor"
+    # 2026-01-04 rik: now setting version number after .prop file generated to
+    #   accomodate both lineage and iodé 7+ logic. I don't think $los_ver is
+    #   needed before that so I am removing the logic below to set it.
+    # los_ver_major=$(sed -n -e 's/^\s*PRODUCT_VERSION_MAJOR = //p' "$makefile_containing_version")
+    # los_ver_minor=$(sed -n -e 's/^\s*PRODUCT_VERSION_MINOR = //p' "$makefile_containing_version")
+    # los_ver="$los_ver_major.$los_ver_minor"
 
 #    DEBUG_LOG="$LOGS_DIR/$logsubdir/lineage-$los_ver-$builddate-$RELEASE_TYPE-$codename.log"
 
     # Set RELEASE_TYPE
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
+
+    # 2026-01-04 rik: hack to re-add $(LINEAGE_BUILDTYPE) (which is set to $RELEASE_TYPE)
+    #   to LINEAGE_VERSION_SUFFIX: this is needed to add RELEASE_TYPE to outputted .zip
+    #   which in turn is needed for OTA compatibility.
+    sed -i -e "s@\(\$(LINEAGE_BUILD_DATE)\)-\(\$(LINEAGE_BUILD)\)@\1-\$(LINEAGE_BUILDTYPE)-\2@" "$makefile_containing_version"
+
     sed -i "/\$(filter .*\$(${vendor^^}_BUILDTYPE)/,/endif/d" "$makefile_containing_version"
 
     # Set a custom updater URI if a OTA URL is provided
@@ -488,6 +497,14 @@ for codename in ${devices//,/ }; do
         for build in "$PRODUCT_PREFIX"-*.zip; do
           cp -v system/build.prop "$ZIP_DIR/$zipsubdir/$build.prop" &>> "$DEBUG_LOG"
           mv "$build" "$ZIP_DIR/$zipsubdir/" &>> "$DEBUG_LOG"
+
+          # 2026-01-04 rik: iodé 7 changes now do not change PRODUCT_VERSION_MAJOR and MINOR
+          #     but keep those using the Lineage version in version.mk.
+          #     Instead, IODE_VERSION_MAJOR and MINOR have been added.
+          #
+          #     So in order to consistently set version name for .img files just get from created zip.
+          VERSION_FULL=$(echo "$build" | cut -d - -f 2)
+
           files_to_hash+=( "$build" )
         done
 
@@ -500,7 +517,7 @@ for codename in ${devices//,/ }; do
         # rename and copy the images to the zips directory
         for image in recovery boot vendor_boot dtbo super_empty vbmeta vendor_kernel_boot init_boot; do
           if [ -f "$image.img" ]; then
-            recovery_name="$PRODUCT_PREFIX-$los_ver-$builddate-$RELEASE_TYPE-$codename-$image.img"
+            recovery_name="$PRODUCT_PREFIX-$VERSION_FULL-$builddate-$RELEASE_TYPE-$codename-$image.img"
             echo ">> [$(date)] Copying $image.img" to "$ZIP_DIR/$zipsubdir/$recovery_name" >> "$DEBUG_LOG"
             cp "$image.img" "$ZIP_DIR/$zipsubdir/$recovery_name" &>> "$DEBUG_LOG"
             files_to_hash+=( "$recovery_name" )
@@ -521,16 +538,16 @@ for codename in ${devices//,/ }; do
       # Remove old zips and logs
       if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
         if [ "$ZIP_SUBDIR" = true ]; then
-          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$los_ver" -N 1 "$ZIP_DIR/$zipsubdir"
+          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$VERSION_FULL" -N 1 "$ZIP_DIR/$zipsubdir"
         else
-          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$los_ver" -N 1 -c "$codename" "$ZIP_DIR"
+          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$VERSION_FULL" -N 1 -c "$codename" "$ZIP_DIR"
         fi
       fi
       if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
         if [ "$LOGS_SUBDIR" = true ]; then
-          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 "$LOGS_DIR/$logsubdir"
+          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$VERSION_FULL" -N 1 "$LOGS_DIR/$logsubdir"
         else
-          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$los_ver" -N 1 -c "$codename" "$LOGS_DIR"
+          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$VERSION_FULL" -N 1 -c "$codename" "$LOGS_DIR"
         fi
       fi
     else
