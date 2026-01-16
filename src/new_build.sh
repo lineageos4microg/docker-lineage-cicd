@@ -329,7 +329,9 @@ for codename in ${devices//,/ }; do
 
     if [ "$CALL_GIT_LFS_PULL" = true ]; then
       echo ">> [$(date)] Calling git lfs pull" | tee -a "$repo_log"
+      set +eu
       repo forall -v -c git lfs pull &>> "$repo_log"
+      set -eu
     else
       echo ">> [$(date)] Calling git lfs pull disabled" | tee -a "$repo_log"
     fi
