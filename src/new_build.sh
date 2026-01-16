@@ -483,15 +483,15 @@ for codename in ${devices//,/ }; do
     fi
 
     # Call mka
-    build_successful=true
+    build_successful=false
     if [ "$CALL_MKA" = true ]; then
       # Start the build
       echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
-      build_successful=false
       files_to_hash=()
 
       if (set +eu ; mka "${jobs_arg[@]}" target-files-package bacon) &>> "$DEBUG_LOG"; then
         echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
+        build_successful=true
 
         # Move the ROM zip files to the main OUT directory
         cd out/target/product/"$codename"
@@ -532,24 +532,25 @@ for codename in ${devices//,/ }; do
           sha256sum "$f" > "$ZIP_DIR/$zipsubdir/$f.sha256sum"
         done
         cd "$source_dir"
-        build_successful=true
       else
         echo ">> [$(date)] Failed build for $codename" | tee -a "$DEBUG_LOG"
       fi
 
       # Remove old zips and logs
-      if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
-        if [ "$ZIP_SUBDIR" = true ]; then
-          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$VERSION_FULL" -N 1 "$ZIP_DIR/$zipsubdir"
-        else
-          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$VERSION_FULL" -N 1 -c "$codename" "$ZIP_DIR"
+      if [ "$build_successful" = true ]; then
+        if [ "$DELETE_OLD_ZIPS" -gt "0" ]; then
+            if [ "$ZIP_SUBDIR" = true ]; then
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$VERSION_FULL" -N 1 "$ZIP_DIR/$zipsubdir"
+            else
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_ZIPS" -V "$VERSION_FULL" -N 1 -c "$codename" "$ZIP_DIR"
+            fi
         fi
-      fi
-      if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
-        if [ "$LOGS_SUBDIR" = true ]; then
-          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$VERSION_FULL" -N 1 "$LOGS_DIR/$logsubdir"
-        else
-          /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$VERSION_FULL" -N 1 -c "$codename" "$LOGS_DIR"
+        if [ "$DELETE_OLD_LOGS" -gt "0" ]; then
+            if [ "$LOGS_SUBDIR" = true ]; then
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$VERSION_FULL" -N 1 "$LOGS_DIR/$logsubdir"
+            else
+            /usr/bin/python /root/clean_up.py -n "$DELETE_OLD_LOGS" -V "$VERSION_FULL" -N 1 -c "$codename" "$LOGS_DIR"
+            fi
         fi
       fi
     else
