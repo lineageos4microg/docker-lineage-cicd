@@ -208,4 +208,5 @@ RUN ln -sf /proc/1/fd/1 /var/log/docker.log
 
 # Set the entry point to init.sh
 ################################
+SHELL ["/bin/bash", "-c"]
 ENTRYPOINT /root/init.sh
