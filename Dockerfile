@@ -1,4 +1,4 @@
-FROM ubuntu:22.04@sha256:1b8d8ff4777f36f19bfe73ee4df61e3a0b789caeff29caa019539ec7c9a57f95
+FROM ubuntu:24.04@sha256:cd1dba651b3080c3686ecf4e3c4220f026b521fb76978881737d24f200828b2b
 LABEL maintainer="Nicola Corna <nicola@corna.info>"
 
 # Environment variables
