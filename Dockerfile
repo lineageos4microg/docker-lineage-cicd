@@ -191,6 +191,7 @@ RUN apt-get -qq update && \
     gperf  imagemagick protobuf-compiler python3-protobuf lib32readline-dev lib32z1-dev \
     libdw-dev libelf-dev libgnutls28-dev lz4 libsdl1.2-dev libssl-dev libxml2 libxml2-utils \
     lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev \
+    cron openjdk-8-jdk wget \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \
