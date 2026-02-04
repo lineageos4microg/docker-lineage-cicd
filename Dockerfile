@@ -194,6 +194,13 @@ RUN apt-get -qq update && \
     cron openjdk-8-jdk wget \
     && rm -rf /var/lib/apt/lists/*
 
+# For Ubuntu 23.10 (mantic) or newer, install libncurses5 from 23.04 (lunar)
+RUN wget https://archive.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2_amd64.deb && dpkg -i libtinfo5_6.3-2_amd64.deb && rm -f libtinfo5_6.3-2_amd64.deb
+RUN wget https://archive.ubuntu.com/ubuntu/pool/universe/n/ncurses/libncurses5_6.3-2_amd64.deb && dpkg -i libncurses5_6.3-2_amd64.deb && rm -f libncurses5_6.3-2_amd64.deb
+
+
+
+
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo
 
