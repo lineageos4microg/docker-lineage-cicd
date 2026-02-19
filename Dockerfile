@@ -1,4 +1,4 @@
-FROM ubuntu:22.04@sha256:1b8d8ff4777f36f19bfe73ee4df61e3a0b789caeff29caa019539ec7c9a57f95
+FROM ubuntu:24.04@sha256:cd1dba651b3080c3686ecf4e3c4220f026b521fb76978881737d24f200828b2b
 LABEL maintainer="Nicola Corna <nicola@corna.info>"
 
 # Environment variables
@@ -172,22 +172,38 @@ VOLUME $USERSCRIPTS_DIR
 # Create missing directories
 ############################
 RUN mkdir -p $MIRROR_DIR $SRC_DIR $TMP_DIR $CCACHE_DIR $ZIP_DIR $LMANIFEST_DIR \
-      $KEYS_DIR $LOGS_DIR $USERSCRIPTS_DIR
+    $KEYS_DIR $LOGS_DIR $USERSCRIPTS_DIR
 
 # Install build dependencies
 ############################
+# RUN apt-get -qq update && \
+#       apt-get install -y bc bison bsdmainutils build-essential ccache cgpt clang \
+#       cron curl flex g++-multilib gcc-multilib git git-lfs gnupg gperf imagemagick \
+#       kmod lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool \
+#       libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 \
+#       libxml2-utils lsof lzop maven openjdk-8-jdk pngcrush procps python3 \
+#       python-is-python3 rsync schedtool squashfs-tools wget xdelta3 xsltproc yasm zip \
+#       zlib1g-dev \
+#       && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get -qq update && \
-      apt-get install -y bc bison bsdmainutils build-essential ccache cgpt clang \
-      cron curl flex g++-multilib gcc-multilib git git-lfs gnupg gperf imagemagick \
-      kmod lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool \
-      libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 \
-      libxml2-utils lsof lzop maven openjdk-8-jdk pngcrush procps python3 \
-      python-is-python3 rsync schedtool squashfs-tools wget xdelta3 xsltproc yasm zip \
-      zlib1g-dev \
-      && rm -rf /var/lib/apt/lists/*
+    apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git git-lfs gnupg \
+    gperf  imagemagick protobuf-compiler python3-protobuf lib32readline-dev lib32z1-dev \
+    libdw-dev libelf-dev libgnutls28-dev lz4 libsdl1.2-dev libssl-dev libxml2 libxml2-utils \
+    lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev \
+    python-is-python3 \
+    cron openjdk-8-jdk wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# For Ubuntu 23.10 (mantic) or newer, install libncurses5 from 23.04 (lunar)
+RUN wget https://archive.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2_amd64.deb && dpkg -i libtinfo5_6.3-2_amd64.deb && rm -f libtinfo5_6.3-2_amd64.deb
+RUN wget https://archive.ubuntu.com/ubuntu/pool/universe/n/ncurses/libncurses5_6.3-2_amd64.deb && dpkg -i libncurses5_6.3-2_amd64.deb && rm -f libncurses5_6.3-2_amd64.deb
+
+
+
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo && \
-      chmod a+x /usr/local/bin/repo
+    chmod a+x /usr/local/bin/repo
 
 # Re-enable TLSv1 and TLSv1.1 in OpenJDK 8 config
 #(for cm-14.1/lineage-15.1, might be removed later)
