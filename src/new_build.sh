@@ -155,7 +155,7 @@ case "$PRODUCT" in
         android_version=15
         ;;
       v7*)
-        themuppets_branch="lineage-23.0"
+        themuppets_branch="lineage-23.2"
         android_version=16
         ;;
       *)
