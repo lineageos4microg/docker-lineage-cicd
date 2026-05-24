@@ -429,8 +429,9 @@ for codename in ${devices//,/ }; do
 
       git reset --hard
       git clean -q -fd
-      wget -q https://git.disroot.org/flame-0/android_vendor_extra/raw/branch/main/patches/system_core/0001-Pass-SafetyNet.patch
-      git apply 0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
+      #wget -q https://git.disroot.org/flame-0/android_vendor_extra/raw/branch/main/patches/system_core/0001-Pass-SafetyNet.patch
+      wget -q https://raw.githubusercontent.com/petefoth/android_vendor_extra/refs/heads/lineage-23.2/patches/system_core/0001-Pass-SafetyNet.patch && 
+        git apply 0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
         echo ">> [$(date)] Error: Applying the PlayIntegrity patch failed for $codename on $branch!"; userscriptfail=true; continue; }
       cd ../..
     else
