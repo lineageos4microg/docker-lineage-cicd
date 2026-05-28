@@ -424,12 +424,13 @@ for codename in ${devices//,/ }; do
     # Apply the PlayIntegrity patch if the APPLY_PI_PATCH is set
     # but not for `gta4l` & gta4lwifi
     if [ "$APPLY_PI_PATCH" = true ] && [ "$codename" != gta4l ] && [ "$codename" != gta4lwifi ]; then
-      echo ">> [$(date)] Applying the PlayIntegrity patch for $codename" >> "$DEBUG_LOG"
+        echo ">> [$(date)] Applying the PlayIntegrity patch for $codename" >> "$DEBUG_LOG"
+        echo ">> [$(date)] Applying the PlayIntegrity patch for $codename"
       cd system/core
 
       git reset --hard
       git clean -q -fd
-     
+
       wget -q https://raw.githubusercontent.com/lineageos4microg/patches/refs/heads/main/system_core/0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
         echo ">> [$(date)] Error: Fetching the PlayIntegrity patch $codename on $branch!"; userscriptfail=true; continue; }
       git apply 0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
