@@ -431,9 +431,9 @@ for codename in ${devices//,/ }; do
       git reset --hard
       git clean -q -fd
 
-      wget -q https://raw.githubusercontent.com/lineageos4microg/patches/refs/heads/main/system_core/0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
+      wget -q https://raw.githubusercontent.com/lineageos4microg/patches/refs/heads/main/system_core/updated-SafetyNet-and-Play-Integrity-spoofing.patch &>> "$DEBUG_LOG" || {
         echo ">> [$(date)] Error: Fetching the PlayIntegrity patch $codename on $branch!"; userscriptfail=true; continue; }
-      git apply 0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
+      git apply updated-SafetyNet-and-Play-Integrity-spoofing.patch &>> "$DEBUG_LOG" || {
         echo ">> [$(date)] Error: Applying the PlayIntegrity patch failed for $codename on $branch!"; userscriptfail=true; continue; }
       cd ../..
     else
