@@ -83,6 +83,10 @@ do_cleanup() {
       cd "$source_dir"
       echo ">> [$(date)] Removing $PWD/out" | tee -a "$DEBUG_LOG"
       rm -rf out || true
+      echo ">> [$(date)] Removing $PWD/device" | tee -a "$DEBUG_LOG"
+      rm -rf device || true
+      echo ">> [$(date)] Removing $PWD/kernel" | tee -a "$DEBUG_LOG"
+      rm -rf kernel || true
       echo ">> [$(date)] Removing $PWD/vendor(except partner_gms)" | tee -a "$DEBUG_LOG"
       cd vendor
       find . -maxdepth 1 -mindepth 1 -type d -not -name "partner_gms" -exec rm -rf {} \; || true
