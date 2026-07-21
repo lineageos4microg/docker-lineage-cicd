@@ -351,10 +351,24 @@ for codename in ${devices//,/ }; do
       mkdir -p "$updater_url_overlay_dir"
 
       if grep -q updater_server_url ${updater_values_dir}/strings.xml; then
-        # "New" updater configuration: full URL (with placeholders {device}, {type} and {incr})
-        sed "s|{name}|updater_server_url|g; s|{url}|$OTA_URL/v1/{device}/{type}/{incr}|g" /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
+        # "Newer" updater configuration:
+        #   - '/api/v1/' (22.2-, 23.2 prior to June 23, 2026)
+        #   - '/api/v2/' (23.2+ starting June 23, 2026 due to this LOS commit)
+        #       https://github.com/LineageOS/android_packages_apps_Updater/commit/4fd617cdba12cdd16840d26b27bae59c2871ee19
+        #
+        # "upstream_suffix" is the *upstream* OTA_URL format after the "/v[0-9]+/".
+        # This is appended that to the provided $OTA_URL so will work for
+        # v1 or v2 (or future versions as well):
+        #   LOS v1: https://download.lineageos.org/api/v1/{device}/{type}/{incr}
+        #   LOS v2: https://download.lineageos.org/api/v2/devices/{device}/builds
+        upstream_default_url=$(grep -oP '(?<=name="updater_server_url" translatable="false">)[^<]+' "${updater_values_dir}/strings.xml") 
+        echo ">> [$(date)] upstream OTA update url format: $upstream_default_url"
+        upstream_suffix=$(echo "$upstream_default_url" | grep -oP '/v[0-9]+/.*')
+        sed "s|{name}|updater_server_url|g; s|{url}|$OTA_URL$upstream_suffix|g" \
+          /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
+
       elif grep -q conf_update_server_url_def ${updater_values_dir}/strings.xml; then
-        # "Old" updater configuration: just the URL
+        # "Very Old" updater configuration: just the URL
         sed "s|{name}|conf_update_server_url_def|g; s|{url}|$OTA_URL|g" /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
       else
         echo ">> [$(date)] ERROR: no known Updater URL property found"
