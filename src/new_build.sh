@@ -133,10 +133,9 @@ case "$PRODUCT" in
     #   if in the future we don't need to manually set themuppets_branch
     #
     # get number after starting "v", non-numeric ending will be removed
-    #   branch_num=$(echo $branch | sed 's@^v\([0-9.]*\).*@\1@')
+    iode_branch_num=$(echo "${branch,,}" | sed 's@^v\([0-9.]*\).*@\1@')
     # iode major version is 9 smaller than android major version
-    #   android_version_major=$(echo "($branch_num + 9) / 1" | bc)
-
+    # iode_android_version_major=$(echo "($branch_num + 9) / 1" | bc)
     case "$branch" in
       v3*)
         themuppets_branch="lineage-19.1"
@@ -399,12 +398,50 @@ for codename in ${devices//,/ }; do
 
       updater_url_overlay_dir="vendor/$vendor/overlay/microg/${updater_values_dir}/"
       mkdir -p "$updater_url_overlay_dir"
-
       if grep -q updater_server_url ${updater_values_dir}/strings.xml; then
-        # "New" updater configuration: full URL (with placeholders {device}, {type} and {incr})
-        sed "s|{name}|updater_server_url|g; s|{url}|$OTA_URL/v1/{device}/{type}/{incr}|g" /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
+        # "Newer" updater configuration:
+        #   - '/api/v1/' (22.2-, 23.2 prior to June 23, 2026)
+        #   - '/api/v2/' (23.2+ starting June 23, 2026 due to this LOS commit)
+        #       https://github.com/LineageOS/android_packages_apps_Updater/commit/4fd617cdba12cdd16840d26b27bae59c2871ee19
+        #
+        # "ota_suffix" for Lineage builds is the *upstream* OTA_URL format
+        # after the "/v[0-9]+/". This is appended that to the provided $OTA_URL
+        # so will work for /v1/ or /v2/ (or future versions as well):
+        #   LOS v1: https://download.lineageos.org/api/v1/{device}/{type}/{incr}
+        #   LOS v2: https://download.lineageos.org/api/v2/devices/{device}/builds
+        #
+        # For iodéOS builds, there is no /v1/ or /v2/ in the upstream OTA_URL
+        # so will just need to manually assign /v2/ format for version 7.7+ and
+        # /v1/ format for 7.6- (as of 22 Jul, 2026 v7-staging is /v2/)
+        #   iodéOS OTA_URL format: https://ota.iode.tech/{ver}/{device}.json
+        ota_suffix=""
+        upstream_default_url=$(grep -oP '(?<=name="updater_server_url" translatable="false">)[^<]+' "${updater_values_dir}/strings.xml") 
+        if [[ "$upstream_default_url" =~ \/v[0-9]+\/ ]]; then
+          # Lineage format
+          echo ">> [$(date)] LineageOS upstream OTA url format: $upstream_default_url"
+          ota_suffix=$(echo "$upstream_default_url" | grep -oP '/v[0-9]+/.*')
+        elif [[ "$upstream_default_url" =~ ota\.iode\.tech ]]; then
+          # iodeOS format
+          echo ">> [$(date)] iodéOS upstream OTA url format: $upstream_default_url"
+          # iode_branch_num 7 would mean "v7-staging" so is "greater" than 7.6 :-)
+          # So if branch is exactly v7-staging or >= 7.7 then new /v2/ format needed
+          if [ "${branch,,}" = "v7-staging" ] || [[ $(echo "$iode_branch_num>=7.7" | bc) == 1 ]]; then
+            # use /v2/ format
+            ota_suffix='/v2/devices/{device}/builds'
+          else
+            # use /v1/ format
+            ota_suffix='/v1/{device}/{type}/{incr}'
+          fi
+        else
+          echo ">> [$(date)] WARNING: upstream Updater URL not supported: $upstream_default_url"
+        fi
+        # Finally, set full OTA url format for build
+        echo ">> [$(date)] OTA url format for build: $OTA_URL$ota_suffix"
+        sed "s|{name}|updater_server_url|g; s|{url}|$OTA_URL$ota_suffix|g" \
+          /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
+
       elif grep -q conf_update_server_url_def ${updater_values_dir}/strings.xml; then
-        # "Old" updater configuration: just the URL
+        # "Very Old" updater configuration: just the URL
         sed "s|{name}|conf_update_server_url_def|g; s|{url}|$OTA_URL|g" /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
       else
         echo ">> [$(date)] ERROR: no known Updater URL property found"
