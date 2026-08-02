@@ -1,3 +1,4 @@
+
 --- a/src/com/android/permissioncontroller/permission/utils/Utils.java
 +++ b/src/com/android/permissioncontroller/permission/utils/Utils.java
 @@ -23,6 +23,7 @@
