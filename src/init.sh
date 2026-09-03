@@ -33,6 +33,7 @@ fi
 # Initialize Git user information
 git config --global user.name "$USER_NAME"
 git config --global user.email "$USER_MAIL"
+git config --global http.version HTTP/1.1
 
 if [ "$SIGN_BUILDS" = true ]; then
   for c in bluetooth media networkstack nfc platform releasekey sdk_sandbox shared testcert verity ; do
