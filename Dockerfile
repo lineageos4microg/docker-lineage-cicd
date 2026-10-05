@@ -52,6 +52,7 @@ ENV OTA_URL=''
 
 # LOS Udater app links to these URLs, which default to pages on their Wiki
 # Use them to point to your own website instead
+# They will only be processed if OTA_URL is not an empty string
 ENV DOWNLOADS_URL=''
 ENV CHANGELOG_URL=''
 ENV REPORT_ISSUE_URL=''
