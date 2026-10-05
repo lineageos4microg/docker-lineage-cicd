@@ -50,6 +50,12 @@ ENV RELEASE_TYPE='UNOFFICIAL'
 # Use this in combination with LineageOTA to make sure your device can auto-update itself from this buildbot
 ENV OTA_URL=''
 
+# LOS Udater app links to these URLs, which default to pages on their Wiki
+# Use them to point to your own website instead
+ENV DOWNLOADS_URL=''
+ENV CHANGELOG_URL=''
+ENV REPORT_ISSUE_URL=''
+
 # User identity
 ENV USER_NAME='LineageOS Buildbot'
 ENV USER_MAIL='lineageos-buildbot@docker.host'
