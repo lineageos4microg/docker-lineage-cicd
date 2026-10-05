@@ -333,6 +333,7 @@ for codename in ${devices//,/ }; do
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
     sed -i "/\$(filter .*\$(${vendor^^}_BUILDTYPE)/,/endif/d" "$makefile_containing_version"
 
+    # Handle the URLs used by the Updater app
     # Set a custom updater URI if a OTA URL is provided
     echo ">> [$(date)] Adding OTA URL overlay (for custom URL $OTA_URL)"
     if [ -n "$OTA_URL" ]; then
@@ -373,6 +374,21 @@ for codename in ${devices//,/ }; do
       else
         echo ">> [$(date)] ERROR: no known Updater URL property found"
         exit 1
+      fi
+
+      if [ -n "$DOWNLOADS_URL" ]; then
+          # modify `menu_downloads_url` in `config.xml`
+          # string to replace is "https://download.lineageos.org/devices/<xliff:g id="device_name">%1$s</xliff:g>/builds"
+      fi
+
+      if [ -n "$CHANGELOG_URL" ]; then
+          # modify `menu_changelog_url` in `strings.xml`
+          # string to replace is "https://download.lineageos.org/<xliff:g id="device_name">%1$s</xliff:g>/changes"
+      fi
+
+      if [ -n "$REPORT_ISSUE_URL" ]; then
+          # modify `report_issue_url`  in `strings.xml`
+          # string to replace is "https://wiki.lineageos.org/how-to/bugreport"
       fi
     fi
 
