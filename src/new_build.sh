@@ -377,18 +377,27 @@ for codename in ${devices//,/ }; do
       fi
 
       if [ -n "$DOWNLOADS_URL" ]; then
-          # modify `menu_downloads_url` in `config.xml`
+          # modify `menu_downloads_url` in `"$updater_url_overlay_dir/config.xml"`
           # string to replace is "https://download.lineageos.org/devices/<xliff:g id="device_name">%1$s</xliff:g>/builds"
+          # To Do
+          # call sed to replace the string
+          echo ">> [$(date)] Updating Downloads URL property"
       fi
 
       if [ -n "$CHANGELOG_URL" ]; then
-          # modify `menu_changelog_url` in `strings.xml`
+          # modify `menu_changelog_url` in `"$updater_url_overlay_dir/strings.xml"`
           # string to replace is "https://download.lineageos.org/<xliff:g id="device_name">%1$s</xliff:g>/changes"
+          # To Do
+          # call sed to replace the string
+          echo ">> [$(date)] Updating Changelog URL property"
       fi
 
       if [ -n "$REPORT_ISSUE_URL" ]; then
-          # modify `report_issue_url`  in `strings.xml`
+          # modify `report_issue_url`  in `"$updater_url_overlay_dir/strings.xml"`
           # string to replace is "https://wiki.lineageos.org/how-to/bugreport"
+          # To Do
+          # call sed to replace the string
+          echo ">> [$(date)] Updating Report Issue URL property"
       fi
     fi
 
