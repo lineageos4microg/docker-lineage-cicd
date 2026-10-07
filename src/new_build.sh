@@ -137,14 +137,12 @@ if [ "$CLEAN_OUTDIR" = true ]; then
 fi
 
 ## PARALLEL_JOBS
-jobs_arg=()
 sync_jobs_arg=()
 mka_jobs_arg=()
 
 if [ -n "${PARALLEL_JOBS-}" ]; then
   if [[ "$PARALLEL_JOBS" =~ ^[1-9][0-9]*$ ]]; then
     #set all jobs args (so we don't break existing usage)
-    jobs_arg+=( "-j$PARALLEL_JOBS" )
     sync_jobs_arg+=( "-j$PARALLEL_JOBS" )
     mka_jobs_arg+=( "-j$PARALLEL_JOBS" )
   else
