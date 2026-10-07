@@ -138,14 +138,40 @@ fi
 
 ## PARALLEL_JOBS
 jobs_arg=()
+sync_jobs_arg=()
+mka_jobs_arg=()
+
 if [ -n "${PARALLEL_JOBS-}" ]; then
   if [[ "$PARALLEL_JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    #set all jobs args (so we don't break existing usage)
     jobs_arg+=( "-j$PARALLEL_JOBS" )
+    sync_jobs_arg+=( "-j$PARALLEL_JOBS" )
+    mka_jobs_arg+=( "-j$PARALLEL_JOBS" )
   else
     echo "PARALLEL_JOBS is not a positive number: $PARALLEL_JOBS"
     exit 1
   fi
 fi
+
+if [ -n "${SYNC_JOBS-}" ]; then
+  if [[ "$SYNC_JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    sync_jobs_arg+=( "-j$SYNC_JOBS" )
+  else
+    echo "SYNC_JOBS is not a positive number: $SYNC_JOBS"
+    exit 1
+  fi
+fi
+
+if [ -n "${MKA_JOBS-}" ]; then
+  if [[ "$MKA_JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    sync_jobs_arg+=( "-j$MKA_JOBS" )
+  else
+    echo "MKA_JOBS is not a positive number: $MKA_JOBS"
+    exit 1
+  fi
+fi
+
+
 
 ## RETRY_FETCHES
 retry_fetches_arg=()
