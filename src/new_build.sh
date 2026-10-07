@@ -171,8 +171,6 @@ if [ -n "${MKA_JOBS-}" ]; then
   fi
 fi
 
-
-
 ## RETRY_FETCHES
 retry_fetches_arg=()
 if [ -n "${RETRY_FETCHES-}" ]; then
@@ -234,7 +232,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
   if [ "$SYNC_MIRROR" = true ]; then
     echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-    repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+    repo sync "${sync_jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
 
   else
     echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
@@ -289,7 +287,7 @@ for codename in ${devices//,/ }; do
     if [ "$CALL_REPO_SYNC" = true ]; then
       set +eu
       echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-      repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --current-branch --force-sync &>> "$repo_log"
+      repo sync "${sync_jobs_arg[@]}" "${retry_fetches_arg[@]}" --current-branch --force-sync &>> "$repo_log"
       repo_sync_returncode=$?
       set -eu
     else
@@ -498,7 +496,7 @@ for codename in ${devices//,/ }; do
       build_successful=false
       files_to_hash=()
 
-      if (set +eu ; mka "${jobs_arg[@]}" target-files-package bacon) &>> "$DEBUG_LOG"; then
+      if (set +eu ; mka "${mka_jobs_arg[@]}" target-files-package bacon) &>> "$DEBUG_LOG"; then
         echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
 
         # Move the ROM zip files to the main OUT directory
