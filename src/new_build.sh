@@ -162,7 +162,7 @@ fi
 
 if [ -n "${MKA_JOBS-}" ]; then
   if [[ "$MKA_JOBS" =~ ^[1-9][0-9]*$ ]]; then
-    sync_jobs_arg+=( "-j$MKA_JOBS" )
+    mka_jobs_arg+=( "-j$MKA_JOBS" )
   else
     echo "MKA_JOBS is not a positive number: $MKA_JOBS"
     exit 1
