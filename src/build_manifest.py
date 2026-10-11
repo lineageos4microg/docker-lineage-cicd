@@ -18,11 +18,13 @@
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 import argparse
+import sys
 
 try:
     from urllib.request import urlopen, Request
+    from urllib.error import HTTPError, URLError
 except ImportError:
-    from urllib2 import urlopen, Request
+    from urllib2 import urlopen, Request, HTTPError, URLError
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build an Android repo manifest')
@@ -34,7 +36,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     request = Request(args.url, headers={"User-Agent": "Mozilla/5.0"})
-    source_manifest = urlopen(request).read()
+    try:
+        source_manifest = urlopen(request).read()
+    except (HTTPError, URLError) as e:
+        # A mirror that does not (yet) carry this branch is not fatal: the
+        # caller may be able to proceed without it, so warn and write an
+        # empty manifest instead of aborting the whole build.
+        reason = getattr(e, 'code', None) or getattr(e, 'reason', e)
+        sys.stderr.write(
+            "WARNING: could not fetch manifest %s (%s); "
+            "writing empty manifest to %s\n" % (args.url, reason, args.out))
+        with open(args.out, "w") as f:
+            f.write('<?xml version="1.0" encoding="UTF-8"?>\n<manifest>\n</manifest>\n')
+        sys.exit(0)
 
     xmlin = ET.fromstring(source_manifest)
     xmlout = ET.Element("manifest")
