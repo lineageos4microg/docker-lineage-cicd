@@ -453,7 +453,7 @@ for codename in ${devices//,/ }; do
       # still needed, and the replacement body is unchanged.
       pi_patch="0001-Pass-SafetyNet.patch"
       if [ "$android_version_major" -ge "17" ]; then
-        pi_patch="0001-Pass-SafetyNet-24.0.patch"
+        pi_patch="0001-Pass-SafetyNet-24.0-and-up.patch"
       fi
 
       wget -q "https://raw.githubusercontent.com/lineageos4microg/patches/refs/heads/main/system_core/$pi_patch" &>> "$DEBUG_LOG" || {
