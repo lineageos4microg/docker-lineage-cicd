@@ -448,9 +448,17 @@ for codename in ${devices//,/ }; do
       git reset --hard
       git clean -q -fd
      
-      wget -q https://raw.githubusercontent.com/lineageos4microg/patches/refs/heads/main/system_core/0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
-        echo ">> [$(date)] Error: Fetching the PlayIntegrity patch $codename on $branch!"; userscriptfail=true; continue; }
-      git apply 0001-Pass-SafetyNet.patch &>> "$DEBUG_LOG" || {
+      # Android 17 rewrote GetDeviceLockStatus() in fastboot/device/utility.cpp,
+      # so the hunk anchored on the old context no longer applies. The patch is
+      # still needed, and the replacement body is unchanged.
+      pi_patch="0001-Pass-SafetyNet.patch"
+      if [ "$android_version_major" -ge "17" ]; then
+        pi_patch="0001-Pass-SafetyNet-24.0-and-up.patch"
+      fi
+
+      wget -q "https://raw.githubusercontent.com/lineageos4microg/patches/refs/heads/main/system_core/$pi_patch" &>> "$DEBUG_LOG" || {
+        echo ">> [$(date)] Error: Fetching the PlayIntegrity patch $pi_patch for $codename on $branch!"; userscriptfail=true; continue; }
+      git apply "$pi_patch" &>> "$DEBUG_LOG" || {
         echo ">> [$(date)] Error: Applying the PlayIntegrity patch failed for $codename on $branch!"; userscriptfail=true; continue; }
       cd ../..
     else
