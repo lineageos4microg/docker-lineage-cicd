@@ -127,6 +127,16 @@ ENV BUILD_TYPE="userdebug"
 # we can use --depth=1 here
 ENV REPO_INIT_ARGS=""
 
+## Controlling parallel jobs
+# For both repo sync and mka
+ENV PARALLEL_JOBS=
+
+# for repo sync
+ENV SYNC_JOBS=
+
+# for mka
+ENV MKA_JOBS=
+
 # You can specify the number of retries for repo sync here. This is useful if you get connection errors during repo sync. The value will be directly forwarded to the repo command
 # Default: unset; repo uses default retry mechanism
 # Allowed values: positive, non-null integers
