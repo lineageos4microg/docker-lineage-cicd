@@ -188,12 +188,34 @@ if [ "$CLEAN_OUTDIR" = true ]; then
 fi
 
 ## PARALLEL_JOBS
-jobs_arg=()
+sync_jobs_arg=()
+mka_jobs_arg=()
+
 if [ -n "${PARALLEL_JOBS-}" ]; then
   if [[ "$PARALLEL_JOBS" =~ ^[1-9][0-9]*$ ]]; then
-    jobs_arg+=( "-j$PARALLEL_JOBS" )
+    #set all jobs args (so we don't break existing usage)
+    sync_jobs_arg+=( "-j$PARALLEL_JOBS" )
+    mka_jobs_arg+=( "-j$PARALLEL_JOBS" )
   else
     echo "PARALLEL_JOBS is not a positive number: $PARALLEL_JOBS"
+    exit 1
+  fi
+fi
+
+if [ -n "${SYNC_JOBS-}" ]; then
+  if [[ "$SYNC_JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    sync_jobs_arg+=( "-j$SYNC_JOBS" )
+  else
+    echo "SYNC_JOBS is not a positive number: $SYNC_JOBS"
+    exit 1
+  fi
+fi
+
+if [ -n "${MKA_JOBS-}" ]; then
+  if [[ "$MKA_JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    mka_jobs_arg+=( "-j$MKA_JOBS" )
+  else
+    echo "MKA_JOBS is not a positive number: $MKA_JOBS"
     exit 1
   fi
 fi
@@ -252,7 +274,7 @@ if [ "$LOCAL_MIRROR" = true ]; then
   fi
   if [ "$SYNC_MIRROR" = true ]; then
     echo ">> [$(date)] Syncing mirror repository" | tee -a "$repo_log"
-    repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
+    repo sync "${sync_jobs_arg[@]}" "${retry_fetches_arg[@]}" --force-sync --no-clone-bundle &>> "$repo_log"
 
   else
     echo ">> [$(date)] Sync mirror repository disabled" | tee -a "$repo_log"
@@ -308,7 +330,7 @@ for codename in ${devices//,/ }; do
     if [ "$CALL_REPO_SYNC" = true ]; then
       set +eu
       echo ">> [$(date)] Syncing branch repository" | tee -a "$repo_log"
-      repo sync "${jobs_arg[@]}" "${retry_fetches_arg[@]}" --current-branch --force-sync &>> "$repo_log"
+      repo sync "${sync_jobs_arg[@]}" "${retry_fetches_arg[@]}" --current-branch --force-sync &>> "$repo_log"
       repo_sync_returncode=$?
       set -eu
     else
@@ -526,7 +548,7 @@ for codename in ${devices//,/ }; do
       echo ">> [$(date)] Starting build for $codename, $branch branch" | tee -a "$DEBUG_LOG"
       files_to_hash=()
 
-      if (set +eu ; mka "${jobs_arg[@]}" target-files-package bacon) &>> "$DEBUG_LOG"; then
+      if (set +eu ; mka "${mka_jobs_arg[@]}" target-files-package bacon) &>> "$DEBUG_LOG"; then
         echo ">> [$(date)] Moving build artifacts for $codename to '$ZIP_DIR/$zipsubdir'" | tee -a "$DEBUG_LOG"
         build_successful=true
 
