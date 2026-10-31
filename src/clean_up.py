@@ -34,9 +34,9 @@ def clean_path(path, builds_to_keep, current_version, old_builds_to_keep,
     for (dirpath, dirnames, filenames) in walk(scandir):
         files.extend([dirpath+"/"+f for f in filenames])
 
-    files_re = compile(ROM_NAME + "-[\d,.]+-[\d]+-[\w]+-[\w]+[.,\w]+")
+    files_re = compile(ROM_NAME + r"-[\d,.]+-[\d]+-[\w]+-[\w]+[.,\w]+")
     build_files = [f for f in files if files_re.match(basename(f))]
-    build_re = compile(ROM_NAME + "-[\d,.]+-[\d]+-[\w]+-[\w]+")
+    build_re = compile(ROM_NAME + r"-[\d,.]+-[\d]+-[\w]+-[\w]+")
     builds = {}
 
     # builds = {codename: {buildname: (date, [path, ...]), ...}, ...}
