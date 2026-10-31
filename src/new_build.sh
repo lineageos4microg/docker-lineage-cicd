@@ -35,7 +35,7 @@
 #     - `repo sync`
 #     - setup our overlays
 #     - Set RELEASE_TYPE
-#     - Handle OTA_URL
+#     - Handle OTA_URL and other Updater config items
 #     - Add custom packages to be installed
 #     - Handle keys
 #     - Prepare the environment
@@ -355,8 +355,8 @@ for codename in ${devices//,/ }; do
     echo ">> [$(date)] Setting \"$RELEASE_TYPE\" as release type"
     sed -i "/\$(filter .*\$(${vendor^^}_BUILDTYPE)/,/endif/d" "$makefile_containing_version"
 
-    # Set a custom updater URI if a OTA URL is provided
-    echo ">> [$(date)] Adding OTA URL overlay (for custom URL $OTA_URL)"
+    # Set custom updater strings if a OTA URL is provided
+    echo ">> [$(date)] Adding OTA Updater overlay (for custom URL $OTA_URL)"
     if [ -n "$OTA_URL" ]; then
       if [ -d "packages/apps/Updater/app/src/main/res/values" ]; then
         # "New" Updater project structure
@@ -369,8 +369,11 @@ for codename in ${devices//,/ }; do
         exit 1
       fi
 
+      # create overlay for strings.xml and config.xml
       updater_url_overlay_dir="vendor/$vendor/overlay/microg/${updater_values_dir}/"
       mkdir -p "$updater_url_overlay_dir"
+      cp /root/packages_updater_config.xml "$updater_url_overlay_dir/config.xml"
+      cp /root/packages_updater_strings.xml "$updater_url_overlay_dir/strings.xml"
 
       if grep -q updater_server_url ${updater_values_dir}/strings.xml; then
         # "Newer" updater configuration:
@@ -379,23 +382,66 @@ for codename in ${devices//,/ }; do
         #       https://github.com/LineageOS/android_packages_apps_Updater/commit/4fd617cdba12cdd16840d26b27bae59c2871ee19
         #
         # "upstream_suffix" is the *upstream* OTA_URL format after the "/v[0-9]+/".
-        # This is appended that to the provided $OTA_URL so will work for
+        # This is appended to the provided $OTA_URL so will work for
         # v1 or v2 (or future versions as well):
         #   LOS v1: https://download.lineageos.org/api/v1/{device}/{type}/{incr}
         #   LOS v2: https://download.lineageos.org/api/v2/devices/{device}/builds
+
         upstream_default_url=$(grep -oP '(?<=name="updater_server_url" translatable="false">)[^<]+' "${updater_values_dir}/strings.xml") 
-        echo ">> [$(date)] upstream OTA update url format: $upstream_default_url"
+        echo ">> [$(date)] INFO: upstream OTA update url format: $upstream_default_url"
         upstream_suffix=$(echo "$upstream_default_url" | grep -oP '/v[0-9]+/.*')
-        sed "s|{name}|updater_server_url|g; s|{url}|$OTA_URL$upstream_suffix|g" \
-          /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
+        sed -i -e "s|{updater_server_url}|$OTA_URL$upstream_suffix|" \
+          "$updater_url_overlay_dir/strings.xml"
 
       elif grep -q conf_update_server_url_def ${updater_values_dir}/strings.xml; then
         # "Very Old" updater configuration: just the URL
-        sed "s|{name}|conf_update_server_url_def|g; s|{url}|$OTA_URL|g" /root/packages_updater_strings.xml > "$updater_url_overlay_dir/strings.xml"
+        sed -i -e "s|name=\"updater_server_url\"|name=\"conf_update_server_url_def\"|; s|{updater_server_url}|$OTA_URL|" \
+          "$updater_url_overlay_dir/strings.xml"
       else
         echo ">> [$(date)] ERROR: no known Updater URL property found"
         exit 1
       fi
+
+      # Handle additional strings introduced by the new 2026 Updater
+      if [ -n "$OTA_DOWNLOADS_URL" ]; then
+        sed -i -e "s|{menu_downloads_url}|$OTA_DOWNLOADS_URL|" \
+          "$updater_url_overlay_dir/config.xml"
+      else
+        echo ">> [$(date)] INFO: no OTA_DOWNLOADS_URL provided: using upstream URL"
+        # remove from overlay
+        sed -i "/{menu_downloads_url}/d" \
+          "$updater_url_overlay_dir/config.xml"
+      fi
+
+      if [ -n "$OTA_REPORT_ISSUE_URL" ]; then
+        sed -i -e "s|{report_issue_url}|$OTA_REPORT_ISSUE_URL|" \
+          "$updater_url_overlay_dir/strings.xml"
+      else
+        echo ">> [$(date)] INFO: no OTA_REPORT_ISSUE_URL provided: using upstream URL"
+        # remove from overlay
+        sed -i "/{report_issue_url}/d" \
+          "$updater_url_overlay_dir/strings.xml"
+      fi
+
+      if [ -n "$OTA_CHANGELOG_URL" ]; then
+        sed -i -e "s|{menu_changelog_url}|$OTA_CHANGELOG_URL|" \
+          "$updater_url_overlay_dir/strings.xml"
+      else
+        echo ">> [$(date)] INFO: no OTA_CHANGELOG_URL provided: using upstream URL"
+        # remove from overlay
+        sed -i "/{menu_changelog_url}/d" \
+          "$updater_url_overlay_dir/strings.xml"
+      fi
+
+      # Ensure any input ENV variable substitutions are performed
+      # 20261030 rik: Due to bug in new Updater, need shorter name to not overflow
+      #   header. Note that some languages already have an overflow issue such as
+      #   French due to the longer translation strings.
+      # TODO: review in future if BRAND_SHORT_NAME still needed
+      sed -i -e "s|{device}|$codename|g; s|{brand_name}|$BRAND_NAME|g; s|{brand_name_short}|$BRAND_NAME_SHORT|g" \
+        "$updater_url_overlay_dir/config.xml" \
+        "$updater_url_overlay_dir/strings.xml"
+
     fi
 
     # Add custom packages to be installed

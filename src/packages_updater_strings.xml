@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- Set a custom Updater URL -->
-    <string name="{name}" translatable="false">{url}</string>
+    <!-- Override strings defined in packages/apps/Updater/app/src/main/res/values/strings.xml -->
+    <string name="updater_server_url" translatable="false">{updater_server_url}</string>
+    <string name="report_issue_url" translatable="false">{report_issue_url}</string>
+    <string name="menu_changelog_url" translatable="false">{menu_changelog_url}</string>
+
+
+    <string name="brand_name" translatable="false">{brand_name}</string>
+    <string name="header_build_version" translatable="false">{brand_name_short} <xliff:g id="version" example="23.2">%1$s</xliff:g></string>
+
+    <string name="list_build_version">{brand_name} <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
+    <string name="list_build_version_date">{brand_name} <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
+
 
 </resources>

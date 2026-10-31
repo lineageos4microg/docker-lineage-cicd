@@ -43,12 +43,22 @@ ENV BRANCH_NAME='lineage-22.1'
 # eg. DEVICE_LIST=axolotl,barbet,beckham
 ENV DEVICE_LIST=''
 
+# User Friendly Brand Name (used by Updater)
+ENV BRAND_NAME='LineageOS for microG'
+# 20261030 rik: Due to bug in new Updater, need shorter name to not overflow
+#   header. Note that some languages already have an overflow issue such as
+#   French due to the longer translation strings.
+ENV BRAND_NAME_SHORT='LineageOS'
+
 # Release type string
 ENV RELEASE_TYPE='UNOFFICIAL'
 
-# OTA URL that will be used inside CMUpdater
+# OTA URLs that will be used inside CMUpdater
 # Use this in combination with LineageOTA to make sure your device can auto-update itself from this buildbot
 ENV OTA_URL=''
+ENV OTA_DOWNLOADS_URL=''
+ENV OTA_REPORT_ISSUE_URL=''
+ENV OTA_CHANGELOG_URL=''
 
 # User identity
 ENV USER_NAME='LineageOS Buildbot'
