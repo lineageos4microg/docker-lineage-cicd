@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Override strings defined in packages/apps/Updater/app/src/main/res/values/config.xml -->
+
+    <!-- URL template for opening the device-specific downloads page from the update menu. -->
+    <string name="menu_downloads_url" translatable="false">{menu_downloads_url}</string>
+
+</resources>
