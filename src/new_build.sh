@@ -431,7 +431,6 @@ for codename in ${devices//,/ }; do
         #   - '/api/v2/' (23.2+ starting June 23, 2026 due to this LOS commit)
         #       https://github.com/LineageOS/android_packages_apps_Updater/commit/4fd617cdba12cdd16840d26b27bae59c2871ee19
         #
-<<<<<<< HEAD
         # "ota_suffix" for Lineage builds is the *upstream* OTA_URL format
         # after the "/v[0-9]+/". This is appended that to the provided $OTA_URL
         # so will work for /v1/ or /v2/ (or future versions as well):
