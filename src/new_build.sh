@@ -421,12 +421,10 @@ for codename in ${devices//,/ }; do
       # create overlay for strings.xml and config.xml
       updater_url_overlay_dir="vendor/$vendor/overlay/microg/${updater_values_dir}/"
       mkdir -p "$updater_url_overlay_dir"
-<<<<<<< HEAD
-=======
+      
       cp /root/packages_updater_config.xml "$updater_url_overlay_dir/config.xml"
       cp /root/packages_updater_strings.xml "$updater_url_overlay_dir/strings.xml"
 
->>>>>>> df516b6 (accommodate additional Updater strings (#952))
       if grep -q updater_server_url ${updater_values_dir}/strings.xml; then
         # "Newer" updater configuration:
         #   - '/api/v1/' (22.2-, 23.2 prior to June 23, 2026)
