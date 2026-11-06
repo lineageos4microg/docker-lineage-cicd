@@ -92,7 +92,6 @@ ENV WITH_SU=false
 # Provide a default JACK configuration in order to avoid out-of-memory issues
 ENV ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
 
->>>>>>> 3f79862 (Fix LegacyKeyValueFormat warnings)
 # Custom packages to be installed
 ENV CUSTOM_PACKAGES=''
 
