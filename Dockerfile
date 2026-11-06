@@ -152,8 +152,8 @@ ENV MAKE_IMG_ZIP_FILE=false
 # lineage, iodeOS
 ENV PRODUCT=iodeOS
 ENV PRODUCT_PREFIX=iode
-ENV SRC_URL https://gitlab.iode.tech/os/public/manifests/android.git
-ENV MIRROR_URL https://github.com/LineageOS/mirror
+ENV SRC_URL=https://gitlab.iode.tech/os/public/manifests/android.git
+ENV MIRROR_URL=https://github.com/LineageOS/mirror
 
 # You can optionally specify a USERSCRIPTS_DIR volume containing these scripts:
 #  * begin.sh, run at the very beginning
