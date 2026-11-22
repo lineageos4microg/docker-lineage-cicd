@@ -6,5 +6,5 @@ See [the wiki in this repo](https://github.com/lineageos4microg/docker-lineage-c
 
 See the [LineageOS for microG project wiki](https://github.com/lineageos4microg/l4m-wiki/wiki) for information about the LineageOS for microG project 
 
-
+See the ['Contributing` page of the project wiki](https://github.com/lineageos4microg/l4m-wiki/wiki/Contributing#contributing) for information about how to contribute to the project
 
