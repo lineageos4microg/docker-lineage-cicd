@@ -617,7 +617,7 @@ for codename in ${devices//,/ }; do
     do_cleanup
     if [ "$userscriptfail" = true ]; then
       echo ">> [$(date)] One or more userscripts failed!"
-      exit 1
+      continue
     fi
   fi
 done
